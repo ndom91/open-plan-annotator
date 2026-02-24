@@ -30,7 +30,12 @@ The server shuts down after you decide. Everything runs locally, nothing leaves 
 npm install -g open-plan-annotator
 ```
 
-This downloads the correct binary for your platform (macOS, Linux).
+This JS shim downloads the correct binary for your platform (macOS, Linux).
+
+> [!NOTE]
+> If using pnpm, postinstall scripts will be blocked by default. You can run the
+> 'open-plan-annotator' manually to trigger a download, or the first invocation
+> by Claude will also trigger the binary download.
 
 **2. Add the marketplace and install the plugin**
 
@@ -42,6 +47,11 @@ From within Claude Code:
 ```
 
 This registers the `ExitPlanMode` hook that launches the annotation UI.
+
+
+> [!NOTE]
+> The first run might take a few seconds if you hadn't installed the binary, as
+> Claude will trigger the download then.
 
 ### From source
 
