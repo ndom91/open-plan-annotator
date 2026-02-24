@@ -155,19 +155,6 @@ export default function App() {
           )}
 
           <div className="w-full max-w-208">
-            {/* Diff view */}
-            {showDiff && hasPreviousVersion && !isViewingHistory && (
-              <div className="mb-6">
-                <DiffViewer
-                  oldText={history[history.length - 1]}
-                  newText={plan!}
-                  oldVersion={version - 1}
-                  newVersion={version}
-                  onClose={() => setShowDiff(false)}
-                />
-              </div>
-            )}
-
             {/* Document surface */}
             <main
               id="main-content"
@@ -182,6 +169,15 @@ export default function App() {
                 onToggleDiff={() => setShowDiff((v) => !v)}
                 hasPreviousVersion={hasPreviousVersion}
               />
+              {/* Diff view — between chrome and content */}
+              {showDiff && hasPreviousVersion && !isViewingHistory && (
+                <DiffViewer
+                  oldText={history[history.length - 1]}
+                  newText={plan!}
+                  oldVersion={version - 1}
+                  newVersion={version}
+                />
+              )}
               <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
                 <PlanDocument blocks={blocks} annotations={isViewingHistory ? [] : annotations} />
               </div>
