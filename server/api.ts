@@ -24,7 +24,7 @@ export function createRouter(state: ServerState) {
       const body = (await req.json()) as { annotations: Annotation[] };
       const feedback = serializeAnnotations(body.annotations);
       if (state.resolveDecision) {
-        state.resolveDecision({ approved: false, feedback });
+        state.resolveDecision({ approved: false, feedback, annotations: body.annotations });
         state.resolveDecision = null;
       }
       return Response.json({ ok: true });
@@ -35,6 +35,59 @@ export function createRouter(state: ServerState) {
       headers: { "Content-Type": "text/html; charset=utf-8" },
     });
   };
+}
+
+/**
+ * Apply annotations to the original plan text, producing a modified version.
+ * Annotations reference blocks by index and character offsets within block content.
+ */
+export function applyAnnotations(planContent: string, annotations: Annotation[]): string {
+  // Split plan into blocks (same logic as the UI markdown parser: split on double newlines)
+  const rawBlocks = planContent.split(/\n\n+/);
+
+  // Group annotations by block index, sorted by startOffset descending
+  // (apply from end to start so offsets stay valid)
+  const byBlock = new Map<number, Annotation[]>();
+  for (const ann of annotations) {
+    const list = byBlock.get(ann.blockIndex) ?? [];
+    list.push(ann);
+    byBlock.set(ann.blockIndex, list);
+  }
+
+  const modifiedBlocks = rawBlocks.map((block, index) => {
+    const blockAnnotations = byBlock.get(index);
+    if (!blockAnnotations) return block;
+
+    // Sort descending by startOffset so we can splice from the end
+    const sorted = [...blockAnnotations].sort((a, b) => b.startOffset - a.startOffset);
+
+    let result = block;
+    for (const ann of sorted) {
+      const before = result.slice(0, ann.startOffset);
+      const after = result.slice(ann.endOffset);
+
+      switch (ann.type) {
+        case "deletion":
+          result = before + after;
+          break;
+        case "replacement":
+          result = before + (ann.replacement ?? "") + after;
+          break;
+        case "insertion":
+          // Insert after the selected text
+          result = before + result.slice(ann.startOffset, ann.endOffset) + (ann.replacement ?? "") + after;
+          break;
+        case "comment":
+          // Comments don't modify the text
+          break;
+      }
+    }
+
+    return result;
+  });
+
+  // Filter out blocks that became empty after deletions
+  return modifiedBlocks.filter((b) => b.trim().length > 0).join("\n\n");
 }
 
 function serializeAnnotations(annotations: Annotation[]): string {
