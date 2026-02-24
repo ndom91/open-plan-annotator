@@ -1,13 +1,13 @@
 {
   "name": "open-plan-annotator",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
-  "author": "ndomino",
+  "author": "ndom91",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ndomino/open-plan-annotator.git"
+    "url": "git+https://github.com/ndom91/open-plan-annotator.git"
   },
   "keywords": [
     "claude-code",
