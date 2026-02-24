@@ -8,7 +8,7 @@ A fully local agentic coding plugin (claude-code, opencode) that intercepts plan
 
 Select text to strikethrough, replace, insert, or comment — then approve the plan or request changes.
 
-![](.github/assets/screenshot_001.png)
+![](.github/assets/screenshot_02.png)
 > UI for annotating LLM Plans
 
 ## How it works
