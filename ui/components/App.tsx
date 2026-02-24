@@ -86,7 +86,9 @@ export default function App() {
     return (
       <ThemeProvider>
         <div className="flex items-center justify-center min-h-screen bg-desk">
-          <div className="text-ink-tertiary text-sm tracking-wide">Loading plan...</div>
+          <div className="text-ink-tertiary text-sm tracking-wide" aria-live="polite">
+            Loading plan\u2026
+          </div>
         </div>
       </ThemeProvider>
     );
@@ -108,6 +110,12 @@ export default function App() {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-desk">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:bg-paper focus:text-ink focus:rounded-md focus:shadow-lg focus:text-sm focus:font-medium"
+        >
+          Skip to content
+        </a>
         <Header
           annotations={annotations}
           version={version}
@@ -121,7 +129,7 @@ export default function App() {
         />
 
         <div className="flex justify-center px-4 py-8 sm:px-6 lg:px-8">
-          <div className="w-full max-w-[52rem]">
+          <div className="w-full max-w-208">
             {/* Diff view */}
             {showDiff && hasPreviousVersion && (
               <div className="mb-6">
@@ -136,7 +144,11 @@ export default function App() {
             )}
 
             {/* Document surface */}
-            <main className="bg-paper border border-rule-subtle rounded-lg shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_32px_oklch(0_0_0/0.08)]">
+            <main
+              id="main-content"
+              tabIndex={-1}
+              className="bg-paper border border-rule-subtle rounded-lg shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_32px_oklch(0_0_0/0.08)]"
+            >
               <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
                 <PlanDocument blocks={blocks} annotations={annotations} />
               </div>

@@ -25,7 +25,7 @@ export function DiffViewer({ oldText, newText, oldVersion, newVersion, onClose }
         <button
           type="button"
           onClick={onClose}
-          className="text-xs text-ink-tertiary hover:text-ink-secondary transition-colors"
+          className="text-xs text-ink-tertiary hover:text-ink-secondary transition-colors rounded-md focus-visible:ring-2 focus-visible:ring-margin-note/50"
         >
           Close diff
         </button>

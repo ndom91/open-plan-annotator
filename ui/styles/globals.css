@@ -31,6 +31,7 @@ button:not(:disabled) {
 
 /* Light mode overrides (class-based toggle) */
 :root:not(.dark) {
+  color-scheme: light;
   --color-desk: oklch(0.95 0.005 260);
   --color-paper: oklch(0.99 0.002 80);
   --color-paper-edge: oklch(0.90 0.005 260);
@@ -49,6 +50,7 @@ button:not(:disabled) {
 }
 
 html {
+  color-scheme: dark;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
@@ -61,8 +63,10 @@ html {
 }
 
 /* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* Custom scrollbar */

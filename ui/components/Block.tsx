@@ -105,10 +105,12 @@ function renderSegments(segments: Segment[], useInline = true) {
         data-seg-start={seg.originalStart}
         data-seg-end={seg.originalEnd}
         className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help"
+        role="note"
+        aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
       >
         {content}
         {seg.annotation.comment && (
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper border border-rule shadow-[0_4px_16px_oklch(0_0_0/0.2)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-[40rem] opacity-0 group-hover/comment:opacity-100 transition-opacity z-50">
+          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper border border-rule shadow-[0_4px_16px_oklch(0_0_0/0.2)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-[40rem] opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity z-50">
             <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
             {seg.annotation.comment}
           </span>
@@ -178,25 +180,30 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
   switch (block.type) {
     case "heading": {
+      const level = Math.min(Math.max(block.level ?? 1, 1), 6);
       const sizeClasses: Record<number, string> = {
-        1: "text-2xl font-semibold tracking-tight mt-0 mb-6 text-ink",
-        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pb-2 border-b border-rule-subtle",
-        3: "text-base font-semibold tracking-tight mt-8 mb-2 text-ink",
-        4: "text-sm font-semibold mt-6 mb-2 text-ink",
-        5: "text-sm font-medium mt-5 mb-1.5 text-ink-secondary",
-        6: "text-xs font-medium mt-5 mb-1.5 text-ink-tertiary uppercase tracking-widest",
+        1: "text-2xl font-semibold tracking-tight mt-0 mb-6 text-ink scroll-mt-20",
+        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pb-2 border-b border-rule-subtle scroll-mt-20",
+        3: "text-base font-semibold tracking-tight mt-8 mb-2 text-ink scroll-mt-20",
+        4: "text-sm font-semibold mt-6 mb-2 text-ink scroll-mt-20",
+        5: "text-sm font-medium mt-5 mb-1.5 text-ink-secondary scroll-mt-20",
+        6: "text-xs font-medium mt-5 mb-1.5 text-ink-tertiary uppercase tracking-widest scroll-mt-20",
       };
-      const classes = sizeClasses[block.level ?? 1] ?? sizeClasses[1];
+      const classes = sizeClasses[level] ?? sizeClasses[1];
+      const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       return (
-        <div data-block-index={block.index} className={classes}>
+        <Tag data-block-index={block.index} className={classes}>
           {renderSegments(segments)}
-        </div>
+        </Tag>
       );
     }
 
     case "code":
       return (
-        <div data-block-index={block.index} className="my-5 rounded-md bg-inset border border-rule-subtle overflow-hidden">
+        <div
+          data-block-index={block.index}
+          className="my-5 rounded-md bg-inset border border-rule-subtle overflow-hidden"
+        >
           {block.lang && (
             <div className="px-4 py-1.5 border-b border-rule-subtle text-[11px] font-mono text-ink-tertiary tracking-wide">
               {block.lang}

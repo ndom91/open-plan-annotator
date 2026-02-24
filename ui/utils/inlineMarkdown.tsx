@@ -107,13 +107,15 @@ export function renderInlineMarkdown(text: string): ReactNode[] {
         );
       case "link":
         return (
-          <span
+          <a
             key={i}
+            href={token.href}
             className="text-margin-note underline decoration-margin-note/30 underline-offset-2"
-            title={token.href}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             {token.content}
-          </span>
+          </a>
         );
       default:
         return <span key={i}>{token.content}</span>;
