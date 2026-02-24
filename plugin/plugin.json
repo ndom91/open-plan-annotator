@@ -1,0 +1,9 @@
+{
+  "name": "open-plan-edit",
+  "description": "Interactive plan annotation UI: review, strikethrough, and comment on Claude's plans before approving. Fully local, no external services.",
+  "version": "1.0.0",
+  "author": {
+    "name": "ndomino"
+  },
+  "keywords": ["planning", "review", "hooks", "ExitPlanMode", "annotations"]
+}

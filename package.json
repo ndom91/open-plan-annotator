@@ -1,0 +1,14 @@
+{
+  "name": "open-plan-edit",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Fully local Claude Code plugin for interactive plan annotation",
+  "scripts": {
+    "build:ui": "cd ui && bun run vite build",
+    "build:server": "bun build server/index.ts --outfile=build/open-plan-edit --target=bun --compile",
+    "build": "bun run build:ui && bun run build:server",
+    "dev:ui": "cd ui && bun run vite --port 5173",
+    "dev:server": "NODE_ENV=development bun run server/index.ts"
+  },
+  "license": "ISC"
+}

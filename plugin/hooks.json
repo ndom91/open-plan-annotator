@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PermissionRequest": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "open-plan-edit",
+            "timeout": 345600
+          }
+        ]
+      }
+    ]
+  }
+}
