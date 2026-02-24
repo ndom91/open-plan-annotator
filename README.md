@@ -1,10 +1,11 @@
 # open-plan-annotator
 
-A fully local Claude Code plugin that intercepts plan mode, opens an annotation UI in your browser, and feeds structured feedback back to the agent.
+A fully local agentic coding plugin (claude-code, opencode) that intercepts plan mode, opens an annotation UI in your browser, and feeds structured feedback back to the agent.
 
 Select text to strikethrough, replace, insert, or comment — then approve the plan or request changes.
 
 ![](.github/assets/screenshot_001.png)
+> UI for annotating LLM Plans
 
 ## How it works
 
