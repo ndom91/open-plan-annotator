@@ -1,5 +1,6 @@
 import type { Block } from "../utils/markdown.ts";
 import type { Annotation } from "../utils/annotationSerializer.ts";
+import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
 
 interface BlockProps {
   block: Block;
@@ -8,6 +9,8 @@ interface BlockProps {
 
 interface Segment {
   text: string;
+  originalStart: number;
+  originalEnd: number;
   annotation?: Annotation;
 }
 
@@ -18,32 +21,60 @@ function splitIntoSegments(text: string, annotations: Annotation[]): Segment[] {
 
   for (const ann of sorted) {
     if (ann.startOffset > cursor) {
-      segments.push({ text: text.slice(cursor, ann.startOffset) });
+      segments.push({ text: text.slice(cursor, ann.startOffset), originalStart: cursor, originalEnd: ann.startOffset });
     }
-    segments.push({ text: text.slice(ann.startOffset, ann.endOffset), annotation: ann });
+    segments.push({ text: text.slice(ann.startOffset, ann.endOffset), originalStart: ann.startOffset, originalEnd: ann.endOffset, annotation: ann });
     cursor = ann.endOffset;
   }
 
   if (cursor < text.length) {
-    segments.push({ text: text.slice(cursor) });
+    segments.push({ text: text.slice(cursor), originalStart: cursor, originalEnd: text.length });
   }
 
   return segments;
 }
 
-function renderSegments(segments: Segment[]) {
+function renderSegments(segments: Segment[], useInline = true) {
   return segments.map((seg, i) => {
-    if (!seg.annotation) return <span key={i}>{seg.text}</span>;
-    if (seg.annotation.type === "deletion") {
+    const content = useInline ? renderInlineMarkdown(seg.text) : seg.text;
+
+    if (!seg.annotation) {
       return (
-        <span key={i} className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px" title="Marked for removal">
-          {seg.text}
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+          {content}
         </span>
       );
     }
+
+    if (seg.annotation.type === "deletion") {
+      return (
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px" title="Marked for removal">
+          {content}
+        </span>
+      );
+    }
+    if (seg.annotation.type === "replacement") {
+      return (
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+          <span className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px">{content}</span>
+          <span className="text-approve bg-approve/10 rounded-sm px-px ml-1 not-italic no-underline" data-replacement="true" style={{ textDecoration: "none" }}>
+            {seg.annotation.replacement}
+          </span>
+        </span>
+      );
+    }
+    if (seg.annotation.type === "insertion") {
+      return (
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+          <span className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px">{content}</span>
+          <span className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1 align-super" data-replacement="true">+insert</span>
+        </span>
+      );
+    }
+    // comment
     return (
-      <span key={i} className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help" title={seg.annotation.comment}>
-        {seg.text}
+      <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help" title={seg.annotation.comment}>
+        {content}
       </span>
     );
   });
@@ -80,7 +111,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
             </div>
           )}
           <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-ink-secondary">
-            <code>{renderSegments(segments)}</code>
+            <code>{renderSegments(segments, false)}</code>
           </pre>
         </div>
       );
@@ -90,7 +121,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
         <ul data-block-index={block.index} className="my-3 space-y-1">
           {block.items?.map((item, i) => (
             <li key={i} className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary">
-              {item}
+              {renderInlineMarkdown(item)}
             </li>
           ))}
         </ul>

@@ -2,9 +2,10 @@ import type { Block } from "./markdown.ts";
 
 export interface Annotation {
   id: string;
-  type: "deletion" | "comment";
+  type: "deletion" | "comment" | "insertion" | "replacement";
   text: string;
   comment?: string;
+  replacement?: string;
   blockIndex: number;
   startOffset: number;
   endOffset: number;
@@ -17,6 +18,8 @@ export function serializeAnnotations(annotations: Annotation[], blocks: Block[])
   const lines: string[] = ["## Plan Review Feedback", "", "The following changes were requested before proceeding:", ""];
 
   const deletions = annotations.filter((a) => a.type === "deletion");
+  const replacements = annotations.filter((a) => a.type === "replacement");
+  const insertions = annotations.filter((a) => a.type === "insertion");
   const comments = annotations.filter((a) => a.type === "comment");
 
   if (deletions.length > 0) {
@@ -25,6 +28,22 @@ export function serializeAnnotations(annotations: Annotation[], blocks: Block[])
       const block = blocks[d.blockIndex];
       const ctx = block ? ` (in: "${truncate(block.content, 60)}")` : "";
       lines.push(`- Remove: ~~${d.text}~~${ctx}`);
+    }
+    lines.push("");
+  }
+
+  if (replacements.length > 0) {
+    lines.push("### Requested Replacements", "");
+    for (const r of replacements) {
+      lines.push(`- Replace "${r.text}" with "${r.replacement}"`);
+    }
+    lines.push("");
+  }
+
+  if (insertions.length > 0) {
+    lines.push("### Requested Insertions", "");
+    for (const ins of insertions) {
+      lines.push(`- After "${ins.text}", insert: "${ins.replacement}"`);
     }
     lines.push("");
   }

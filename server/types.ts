@@ -11,9 +11,10 @@ export interface HookEvent {
 
 export interface Annotation {
   id: string;
-  type: "deletion" | "comment";
+  type: "deletion" | "comment" | "insertion" | "replacement";
   text: string;
   comment?: string;
+  replacement?: string;
   blockIndex: number;
   startOffset: number;
   endOffset: number;
@@ -29,6 +30,8 @@ export interface HookOutput {
 
 export interface ServerState {
   planContent: string;
+  planVersion: number;
+  planHistory: string[];
   htmlContent: string;
   resolveDecision: ((decision: ServerDecision) => void) | null;
 }

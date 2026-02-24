@@ -1,13 +1,19 @@
 import { useTheme } from "./ThemeProvider.tsx";
-import { useDecision } from "../hooks/useDecision.ts";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 
 interface HeaderProps {
   annotations: Annotation[];
+  version: number;
+  hasPreviousVersion: boolean;
+  showDiff: boolean;
+  onToggleDiff: () => void;
+  approve: () => void;
+  deny: () => void;
+  isPending: boolean;
+  decided: boolean;
 }
 
-export function Header({ annotations }: HeaderProps) {
-  const { approve, deny, isPending, decided } = useDecision();
+export function Header({ annotations, version, hasPreviousVersion, showDiff, onToggleDiff, approve, deny, isPending, decided }: HeaderProps) {
   const { dark, toggle } = useTheme();
 
   if (decided) {
@@ -34,6 +40,9 @@ export function Header({ annotations }: HeaderProps) {
           </div>
           <span className="text-sm font-medium text-ink tracking-tight">Plan Review</span>
         </div>
+        {version > 1 && (
+          <span className="text-xs text-ink-tertiary font-mono tabular-nums">v{version}</span>
+        )}
         {annotations.length > 0 && (
           <span className="text-xs text-margin-note bg-margin-note-bg px-2 py-0.5 rounded-full font-medium tabular-nums">
             {annotations.length}
@@ -41,6 +50,23 @@ export function Header({ annotations }: HeaderProps) {
         )}
       </div>
       <div className="flex items-center gap-2">
+        {hasPreviousVersion && (
+          <button
+            onClick={onToggleDiff}
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              showDiff ? "bg-ink/10 text-ink-secondary" : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5"
+            }`}
+            title="Show changes from previous version"
+          >
+            <span className="flex items-center gap-1.5">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+                <path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM3.75 9a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5ZM3 12.25a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Z" />
+              </svg>
+              Diff
+            </span>
+          </button>
+        )}
+
         <button onClick={toggle} className="p-2 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors" title="Toggle theme">
           {dark ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -56,16 +82,18 @@ export function Header({ annotations }: HeaderProps) {
         <div className="w-px h-5 bg-rule mx-1" />
 
         <button
-          onClick={() => deny(annotations)}
+          onClick={deny}
           disabled={isPending || annotations.length === 0}
           className="px-3.5 py-1.5 rounded-md text-sm font-medium text-redline hover:bg-redline-bg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          title="⌘⇧↵"
         >
           Request Changes
         </button>
         <button
-          onClick={() => approve()}
+          onClick={approve}
           disabled={isPending}
           className="px-3.5 py-1.5 rounded-md bg-approve hover:bg-approve-hover disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+          title="⌘↵"
         >
           Approve
         </button>

@@ -5,7 +5,11 @@ export function createRouter(state: ServerState) {
     const url = new URL(req.url);
 
     if (url.pathname === "/api/plan" && req.method === "GET") {
-      return Response.json({ plan: state.planContent });
+      return Response.json({
+        plan: state.planContent,
+        version: state.planVersion,
+        history: state.planHistory,
+      });
     }
 
     if (url.pathname === "/api/approve" && req.method === "POST") {
@@ -39,12 +43,30 @@ function serializeAnnotations(annotations: Annotation[]): string {
   const lines: string[] = ["## Plan Review Feedback", "", "The following changes were requested before proceeding:", ""];
 
   const deletions = annotations.filter((a) => a.type === "deletion");
+  const replacements = annotations.filter((a) => a.type === "replacement");
+  const insertions = annotations.filter((a) => a.type === "insertion");
   const comments = annotations.filter((a) => a.type === "comment");
 
   if (deletions.length > 0) {
     lines.push("### Requested Deletions", "");
     for (const d of deletions) {
       lines.push(`- Remove: ~~${d.text}~~`);
+    }
+    lines.push("");
+  }
+
+  if (replacements.length > 0) {
+    lines.push("### Requested Replacements", "");
+    for (const r of replacements) {
+      lines.push(`- Replace "${r.text}" with "${r.replacement}"`);
+    }
+    lines.push("");
+  }
+
+  if (insertions.length > 0) {
+    lines.push("### Requested Insertions", "");
+    for (const ins of insertions) {
+      lines.push(`- After "${ins.text}", insert: "${ins.replacement}"`);
     }
     lines.push("");
   }

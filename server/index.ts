@@ -107,8 +107,54 @@ try {
   }
 }
 
+// Detect version history: check for previous plans stored by session
+const planHistory: string[] = [];
+let planVersion = 1;
+
+if (!isDev) {
+  const historyDir = `${process.env.HOME}/.open-plan-edit/history`;
+  try {
+    const files = await Array.fromAsync(new Bun.Glob("*.md").scan(historyDir));
+    const sorted = await Promise.all(
+      files.map(async (f) => {
+        const path = `${historyDir}/${f}`;
+        const stat = await Bun.file(path).stat();
+        return { path, mtime: stat?.mtime ?? 0 };
+      })
+    );
+    sorted.sort((a, b) => (a.mtime as number) - (b.mtime as number));
+    for (const f of sorted) {
+      planHistory.push(await Bun.file(f.path).text());
+    }
+    planVersion = planHistory.length + 1;
+  } catch {
+    // No history yet
+  }
+
+  // Save current plan to history
+  try {
+    const dir = `${process.env.HOME}/.open-plan-edit/history`;
+    await Bun.write(`${dir}/v${planVersion}.md`, planContent);
+  } catch {
+    try {
+      const dir = `${process.env.HOME}/.open-plan-edit/history`;
+      const { mkdirSync } = await import("fs");
+      mkdirSync(dir, { recursive: true });
+      await Bun.write(`${dir}/v${planVersion}.md`, planContent);
+    } catch {
+      // Non-critical — history is a nice-to-have
+    }
+  }
+} else {
+  // Dev mode: simulate a previous version
+  planHistory.push("# Example Plan\n\n## Context\n\nThis is the previous version of the plan.\n\n## Steps\n\n### Step 1: Set up SQLite\n\nUse SQLite instead of PostgreSQL.\n\n### Step 2: Build the API\n\nCreate basic CRUD endpoints.\n\n## Verification\n\nManual testing only.");
+  planVersion = 2;
+}
+
 const state: ServerState = {
   planContent,
+  planVersion,
+  planHistory,
   htmlContent,
   resolveDecision,
 };
