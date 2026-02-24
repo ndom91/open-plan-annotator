@@ -21,26 +21,26 @@ export default function App() {
   const selection = useTextSelection();
   const { approve, deny, isPending, decided } = useDecision();
 
-  const [popover, setPopover] = useState<{ mode: "comment" | "replacement" | "insertion"; selection: ResolvedSelection } | null>(null);
+  const [popover, setPopover] = useState<{ mode: "comment" | "replacement" | "insertion"; selections: ResolvedSelection[] } | null>(null);
   const [showDiff, setShowDiff] = useState(false);
 
   // Ref-based getter for keyboard shortcuts (avoids stale closures)
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
 
-  const getResolvedSelection = useCallback((): ResolvedSelection | null => {
+  const getResolvedSelection = useCallback((): ResolvedSelection[] | null => {
     const sel = window.getSelection();
     if (!sel || sel.isCollapsed) return null;
     return resolveSelection(sel);
   }, []);
 
   const handleToolbarAction = useCallback(
-    (action: ToolbarAction, sel: ResolvedSelection) => {
+    (action: ToolbarAction, sels: ResolvedSelection[]) => {
       if (action === "deletion") {
-        addDeletion(sel);
+        for (const sel of sels) addDeletion(sel);
         window.getSelection()?.removeAllRanges();
       } else {
-        setPopover({ mode: action, selection: sel });
+        setPopover({ mode: action, selections: sels });
       }
     },
     [addDeletion],
@@ -49,10 +49,12 @@ export default function App() {
   const handlePopoverSubmit = useCallback(
     (text: string) => {
       if (!popover) return;
-      const { mode, selection: sel } = popover;
-      if (mode === "comment") addComment(sel, text);
-      else if (mode === "replacement") addReplacement(sel, text);
-      else if (mode === "insertion") addInsertion(sel, text);
+      const { mode, selections: sels } = popover;
+      for (const sel of sels) {
+        if (mode === "comment") addComment(sel, text);
+        else if (mode === "replacement") addReplacement(sel, text);
+        else if (mode === "insertion") addInsertion(sel, text);
+      }
       setPopover(null);
       window.getSelection()?.removeAllRanges();
     },
@@ -97,6 +99,7 @@ export default function App() {
   }
 
   const hasPreviousVersion = history.length > 0;
+  const popoverText = popover ? popover.selections.map((s) => s.text).join("\n") : "";
 
   return (
     <ThemeProvider>
@@ -146,12 +149,12 @@ export default function App() {
 
         {/* Floating toolbar on selection */}
         {selection.isActive && selection.resolved && selection.rect && !popover && !decided && (
-          <AnnotationToolbar rect={selection.rect} selection={selection.resolved} onAction={handleToolbarAction} onDismiss={() => window.getSelection()?.removeAllRanges()} />
+          <AnnotationToolbar rect={selection.rect} selections={selection.resolved} onAction={handleToolbarAction} onDismiss={() => window.getSelection()?.removeAllRanges()} />
         )}
 
         {/* Text input popover */}
         {popover && (
-          <TextInputPopover mode={popover.mode} selectedText={popover.selection.text} onSubmit={handlePopoverSubmit} onCancel={() => setPopover(null)} />
+          <TextInputPopover mode={popover.mode} selectedText={popoverText} onSubmit={handlePopoverSubmit} onCancel={() => setPopover(null)} />
         )}
       </div>
     </ThemeProvider>

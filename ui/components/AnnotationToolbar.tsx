@@ -5,12 +5,12 @@ export type ToolbarAction = "deletion" | "comment" | "replacement" | "insertion"
 
 interface AnnotationToolbarProps {
   rect: DOMRect;
-  selection: ResolvedSelection;
-  onAction: (action: ToolbarAction, selection: ResolvedSelection) => void;
+  selections: ResolvedSelection[];
+  onAction: (action: ToolbarAction, selections: ResolvedSelection[]) => void;
   onDismiss: () => void;
 }
 
-export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: AnnotationToolbarProps) {
+export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: AnnotationToolbarProps) {
   const top = rect.top + window.scrollY - 44;
   const left = rect.left + rect.width / 2;
 
@@ -22,7 +22,7 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
       className="absolute z-50 flex items-center bg-paper border border-rule rounded-lg shadow-[0_4px_16px_oklch(0_0_0/0.2),0_1px_3px_oklch(0_0_0/0.1)] px-1 py-1"
     >
       <button
-        onClick={() => { onAction("deletion", selection); onDismiss(); }}
+        onClick={() => { onAction("deletion", selections); onDismiss(); }}
         className={cn(btn, "text-redline hover:bg-redline-bg/60")}
         title="Delete (d)"
       >
@@ -34,7 +34,7 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
       </button>
       <div className="w-px h-5 bg-rule mx-0.5" />
       <button
-        onClick={() => { onAction("replacement", selection); onDismiss(); }}
+        onClick={() => { onAction("replacement", selections); onDismiss(); }}
         className={cn(btn, "text-ink-secondary hover:bg-ink/5")}
         title="Replace (r)"
       >
@@ -45,7 +45,7 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
       </button>
       <div className="w-px h-5 bg-rule mx-0.5" />
       <button
-        onClick={() => { onAction("insertion", selection); onDismiss(); }}
+        onClick={() => { onAction("insertion", selections); onDismiss(); }}
         className={cn(btn, "text-approve hover:bg-approve/10")}
         title="Insert after (i)"
       >
@@ -56,7 +56,7 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
       </button>
       <div className="w-px h-5 bg-rule mx-0.5" />
       <button
-        onClick={() => { onAction("comment", selection); onDismiss(); }}
+        onClick={() => { onAction("comment", selections); onDismiss(); }}
         className={cn(btn, "text-margin-note hover:bg-margin-note-bg/60")}
         title="Comment (c)"
       >

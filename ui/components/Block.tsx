@@ -80,6 +80,47 @@ function renderSegments(segments: Segment[], useInline = true) {
   });
 }
 
+function computeListItemRanges(content: string, items: string[]): { start: number; end: number }[] {
+  const ranges: { start: number; end: number }[] = [];
+  let searchFrom = 0;
+
+  for (const item of items) {
+    const idx = content.indexOf(item, searchFrom);
+    if (idx >= 0) {
+      ranges.push({ start: idx, end: idx + item.length });
+      searchFrom = idx + item.length;
+    }
+  }
+
+  return ranges;
+}
+
+function splitItemSegments(content: string, itemStart: number, itemEnd: number, annotations: Annotation[]): Segment[] {
+  const itemAnns = annotations
+    .filter((a) => a.startOffset < itemEnd && a.endOffset > itemStart)
+    .sort((a, b) => a.startOffset - b.startOffset);
+
+  const segments: Segment[] = [];
+  let cursor = itemStart;
+
+  for (const ann of itemAnns) {
+    const annStart = Math.max(ann.startOffset, itemStart);
+    const annEnd = Math.min(ann.endOffset, itemEnd);
+
+    if (annStart > cursor) {
+      segments.push({ text: content.slice(cursor, annStart), originalStart: cursor, originalEnd: annStart });
+    }
+    segments.push({ text: content.slice(annStart, annEnd), originalStart: annStart, originalEnd: annEnd, annotation: ann });
+    cursor = annEnd;
+  }
+
+  if (cursor < itemEnd) {
+    segments.push({ text: content.slice(cursor, itemEnd), originalStart: cursor, originalEnd: itemEnd });
+  }
+
+  return segments;
+}
+
 export function BlockComponent({ block, annotations }: BlockProps) {
   const blockAnnotations = annotations.filter((a) => a.blockIndex === block.index);
   const segments = splitIntoSegments(block.content, blockAnnotations);
@@ -116,16 +157,24 @@ export function BlockComponent({ block, annotations }: BlockProps) {
         </div>
       );
 
-    case "list":
+    case "list": {
+      const itemRanges = computeListItemRanges(block.content, block.items ?? []);
       return (
         <ul data-block-index={block.index} className="my-3 space-y-1">
-          {block.items?.map((item, i) => (
-            <li key={i} className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary">
-              {renderInlineMarkdown(item)}
-            </li>
-          ))}
+          {block.items?.map((item, i) => {
+            const range = itemRanges[i];
+            const itemSegments = range
+              ? splitItemSegments(block.content, range.start, range.end, blockAnnotations)
+              : [{ text: item, originalStart: 0, originalEnd: item.length } as Segment];
+            return (
+              <li key={i} className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary">
+                {renderSegments(itemSegments)}
+              </li>
+            );
+          })}
         </ul>
       );
+    }
 
     case "hr":
       return <hr data-block-index={block.index} className="my-10 border-0 h-px bg-rule-subtle" />;

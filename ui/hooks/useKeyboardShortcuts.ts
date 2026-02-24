@@ -3,8 +3,8 @@ import type { ToolbarAction } from "../components/AnnotationToolbar.tsx";
 import type { ResolvedSelection } from "../utils/offsetResolver.ts";
 
 interface ShortcutHandlers {
-  getSelection: () => ResolvedSelection | null;
-  onAction: (action: ToolbarAction, selection: ResolvedSelection) => void;
+  getSelection: () => ResolvedSelection[] | null;
+  onAction: (action: ToolbarAction, selections: ResolvedSelection[]) => void;
   onApprove: () => void;
   onDeny: () => void;
   hasAnnotations: boolean;
@@ -35,22 +35,22 @@ export function useKeyboardShortcuts({ getSelection, onAction, onApprove, onDeny
       }
 
       // Single-key shortcuts require active text selection
-      const sel = getSelection();
-      if (!sel) return;
+      const sels = getSelection();
+      if (!sels) return;
 
       if (e.key === "d" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        onAction("deletion", sel);
+        onAction("deletion", sels);
         window.getSelection()?.removeAllRanges();
       } else if (e.key === "c" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        onAction("comment", sel);
+        onAction("comment", sels);
       } else if (e.key === "r" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        onAction("replacement", sel);
+        onAction("replacement", sels);
       } else if (e.key === "i" && !e.metaKey && !e.ctrlKey) {
         e.preventDefault();
-        onAction("insertion", sel);
+        onAction("insertion", sels);
       }
     }
 

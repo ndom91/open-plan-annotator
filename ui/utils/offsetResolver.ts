@@ -5,73 +5,183 @@ export interface ResolvedSelection {
   text: string;
 }
 
-export function resolveSelection(selection: Selection): ResolvedSelection | null {
+export function resolveSelection(selection: Selection): ResolvedSelection[] | null {
   if (selection.isCollapsed || !selection.anchorNode || !selection.focusNode) {
+    return null;
+  }
+
+  const range = selection.getRangeAt(0);
+
+  if (isInsideReplacement(range.startContainer) || isInsideReplacement(range.endContainer)) {
     return null;
   }
 
   const anchorBlock = findBlockElement(selection.anchorNode);
   const focusBlock = findBlockElement(selection.focusNode);
 
-  // Only support single-block selections
-  if (!anchorBlock || !focusBlock || anchorBlock !== focusBlock) {
-    return null;
+  if (!anchorBlock || !focusBlock) return null;
+
+  // Single-block selection
+  if (anchorBlock === focusBlock) {
+    const result = resolveSingleBlock(range, anchorBlock);
+    return result ? [result] : null;
   }
 
-  const blockIndex = parseInt(anchorBlock.dataset.blockIndex ?? "-1", 10);
+  // Multi-block selection
+  return resolveMultiBlock(range, anchorBlock, focusBlock);
+}
+
+// --- Single-block resolution (existing logic) ---
+
+function resolveSingleBlock(range: Range, block: HTMLElement): ResolvedSelection | null {
+  const blockIndex = parseInt(block.dataset.blockIndex ?? "-1", 10);
   if (blockIndex < 0) return null;
 
-  const range = selection.getRangeAt(0);
   const text = range.toString();
   if (text.trim().length === 0) return null;
 
-  // Find the segment elements containing the start and end of the selection.
-  // Each segment span has data-seg-start and data-seg-end attributes that
-  // encode the original character offsets in block.content.
   const startSeg = findSegmentElement(range.startContainer);
   const endSeg = findSegmentElement(range.endContainer);
-
-  if (!startSeg || !endSeg) {
-    // Fallback: selection is outside segment spans (shouldn't happen, but be safe)
-    return null;
-  }
-
-  // If the selection is inside a replacement/insertion preview span (data-replacement),
-  // reject it — user shouldn't annotate the replacement text.
-  if (isInsideReplacement(range.startContainer) || isInsideReplacement(range.endContainer)) {
-    return null;
-  }
+  if (!startSeg || !endSeg) return null;
 
   const segStart = parseInt(startSeg.dataset.segStart ?? "0", 10);
   const segEnd = parseInt(endSeg.dataset.segEnd ?? "0", 10);
 
-  // Compute offset within the start segment's visible original text
   const preRange = document.createRange();
   preRange.selectNodeContents(startSeg);
   preRange.setEnd(range.startContainer, range.startOffset);
-  const offsetInStartSeg = preRange.toString().length;
+  const startOffset = segStart + preRange.toString().length;
 
-  const startOffset = segStart + offsetInStartSeg;
-
-  // For the end offset: if start and end are in the same segment, easy math.
-  // If they span segments, use the end segment's start + offset within it.
   let endOffset: number;
   if (startSeg === endSeg) {
     endOffset = startOffset + text.length;
-    // Clamp to segment boundary
     if (endOffset > segEnd) endOffset = segEnd;
   } else {
     const endSegStart = parseInt(endSeg.dataset.segStart ?? "0", 10);
     const preRangeEnd = document.createRange();
     preRangeEnd.selectNodeContents(endSeg);
     preRangeEnd.setEnd(range.endContainer, range.endOffset);
-    const offsetInEndSeg = preRangeEnd.toString().length;
-    endOffset = endSegStart + offsetInEndSeg;
+    endOffset = endSegStart + preRangeEnd.toString().length;
   }
 
-  // Re-derive the selected text from original content offsets for accuracy
   return { blockIndex, startOffset, endOffset, text };
 }
+
+// --- Multi-block resolution ---
+
+function resolveMultiBlock(range: Range, anchorBlock: HTMLElement, focusBlock: HTMLElement): ResolvedSelection[] | null {
+  // Determine document order
+  const cmp = anchorBlock.compareDocumentPosition(focusBlock);
+  const firstBlock = (cmp & Node.DOCUMENT_POSITION_FOLLOWING) ? anchorBlock : focusBlock;
+  const lastBlock = firstBlock === anchorBlock ? focusBlock : anchorBlock;
+
+  const firstIndex = parseInt(firstBlock.dataset.blockIndex ?? "-1", 10);
+  const lastIndex = parseInt(lastBlock.dataset.blockIndex ?? "-1", 10);
+  if (firstIndex < 0 || lastIndex < 0) return null;
+
+  // Find all block elements in the range
+  const root = firstBlock.closest("article") ?? firstBlock.parentElement;
+  if (!root) return null;
+
+  const blockElements = Array.from(root.querySelectorAll<HTMLElement>("[data-block-index]"))
+    .filter((el) => {
+      const idx = parseInt(el.dataset.blockIndex ?? "-1", 10);
+      return idx >= firstIndex && idx <= lastIndex;
+    })
+    .sort((a, b) => parseInt(a.dataset.blockIndex!) - parseInt(b.dataset.blockIndex!));
+
+  const results: ResolvedSelection[] = [];
+
+  for (let i = 0; i < blockElements.length; i++) {
+    const block = blockElements[i];
+    const blockIndex = parseInt(block.dataset.blockIndex!, 10);
+    const contentLength = getBlockContentLength(block);
+    if (contentLength === 0) continue;
+
+    const isFirst = i === 0;
+    const isLast = i === blockElements.length - 1;
+
+    let startOffset: number;
+    let endOffset: number;
+
+    if (isFirst) {
+      startOffset = computeStartOffset(range, block);
+      if (startOffset < 0) continue;
+      endOffset = contentLength;
+    } else if (isLast) {
+      startOffset = 0;
+      endOffset = computeEndOffset(range, block);
+      if (endOffset <= 0) continue;
+    } else {
+      startOffset = 0;
+      endOffset = contentLength;
+    }
+
+    if (startOffset >= endOffset) continue;
+
+    const text = collectSegmentText(block, startOffset, endOffset);
+    if (text.trim().length === 0) continue;
+
+    results.push({ blockIndex, startOffset, endOffset, text });
+  }
+
+  return results.length > 0 ? results : null;
+}
+
+function computeStartOffset(range: Range, block: HTMLElement): number {
+  // The range.startContainer is inside this block
+  const seg = findSegmentElement(range.startContainer);
+  if (!seg || !block.contains(seg)) {
+    // Selection starts before this block — use offset 0
+    return 0;
+  }
+  const segStart = parseInt(seg.dataset.segStart ?? "0", 10);
+  const preRange = document.createRange();
+  preRange.selectNodeContents(seg);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  return segStart + preRange.toString().length;
+}
+
+function computeEndOffset(range: Range, block: HTMLElement): number {
+  // The range.endContainer is inside this block
+  const seg = findSegmentElement(range.endContainer);
+  if (!seg || !block.contains(seg)) {
+    // Selection ends after this block — use full content length
+    return getBlockContentLength(block);
+  }
+  const segStart = parseInt(seg.dataset.segStart ?? "0", 10);
+  const preRange = document.createRange();
+  preRange.selectNodeContents(seg);
+  preRange.setEnd(range.endContainer, range.endOffset);
+  return segStart + preRange.toString().length;
+}
+
+function getBlockContentLength(block: HTMLElement): number {
+  let max = 0;
+  for (const seg of block.querySelectorAll<HTMLElement>("[data-seg-end]")) {
+    const end = parseInt(seg.dataset.segEnd ?? "0", 10);
+    if (end > max) max = end;
+  }
+  return max;
+}
+
+function collectSegmentText(block: HTMLElement, startOffset: number, endOffset: number): string {
+  let text = "";
+  for (const seg of block.querySelectorAll<HTMLElement>("[data-seg-start]")) {
+    if (seg.dataset.replacement === "true") continue;
+    const segStart = parseInt(seg.dataset.segStart ?? "0", 10);
+    const segEnd = parseInt(seg.dataset.segEnd ?? "0", 10);
+    if (segEnd <= startOffset || segStart >= endOffset) continue;
+
+    const segText = seg.textContent ?? "";
+    const overlapStart = Math.max(0, startOffset - segStart);
+    const overlapEnd = Math.min(segText.length, endOffset - segStart);
+    text += segText.slice(overlapStart, overlapEnd);
+  }
+  return text;
+}
+
+// --- DOM traversal helpers ---
 
 function findBlockElement(node: Node): HTMLElement | null {
   let current: Node | null = node;

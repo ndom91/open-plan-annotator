@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback } from "react";
 import { resolveSelection, type ResolvedSelection } from "../utils/offsetResolver.ts";
 
 export interface SelectionState {
-  resolved: ResolvedSelection | null;
+  resolved: ResolvedSelection[] | null;
   rect: DOMRect | null;
   isActive: boolean;
 }
