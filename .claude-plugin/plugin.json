@@ -1,7 +1,7 @@
 {
   "name": "open-plan-annotator",
   "description": "Interactive plan annotation UI: review, strikethrough, and comment on Claude's plans before approving. Fully local, no external services.",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "author": {
     "name": "ndom91"
   },
