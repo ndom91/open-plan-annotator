@@ -6,7 +6,7 @@ cd "$ROOT"
 
 # --- Read current version ---
 CURRENT=$(node -p "require('./package.json').version")
-IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT"
+IFS='.' read -r MAJOR MINOR PATCH <<<"$CURRENT"
 
 echo "Current version: $CURRENT"
 echo ""
@@ -18,10 +18,13 @@ echo ""
 read -rp "Choose [1/2/3]: " CHOICE
 
 case "$CHOICE" in
-  1) NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))" ;;
-  2) NEW_VERSION="$MAJOR.$((MINOR + 1)).0" ;;
-  3) NEW_VERSION="$((MAJOR + 1)).0.0" ;;
-  *) echo "Invalid choice"; exit 1 ;;
+1) NEW_VERSION="$MAJOR.$MINOR.$((PATCH + 1))" ;;
+2) NEW_VERSION="$MAJOR.$((MINOR + 1)).0" ;;
+3) NEW_VERSION="$((MAJOR + 1)).0.0" ;;
+*)
+  echo "Invalid choice"
+  exit 1
+  ;;
 esac
 
 echo ""
@@ -53,18 +56,13 @@ echo "Creating tarballs..."
 node scripts/tarball.cjs
 
 # --- Git tag + commit ---
+echo ""
 git add package.json .claude-plugin/plugin.json .claude-plugin/marketplace.json
 git commit -m "v$NEW_VERSION"
 git tag "v$NEW_VERSION"
 
 # --- Push ---
 echo ""
-read -rp "Push to origin and publish? [y/N]: " CONFIRM
-if [[ "$CONFIRM" != "y" && "$CONFIRM" != "Y" ]]; then
-  echo "Aborted. Commit and tag are local — run 'git push --follow-tags' when ready."
-  exit 0
-fi
-
 git push --follow-tags
 
 # --- GitHub Release ---
