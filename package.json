@@ -3,10 +3,32 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
+  "author": "ndomino",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ndomino/open-plan-annotator.git"
+  },
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "plan-mode",
+    "annotation",
+    "code-review"
+  ],
+  "bin": {
+    "open-plan-edit": "./build/open-plan-edit"
+  },
+  "files": [
+    "build/open-plan-edit",
+    "plugin/",
+    "README.md"
+  ],
   "scripts": {
     "build:ui": "cd ui && bun run vite build",
     "build:server": "NODE_ENV=production bun build server/index.ts --outfile=build/open-plan-edit --target=bun --compile",
     "build": "bun run build:ui && bun run build:server",
+    "prepublishOnly": "bun run build",
     "dev:ui": "cd ui && bun run vite --port 5173",
     "dev:server": "NODE_ENV=development bun run server/index.ts",
     "dev": "NODE_ENV=development bun run server/index.ts & cd ui && bun run vite --port 5173",
@@ -14,7 +36,6 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write ."
   },
-  "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"
   }
