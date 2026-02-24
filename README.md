@@ -2,7 +2,7 @@
 
 [![npm version](https://img.shields.io/npm/v/open-plan-annotator?style=flat-square)](https://www.npmjs.com/package/open-plan-annotator)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey?style=flat-square)]()
+[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-pink?style=flat-square)]()
 
 A fully local agentic coding plugin (claude-code, opencode) that intercepts plan mode, opens an annotation UI in your browser, and feeds structured feedback back to the agent.
 
@@ -10,7 +10,7 @@ Select text to <code style="color: purple">strikethrough</code>, <code style="co
 
 
 ![](.github/assets/screenshot_01.png)
-> UI for annotating LLM Plans
+
 
 ## How it works
 
