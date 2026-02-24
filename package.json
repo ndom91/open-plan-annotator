@@ -1,6 +1,6 @@
 {
   "name": "open-plan-annotator",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
   "author": "ndomino",
@@ -17,24 +17,28 @@
     "code-review"
   ],
   "bin": {
-    "open-plan-edit": "./build/open-plan-edit"
+    "open-plan-annotator": "bin/open-plan-annotator"
   },
   "files": [
-    "build/open-plan-edit",
+    "bin/open-plan-annotator",
+    "install.cjs",
     "plugin/",
     "README.md"
   ],
   "scripts": {
+    "postinstall": "node install.cjs",
     "build:ui": "cd ui && bun run vite build",
-    "build:server": "NODE_ENV=production bun build server/index.ts --outfile=build/open-plan-edit --target=bun --compile",
-    "build": "bun run build:ui && bun run build:server",
-    "prepublishOnly": "bun run build",
+    "build:platforms": "node scripts/build-platforms.cjs",
+    "build": "bun run build:ui && node scripts/build-platforms.cjs",
+    "tarball": "node scripts/tarball.cjs",
+    "release": "bun run build && node scripts/tarball.cjs",
     "dev:ui": "cd ui && bun run vite --port 5173",
     "dev:server": "NODE_ENV=development bun run server/index.ts",
     "dev": "NODE_ENV=development bun run server/index.ts & cd ui && bun run vite --port 5173",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "format": "biome format --write ."
+    "format": "biome format --write .",
+    "publish": "./scripts/release.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"
