@@ -112,9 +112,10 @@ if (typeof embeddedHtml === "string") {
 // Detect version history: check for previous plans stored by session
 const planHistory: string[] = [];
 let planVersion = 1;
+const configBase = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME}/.config`;
+const historyDir = `${configBase}/open-plan-annotator/history`;
 
 if (!isDev) {
-  const historyDir = `${process.env.HOME}/.open-plan-annotator/history`;
   try {
     const files = await Array.fromAsync(new Bun.Glob("*.md").scan(historyDir));
     const sorted = await Promise.all(
@@ -135,14 +136,12 @@ if (!isDev) {
 
   // Save current plan to history
   try {
-    const dir = `${process.env.HOME}/.open-plan-annotator/history`;
-    await Bun.write(`${dir}/v${planVersion}.md`, planContent);
+    await Bun.write(`${historyDir}/v${planVersion}.md`, planContent);
   } catch {
     try {
-      const dir = `${process.env.HOME}/.open-plan-annotator/history`;
       const { mkdirSync } = await import("node:fs");
-      mkdirSync(dir, { recursive: true });
-      await Bun.write(`${dir}/v${planVersion}.md`, planContent);
+      mkdirSync(historyDir, { recursive: true });
+      await Bun.write(`${historyDir}/v${planVersion}.md`, planContent);
     } catch {
       // Non-critical — history is a nice-to-have
     }
@@ -180,11 +179,21 @@ if (!isDev) openBrowser(url);
 // 6. Block until user decides
 const decision = await decisionPromise;
 
-// 7. Give browser time to show confirmation
+// 7. Clean up history directory
+if (!isDev) {
+  try {
+    const { rmSync } = await import("node:fs");
+    rmSync(historyDir, { recursive: true, force: true });
+  } catch {
+    // Non-critical cleanup
+  }
+}
+
+// 8. Give browser time to show confirmation
 await Bun.sleep(1200);
 server.stop();
 
-// 8. Write hook decision to stdout
+// 9. Write hook decision to stdout
 const output: HookOutput = {
   hookSpecificOutput: {
     hookEventName: "PermissionRequest",

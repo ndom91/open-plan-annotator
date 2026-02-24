@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useAnnotations } from "../hooks/useAnnotations.ts";
 import { useDecision } from "../hooks/useDecision.ts";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts.ts";
@@ -13,10 +13,10 @@ import { DiffViewer } from "./DiffViewer.tsx";
 import { Header } from "./Header.tsx";
 import { PlanDocument } from "./PlanDocument.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
+import { VersionSidebar } from "./VersionSidebar.tsx";
 
 export default function App() {
   const { plan, planHash, version, history, isLoading, error } = usePlan();
-  const blocks = plan ? parseMarkdownToBlocks(plan) : [];
   const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } =
     useAnnotations(planHash);
   const selection = useTextSelection();
@@ -27,6 +27,21 @@ export default function App() {
     selections: ResolvedSelection[];
   } | null>(null);
   const [showDiff, setShowDiff] = useState(false);
+  const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
+
+  const activeVersion = selectedVersion ?? version;
+  const isViewingHistory = activeVersion !== version;
+  const totalVersions = history.length + 1;
+
+  const displayedPlan = useMemo(() => {
+    if (!isViewingHistory) return plan;
+    return history[activeVersion - 1] ?? plan;
+  }, [isViewingHistory, activeVersion, history, plan]);
+
+  const blocks = useMemo(
+    () => (displayedPlan ? parseMarkdownToBlocks(displayedPlan) : []),
+    [displayedPlan],
+  );
 
   // Ref-based getter for keyboard shortcuts (avoids stale closures)
   const selectionRef = useRef(selection);
@@ -129,9 +144,21 @@ export default function App() {
         />
 
         <div className="flex justify-center px-4 py-8 sm:px-6 lg:px-8">
+          {/* Version history sidebar */}
+          {totalVersions > 1 && (
+            <aside className="w-56 shrink-0 pl-2 mr-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+              <VersionSidebar
+                currentVersion={version}
+                totalVersions={totalVersions}
+                selectedVersion={activeVersion}
+                onSelectVersion={setSelectedVersion}
+              />
+            </aside>
+          )}
+
           <div className="w-full max-w-208">
             {/* Diff view */}
-            {showDiff && hasPreviousVersion && (
+            {showDiff && hasPreviousVersion && !isViewingHistory && (
               <div className="mb-6">
                 <DiffViewer
                   oldText={history[history.length - 1]}
@@ -143,6 +170,22 @@ export default function App() {
               </div>
             )}
 
+            {/* Read-only banner for historical versions */}
+            {isViewingHistory && (
+              <div className="mb-4 flex items-center justify-between px-4 py-2.5 rounded-lg bg-accent-subtle/30 border border-accent/15 text-sm">
+                <span className="text-ink-secondary">
+                  Viewing <span className="font-mono font-semibold text-ink">v{activeVersion}</span> — read-only
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setSelectedVersion(null)}
+                  className="text-xs font-medium text-accent hover:text-ink transition-colors"
+                >
+                  Return to current
+                </button>
+              </div>
+            )}
+
             {/* Document surface */}
             <main
               id="main-content"
@@ -150,28 +193,33 @@ export default function App() {
               className="bg-paper border border-rule-subtle rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.15),0_4px_16px_oklch(0_0_0/0.1),0_16px_48px_oklch(0_0_0/0.08)] overflow-hidden"
             >
               <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
-                <PlanDocument blocks={blocks} annotations={annotations} />
+                <PlanDocument blocks={blocks} annotations={isViewingHistory ? [] : annotations} />
               </div>
             </main>
           </div>
 
-          {/* Annotation sidebar */}
-          {annotations.length > 0 && (
-            <aside className="w-72 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+          {/* Annotation sidebar — always reserve space to prevent layout shift */}
+          <aside className="w-72 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+            {!isViewingHistory && annotations.length > 0 && (
               <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />
-            </aside>
-          )}
+            )}
+          </aside>
         </div>
 
-        {/* Floating toolbar on selection */}
-        {selection.isActive && selection.resolved && selection.rect && !popover && !decided && (
-          <AnnotationToolbar
-            rect={selection.rect}
-            selections={selection.resolved}
-            onAction={handleToolbarAction}
-            onDismiss={() => window.getSelection()?.removeAllRanges()}
-          />
-        )}
+        {/* Floating toolbar on selection — only on current version */}
+        {!isViewingHistory &&
+          selection.isActive &&
+          selection.resolved &&
+          selection.rect &&
+          !popover &&
+          !decided && (
+            <AnnotationToolbar
+              rect={selection.rect}
+              selections={selection.resolved}
+              onAction={handleToolbarAction}
+              onDismiss={() => window.getSelection()?.removeAllRanges()}
+            />
+          )}
 
         {/* Text input popover */}
         {popover && (
