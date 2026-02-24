@@ -1,4 +1,4 @@
-import { applyAnnotations, createRouter } from "./api.ts";
+import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
 import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
 
@@ -49,7 +49,6 @@ const isDev = process.env.NODE_ENV === "development";
 
 // 1. Read stdin
 let planContent: string;
-let planFilePath: string | null = null;
 
 if (isDev) {
   planContent = DEV_PLAN;
@@ -74,41 +73,10 @@ if (isDev) {
             }),
           );
           sorted.sort((a, b) => (b.mtime as number) - (a.mtime as number));
-          planFilePath = sorted[0].path;
-          planContent = await Bun.file(planFilePath).text();
+          planContent = await Bun.file(sorted[0].path).text();
         }
       } catch {
         // Plans directory doesn't exist or is empty
-      }
-    }
-
-    // If plan came from tool_input, find matching plan file on disk
-    if (planContent && !planFilePath) {
-      const plansDir = `${process.env.HOME}/.claude/plans`;
-      try {
-        const files = await Array.fromAsync(new Bun.Glob("*.md").scan(plansDir));
-        const sorted = await Promise.all(
-          files.map(async (f) => {
-            const path = `${plansDir}/${f}`;
-            const stat = await Bun.file(path).stat();
-            return { path, mtime: stat?.mtime ?? 0 };
-          }),
-        );
-        sorted.sort((a, b) => (b.mtime as number) - (a.mtime as number));
-        // Find the file whose content matches the plan
-        for (const f of sorted) {
-          const content = await Bun.file(f.path).text();
-          if (content.trim() === planContent.trim()) {
-            planFilePath = f.path;
-            break;
-          }
-        }
-        // If no exact match, use the most recent file
-        if (!planFilePath && sorted.length > 0) {
-          planFilePath = sorted[0].path;
-        }
-      } catch {
-        // Plans directory doesn't exist
       }
     }
   } catch {
@@ -189,7 +157,6 @@ if (!isDev) {
 
 const state: ServerState = {
   planContent,
-  planFilePath,
   planVersion,
   planHistory,
   htmlContent,
@@ -213,22 +180,11 @@ if (!isDev) openBrowser(url);
 // 6. Block until user decides
 const decision = await decisionPromise;
 
-// 7. Apply annotations to the plan file on disk
-if (!decision.approved && decision.annotations?.length && planFilePath) {
-  try {
-    const modifiedPlan = applyAnnotations(planContent, decision.annotations);
-    await Bun.write(planFilePath, modifiedPlan);
-    process.stderr.write(`open-plan-annotator: wrote modified plan to ${planFilePath}\n`);
-  } catch (err) {
-    process.stderr.write(`open-plan-annotator: failed to write modified plan: ${err}\n`);
-  }
-}
-
-// 8. Give browser time to show confirmation
+// 7. Give browser time to show confirmation
 await Bun.sleep(1200);
 server.stop();
 
-// 9. Write hook decision to stdout
+// 8. Write hook decision to stdout
 const output: HookOutput = {
   hookSpecificOutput: {
     hookEventName: "PermissionRequest",

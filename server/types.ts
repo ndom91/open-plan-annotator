@@ -30,7 +30,6 @@ export interface HookOutput {
 
 export interface ServerState {
   planContent: string;
-  planFilePath: string | null;
   planVersion: number;
   planHistory: string[];
   htmlContent: string;
@@ -40,5 +39,4 @@ export interface ServerState {
 export interface ServerDecision {
   approved: boolean;
   feedback?: string;
-  annotations?: Annotation[];
 }
