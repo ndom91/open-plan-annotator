@@ -1,13 +1,9 @@
 import type { Annotation } from "../utils/annotationSerializer.ts";
-import { cn } from "../utils/cn.ts";
 import { useTheme } from "./ThemeProvider.tsx";
 
 interface HeaderProps {
   annotations: Annotation[];
   version: number;
-  hasPreviousVersion: boolean;
-  showDiff: boolean;
-  onToggleDiff: () => void;
   approve: () => void;
   deny: () => void;
   isPending: boolean;
@@ -17,9 +13,6 @@ interface HeaderProps {
 export function Header({
   annotations,
   version,
-  hasPreviousVersion,
-  showDiff,
-  onToggleDiff,
   approve,
   deny,
   isPending,
@@ -84,33 +77,6 @@ export function Header({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {hasPreviousVersion && (
-            <button
-              type="button"
-              onClick={onToggleDiff}
-              className={cn(
-                "px-2.5 py-1.5 rounded-md text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-accent/50",
-                showDiff
-                  ? "bg-ink/10 text-ink-secondary ring-1 ring-ink/10"
-                  : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5",
-              )}
-              title="Show changes from previous version"
-            >
-              <span className="flex items-center gap-1.5">
-                <svg
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 16 16"
-                  fill="currentColor"
-                  className="w-3.5 h-3.5"
-                >
-                  <path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM3.75 9a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5ZM3 12.25a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Z" />
-                </svg>
-                Diff
-              </span>
-            </button>
-          )}
-
           <button
             type="button"
             onClick={toggle}
