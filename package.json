@@ -1,6 +1,6 @@
 {
   "name": "open-plan-annotator",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
   "scripts": {
@@ -14,7 +14,7 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write ."
   },
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"
   }
