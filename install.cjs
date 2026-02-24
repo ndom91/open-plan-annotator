@@ -11,7 +11,7 @@ const zlib = require("zlib");
 const https = require("https");
 
 const VERSION = require("./package.json").version;
-const REPO = "ndomino/open-plan-annotator";
+const REPO = "ndom91/open-plan-annotator";
 
 const PLATFORM_MAP = {
   "darwin-arm64": "open-plan-annotator-darwin-arm64",
