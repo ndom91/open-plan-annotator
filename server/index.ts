@@ -95,16 +95,9 @@ const decisionPromise = new Promise<ServerDecision>((resolve) => {
 // 3. Load the embedded HTML
 let htmlContent: string;
 try {
-  // In compiled binary, the HTML is embedded at build time
-  const mod = await import("../build/index.html");
-  htmlContent = (mod.default ?? mod) as string;
+  htmlContent = await Bun.file(new URL("../build/index.html", import.meta.url).pathname).text();
 } catch {
-  // During development, try to read from disk
-  try {
-    htmlContent = await Bun.file("build/index.html").text();
-  } catch {
-    htmlContent = `<!DOCTYPE html><html><body><h1>open-plan-annotator</h1><p>UI not built yet. Run <code>bun run build:ui</code> first.</p></body></html>`;
-  }
+  htmlContent = `<!DOCTYPE html><html><body><h1>open-plan-annotator</h1><p>UI not built yet. Run <code>bun run build:ui</code> first.</p></body></html>`;
 }
 
 // Detect version history: check for previous plans stored by session
@@ -192,5 +185,4 @@ const output: HookOutput = {
   },
 };
 
-process.stdout.write(`${JSON.stringify(output)}\n`);
-process.exit(0);
+console.log(JSON.stringify(output));

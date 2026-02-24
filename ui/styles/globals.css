@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+button:not(:disabled) {
+  cursor: pointer;
+}
+
 @theme {
   /* Document surface colors */
   --color-desk: oklch(0.21 0.006 260);

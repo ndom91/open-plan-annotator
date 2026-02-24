@@ -117,7 +117,7 @@ export function Header({
           className="px-3.5 py-1.5 rounded-md text-sm font-medium text-redline hover:bg-redline-bg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           title="⌘⇧↵"
         >
-          Request Changes
+          Send Annotations
         </button>
         <button
           type="button"
@@ -126,7 +126,7 @@ export function Header({
           className="px-3.5 py-1.5 rounded-md bg-approve hover:bg-approve-hover disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
           title="⌘↵"
         >
-          Approve
+          Accept Plan
         </button>
       </div>
     </header>
