@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { cn } from "../utils/cn.ts";
 
 interface TextInputPopoverProps {
   mode: "comment" | "replacement" | "insertion";
@@ -62,7 +63,7 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
             <button onClick={onCancel} className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors">
               Cancel
             </button>
-            <button onClick={handleSubmit} disabled={!text.trim()} className={`px-3 py-1.5 text-sm rounded-md text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium ${buttonClass}`}>
+            <button onClick={handleSubmit} disabled={!text.trim()} className={cn("px-3 py-1.5 text-sm rounded-md text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium", buttonClass)}>
               {button}
             </button>
           </div>

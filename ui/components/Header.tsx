@@ -1,5 +1,6 @@
 import { useTheme } from "./ThemeProvider.tsx";
 import type { Annotation } from "../utils/annotationSerializer.ts";
+import { cn } from "../utils/cn.ts";
 
 interface HeaderProps {
   annotations: Annotation[];
@@ -53,9 +54,10 @@ export function Header({ annotations, version, hasPreviousVersion, showDiff, onT
         {hasPreviousVersion && (
           <button
             onClick={onToggleDiff}
-            className={`px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
-              showDiff ? "bg-ink/10 text-ink-secondary" : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5"
-            }`}
+            className={cn(
+              "px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors",
+              showDiff ? "bg-ink/10 text-ink-secondary" : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5",
+            )}
             title="Show changes from previous version"
           >
             <span className="flex items-center gap-1.5">

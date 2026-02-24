@@ -1,4 +1,5 @@
 import type { ResolvedSelection } from "../utils/offsetResolver.ts";
+import { cn } from "../utils/cn.ts";
 
 export type ToolbarAction = "deletion" | "comment" | "replacement" | "insertion";
 
@@ -14,7 +15,6 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
   const left = rect.left + rect.width / 2;
 
   const btn = "flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors";
-  const sep = "w-px h-5 bg-rule mx-0.5";
 
   return (
     <div
@@ -23,7 +23,7 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
     >
       <button
         onClick={() => { onAction("deletion", selection); onDismiss(); }}
-        className={`${btn} text-redline hover:bg-redline-bg/60`}
+        className={cn(btn, "text-redline hover:bg-redline-bg/60")}
         title="Delete (d)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
@@ -32,10 +32,10 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
         </svg>
         Delete
       </button>
-      <div className={sep} />
+      <div className="w-px h-5 bg-rule mx-0.5" />
       <button
         onClick={() => { onAction("replacement", selection); onDismiss(); }}
-        className={`${btn} text-ink-secondary hover:bg-ink/5`}
+        className={cn(btn, "text-ink-secondary hover:bg-ink/5")}
         title="Replace (r)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
@@ -43,10 +43,10 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
         </svg>
         Replace
       </button>
-      <div className={sep} />
+      <div className="w-px h-5 bg-rule mx-0.5" />
       <button
         onClick={() => { onAction("insertion", selection); onDismiss(); }}
-        className={`${btn} text-approve hover:bg-approve/10`}
+        className={cn(btn, "text-approve hover:bg-approve/10")}
         title="Insert after (i)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
@@ -54,10 +54,10 @@ export function AnnotationToolbar({ rect, selection, onAction, onDismiss }: Anno
         </svg>
         Insert
       </button>
-      <div className={sep} />
+      <div className="w-px h-5 bg-rule mx-0.5" />
       <button
         onClick={() => { onAction("comment", selection); onDismiss(); }}
-        className={`${btn} text-margin-note hover:bg-margin-note-bg/60`}
+        className={cn(btn, "text-margin-note hover:bg-margin-note-bg/60")}
         title="Comment (c)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">

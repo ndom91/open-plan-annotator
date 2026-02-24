@@ -1,4 +1,5 @@
 import type { Annotation } from "../utils/annotationSerializer.ts";
+import { cn } from "../utils/cn.ts";
 
 interface AnnotationSidebarProps {
   annotations: Annotation[];
@@ -24,10 +25,10 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
           return (
             <div key={ann.id} className="group rounded-md border border-rule-subtle bg-paper p-3 hover:border-rule transition-colors">
               <div className="flex items-start justify-between gap-2">
-                <div className={`w-1.5 h-1.5 rounded-full mt-1.5 shrink-0 ${cfg.color}`} />
+                <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0", cfg.color)} />
                 <div className="flex-1 min-w-0">
                   <span className="text-[11px] font-medium text-ink-tertiary uppercase tracking-wide">{cfg.label}</span>
-                  <p className={`mt-0.5 text-xs leading-relaxed ${ann.type === "deletion" ? "line-through text-ink-tertiary" : "text-ink-secondary"}`}>
+                  <p className={cn("mt-0.5 text-xs leading-relaxed", ann.type === "deletion" ? "line-through text-ink-tertiary" : "text-ink-secondary")}>
                     {truncate(ann.text, 60)}
                   </p>
                   {ann.type === "replacement" && ann.replacement && (
