@@ -8,7 +8,8 @@
     "build:server": "bun build server/index.ts --outfile=build/open-plan-edit --target=bun --compile",
     "build": "bun run build:ui && bun run build:server",
     "dev:ui": "cd ui && bun run vite --port 5173",
-    "dev:server": "NODE_ENV=development bun run server/index.ts"
+    "dev:server": "NODE_ENV=development bun run server/index.ts",
+    "dev": "NODE_ENV=development bun run server/index.ts & cd ui && bun run vite --port 5173"
   },
   "license": "ISC"
 }

@@ -34,8 +34,8 @@ export default function App() {
   if (isLoading) {
     return (
       <ThemeProvider>
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
-          <div className="text-gray-400 dark:text-gray-500 text-sm">Loading plan...</div>
+        <div className="flex items-center justify-center min-h-screen bg-desk">
+          <div className="text-ink-tertiary text-sm tracking-wide">Loading plan...</div>
         </div>
       </ThemeProvider>
     );
@@ -44,8 +44,8 @@ export default function App() {
   if (error) {
     return (
       <ThemeProvider>
-        <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-950">
-          <div className="text-red-500 text-sm">Failed to load plan: {error}</div>
+        <div className="flex items-center justify-center min-h-screen bg-desk">
+          <div className="text-redline text-sm">Failed to load plan: {error}</div>
         </div>
       </ThemeProvider>
     );
@@ -53,16 +53,20 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen bg-desk">
         <Header annotations={annotations} />
 
-        <div className="flex max-w-screen-xl mx-auto">
-          <main className="flex-1 min-w-0 px-8 py-10 lg:px-16">
-            <PlanDocument blocks={blocks} annotations={annotations} />
+        <div className="flex justify-center px-4 py-8 sm:px-6 lg:px-8">
+          {/* Document surface — the "paper" */}
+          <main className="w-full max-w-[52rem] bg-paper border border-rule-subtle rounded-lg shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_32px_oklch(0_0_0/0.08)]">
+            <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
+              <PlanDocument blocks={blocks} annotations={annotations} />
+            </div>
           </main>
 
+          {/* Annotation sidebar — floats beside the document */}
           {annotations.length > 0 && (
-            <aside className="w-80 shrink-0 border-l border-gray-200 dark:border-gray-800 px-4 py-10 sticky top-14 max-h-[calc(100vh-3.5rem)] overflow-y-auto hidden lg:block">
+            <aside className="w-72 shrink-0 ml-6 sticky top-[4.5rem] max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
               <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />
             </aside>
           )}

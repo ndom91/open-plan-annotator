@@ -117,15 +117,15 @@ const state: ServerState = {
 const router = createRouter(state);
 
 const server = Bun.serve({
-  port: 0, // Random available port
+  port: isDev ? 3847 : 0,
   fetch: router,
 });
 
 const url = `http://localhost:${server.port}`;
 process.stderr.write(`open-plan-edit: UI available at ${url}\n`);
 
-// 5. Open browser
-openBrowser(url);
+// 5. Open browser (skip in dev — Vite serves the UI)
+if (!isDev) openBrowser(url);
 
 // 6. Block until user decides
 const decision = await decisionPromise;

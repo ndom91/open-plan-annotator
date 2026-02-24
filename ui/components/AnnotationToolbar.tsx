@@ -9,37 +9,41 @@ interface AnnotationToolbarProps {
 }
 
 export function AnnotationToolbar({ rect, selection, onStrikethrough, onComment, onDismiss }: AnnotationToolbarProps) {
-  const top = rect.top + window.scrollY - 48;
+  const top = rect.top + window.scrollY - 44;
   const left = rect.left + rect.width / 2;
 
   return (
-    <div style={{ top, left, transform: "translateX(-50%)" }} className="absolute z-50 flex items-center gap-1 bg-gray-900 dark:bg-gray-800 text-white rounded-lg shadow-xl px-2 py-1.5 text-sm">
+    <div
+      style={{ top, left, transform: "translateX(-50%)" }}
+      className="absolute z-50 flex items-center bg-paper border border-rule rounded-lg shadow-[0_4px_16px_oklch(0_0_0/0.2),0_1px_3px_oklch(0_0_0/0.1)] px-1 py-1 text-sm"
+    >
       <button
         onClick={() => {
           onStrikethrough(selection);
           onDismiss();
         }}
-        className="flex items-center gap-1.5 px-3 py-1 rounded hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-redline hover:bg-redline-bg/60 transition-colors"
         title="Mark for deletion"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-          <path fillRule="evenodd" d="M2 10a.75.75 0 0 1 .75-.75h14.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 10Z" clipRule="evenodd" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+          <path d="M3.5 8a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 3.5 8Z" />
+          <path fillRule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM2.5 8a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z" clipRule="evenodd" />
         </svg>
-        <span>Delete</span>
+        <span className="text-xs font-medium">Delete</span>
       </button>
-      <div className="w-px h-4 bg-gray-600" />
+      <div className="w-px h-5 bg-rule mx-0.5" />
       <button
         onClick={() => {
           onComment(selection);
           onDismiss();
         }}
-        className="flex items-center gap-1.5 px-3 py-1 rounded hover:bg-gray-700 transition-colors"
+        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-margin-note hover:bg-margin-note-bg/60 transition-colors"
         title="Add comment"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
-          <path fillRule="evenodd" d="M10 2c-2.236 0-4.43.18-6.57.524C1.993 2.755 1 4.014 1 5.426v5.148c0 1.413.993 2.67 2.43 2.902 1.168.188 2.352.327 3.55.414.28.02.521.18.642.413l1.713 3.293a.75.75 0 0 0 1.33 0l1.713-3.293a.783.783 0 0 1 .642-.413 41.102 41.102 0 0 0 3.55-.414c1.437-.231 2.43-1.49 2.43-2.902V5.426c0-1.413-.993-2.67-2.43-2.902A41.289 41.289 0 0 0 10 2ZM6.75 6a.75.75 0 0 0 0 1.5h6.5a.75.75 0 0 0 0-1.5h-6.5Zm0 2.5a.75.75 0 0 0 0 1.5h3.5a.75.75 0 0 0 0-1.5h-3.5Z" clipRule="evenodd" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
+          <path d="M1 8.74c0 .983.713 1.825 1.69 1.943.764.092 1.534.164 2.31.216a.75.75 0 0 1 .474.298l1.316 1.796a.25.25 0 0 0 .42 0l1.316-1.796a.75.75 0 0 1 .474-.298c.776-.052 1.546-.124 2.31-.216C12.287 10.565 13 9.723 13 8.74V4.26c0-.983-.713-1.825-1.69-1.943A44.077 44.077 0 0 0 7 2c-1.543 0-3.06.096-4.31.317C1.713 2.435 1 3.277 1 4.26v4.48Z" />
         </svg>
-        <span>Comment</span>
+        <span className="text-xs font-medium">Comment</span>
       </button>
     </div>
   );

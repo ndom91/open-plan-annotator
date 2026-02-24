@@ -36,13 +36,13 @@ function renderSegments(segments: Segment[]) {
     if (!seg.annotation) return <span key={i}>{seg.text}</span>;
     if (seg.annotation.type === "deletion") {
       return (
-        <span key={i} className="line-through text-red-500 dark:text-red-400 bg-red-50 dark:bg-red-950/30 rounded-sm px-0.5" title="Marked for removal">
+        <span key={i} className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px" title="Marked for removal">
           {seg.text}
         </span>
       );
     }
     return (
-      <span key={i} className="bg-yellow-100 dark:bg-yellow-900/40 border-b-2 border-yellow-400 dark:border-yellow-600 rounded-sm px-0.5" title={seg.annotation.comment}>
+      <span key={i} className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help" title={seg.annotation.comment}>
         {seg.text}
       </span>
     );
@@ -55,18 +55,17 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
   switch (block.type) {
     case "heading": {
-      const classes = "font-semibold text-gray-900 dark:text-gray-100";
       const sizeClasses: Record<number, string> = {
-        1: "text-3xl mt-8 mb-4",
-        2: "text-2xl mt-7 mb-3",
-        3: "text-xl mt-6 mb-2",
-        4: "text-lg mt-5 mb-2",
-        5: "text-base mt-4 mb-1",
-        6: "text-sm mt-4 mb-1 uppercase tracking-wide",
+        1: "text-2xl font-semibold tracking-tight mt-0 mb-6 text-ink",
+        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pb-2 border-b border-rule-subtle",
+        3: "text-base font-semibold tracking-tight mt-8 mb-2 text-ink",
+        4: "text-sm font-semibold mt-6 mb-2 text-ink",
+        5: "text-sm font-medium mt-5 mb-1.5 text-ink-secondary",
+        6: "text-xs font-medium mt-5 mb-1.5 text-ink-tertiary uppercase tracking-widest",
       };
-      const size = sizeClasses[block.level ?? 1] ?? sizeClasses[1];
+      const classes = sizeClasses[block.level ?? 1] ?? sizeClasses[1];
       return (
-        <div data-block-index={block.index} className={`${classes} ${size}`}>
+        <div data-block-index={block.index} className={classes}>
           {renderSegments(segments)}
         </div>
       );
@@ -74,16 +73,23 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
     case "code":
       return (
-        <pre data-block-index={block.index} className="bg-gray-100 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg p-4 overflow-x-auto font-mono text-sm my-4 leading-relaxed">
-          <code>{renderSegments(segments)}</code>
-        </pre>
+        <div data-block-index={block.index} className="my-5 rounded-md bg-inset border border-rule overflow-hidden">
+          {block.lang && (
+            <div className="px-4 py-1.5 border-b border-rule text-[11px] font-mono text-ink-tertiary tracking-wide uppercase">
+              {block.lang}
+            </div>
+          )}
+          <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-ink-secondary">
+            <code>{renderSegments(segments)}</code>
+          </pre>
+        </div>
       );
 
     case "list":
       return (
-        <ul data-block-index={block.index} className="list-disc pl-6 my-3 space-y-1.5">
+        <ul data-block-index={block.index} className="my-3 space-y-1">
           {block.items?.map((item, i) => (
-            <li key={i} className="text-gray-700 dark:text-gray-300 leading-relaxed">
+            <li key={i} className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary">
               {item}
             </li>
           ))}
@@ -91,18 +97,18 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       );
 
     case "hr":
-      return <hr data-block-index={block.index} className="my-8 border-gray-200 dark:border-gray-700" />;
+      return <hr data-block-index={block.index} className="my-10 border-0 h-px bg-rule-subtle" />;
 
     case "blockquote":
       return (
-        <blockquote data-block-index={block.index} className="border-l-4 border-blue-400 dark:border-blue-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4 leading-relaxed">
+        <blockquote data-block-index={block.index} className="my-5 pl-4 border-l-2 border-ink-tertiary/40 text-[15px] text-ink-secondary italic leading-relaxed">
           {renderSegments(segments)}
         </blockquote>
       );
 
     default:
       return (
-        <p data-block-index={block.index} className="text-gray-700 dark:text-gray-300 leading-relaxed my-3">
+        <p data-block-index={block.index} className="text-[15px] text-ink-secondary leading-[1.7] my-3">
           {renderSegments(segments)}
         </p>
       );

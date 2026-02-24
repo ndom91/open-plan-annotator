@@ -1,1 +1,77 @@
 @import "tailwindcss";
+
+@theme {
+  /* Document surface colors */
+  --color-desk: oklch(0.21 0.006 260);
+  --color-paper: oklch(0.24 0.005 260);
+  --color-paper-edge: oklch(0.28 0.008 260);
+  --color-inset: oklch(0.18 0.008 260);
+
+  /* Ink hierarchy */
+  --color-ink: oklch(0.93 0.005 260);
+  --color-ink-secondary: oklch(0.65 0.01 260);
+  --color-ink-tertiary: oklch(0.48 0.01 260);
+
+  /* Functional */
+  --color-redline: oklch(0.65 0.2 25);
+  --color-redline-bg: oklch(0.30 0.06 25);
+  --color-margin-note: oklch(0.75 0.15 85);
+  --color-margin-note-bg: oklch(0.32 0.06 85);
+  --color-approve: oklch(0.65 0.18 155);
+  --color-approve-hover: oklch(0.60 0.18 155);
+
+  /* Structure */
+  --color-rule: oklch(0.30 0.005 260);
+  --color-rule-subtle: oklch(0.26 0.005 260);
+}
+
+/* Light mode overrides */
+@media (prefers-color-scheme: light) {
+  :root:not(.dark) {
+    --color-desk: oklch(0.95 0.005 260);
+    --color-paper: oklch(0.99 0.002 80);
+    --color-paper-edge: oklch(0.90 0.005 260);
+    --color-inset: oklch(0.96 0.004 260);
+    --color-ink: oklch(0.18 0.005 260);
+    --color-ink-secondary: oklch(0.42 0.01 260);
+    --color-ink-tertiary: oklch(0.58 0.01 260);
+    --color-redline: oklch(0.52 0.2 25);
+    --color-redline-bg: oklch(0.93 0.04 25);
+    --color-margin-note: oklch(0.50 0.12 85);
+    --color-margin-note-bg: oklch(0.94 0.04 85);
+    --color-approve: oklch(0.50 0.16 155);
+    --color-approve-hover: oklch(0.45 0.16 155);
+    --color-rule: oklch(0.88 0.005 260);
+    --color-rule-subtle: oklch(0.92 0.005 260);
+  }
+}
+
+html {
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: oklch(0.55 0.15 250 / 0.35);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: oklch(0.4 0 0 / 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.4 0 0 / 0.5);
+}

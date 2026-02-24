@@ -29,25 +29,29 @@ export function CommentPopover({ onSubmit, onCancel }: CommentPopoverProps) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 dark:bg-black/40" onClick={onCancel}>
-      <div className="bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 p-5 w-96" onClick={(e) => e.stopPropagation()}>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3">Add Comment</h3>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onCancel}>
+      <div className="bg-paper border border-rule rounded-xl shadow-[0_8px_40px_oklch(0_0_0/0.25),0_1px_3px_oklch(0_0_0/0.1)] p-5 w-[22rem]" onClick={(e) => e.stopPropagation()}>
+        <h3 className="text-sm font-medium text-ink mb-3">Add Comment</h3>
         <textarea
           ref={inputRef}
           value={text}
           onChange={(e) => setText(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder="What should be changed here?"
-          className="w-full h-24 px-3 py-2 text-sm rounded-lg border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-400 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full h-24 px-3 py-2.5 text-sm rounded-md border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none focus:outline-none focus:ring-1 focus:ring-margin-note/50 focus:border-margin-note/50 transition-colors"
         />
         <div className="flex items-center justify-between mt-3">
-          <span className="text-xs text-gray-400">Cmd+Enter to submit</span>
+          <kbd className="text-[11px] text-ink-tertiary font-mono">
+            <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">⌘</span>
+            <span className="mx-0.5">+</span>
+            <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">↵</span>
+          </kbd>
           <div className="flex gap-2">
-            <button onClick={onCancel} className="px-3 py-1.5 text-sm rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors">
+            <button onClick={onCancel} className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors">
               Cancel
             </button>
-            <button onClick={handleSubmit} disabled={!text.trim()} className="px-3 py-1.5 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-              Add Comment
+            <button onClick={handleSubmit} disabled={!text.trim()} className="px-3 py-1.5 text-sm rounded-md bg-margin-note/90 text-white hover:bg-margin-note disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium">
+              Comment
             </button>
           </div>
         </div>

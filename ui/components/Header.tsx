@@ -12,24 +12,36 @@ export function Header({ annotations }: HeaderProps) {
 
   if (decided) {
     return (
-      <header className="sticky top-0 z-40 flex items-center justify-center px-6 py-4 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
-        <span className="text-sm text-gray-500 dark:text-gray-400">Decision sent. You can close this tab.</span>
+      <header className="sticky top-0 z-40 flex items-center justify-center px-6 py-5 bg-desk/80 backdrop-blur-md border-b border-rule-subtle">
+        <div className="flex items-center gap-2 text-ink-tertiary">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
+          </svg>
+          <span className="text-sm">Decision sent. You can close this tab.</span>
+        </div>
       </header>
     );
   }
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-3 bg-white dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800 shadow-sm">
-      <div className="flex items-center gap-3">
-        <span className="font-semibold text-gray-900 dark:text-gray-100">Plan Review</span>
+    <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-3.5 bg-desk/80 backdrop-blur-md border-b border-rule-subtle">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="w-5 h-5 rounded bg-ink/10 flex items-center justify-center">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3 h-3 text-ink-secondary">
+              <path d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2-.5a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5H4Zm1.75 2a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Zm0 3a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z" />
+            </svg>
+          </div>
+          <span className="text-sm font-medium text-ink tracking-tight">Plan Review</span>
+        </div>
         {annotations.length > 0 && (
-          <span className="text-xs bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-medium">
-            {annotations.length} annotation{annotations.length !== 1 ? "s" : ""}
+          <span className="text-xs text-margin-note bg-margin-note-bg px-2 py-0.5 rounded-full font-medium tabular-nums">
+            {annotations.length}
           </span>
         )}
       </div>
-      <div className="flex items-center gap-3">
-        <button onClick={toggle} className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" title="Toggle theme">
+      <div className="flex items-center gap-2">
+        <button onClick={toggle} className="p-2 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors" title="Toggle theme">
           {dark ? (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
               <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06l-1.06-1.06a.75.75 0 1 0-1.06 1.06l1.06 1.06Z" />
@@ -40,19 +52,22 @@ export function Header({ annotations }: HeaderProps) {
             </svg>
           )}
         </button>
+
+        <div className="w-px h-5 bg-rule mx-1" />
+
         <button
           onClick={() => deny(annotations)}
           disabled={isPending || annotations.length === 0}
-          className="px-4 py-2 rounded-lg border border-red-300 dark:border-red-800 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-medium text-sm"
+          className="px-3.5 py-1.5 rounded-md text-sm font-medium text-redline hover:bg-redline-bg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
           Request Changes
         </button>
         <button
           onClick={() => approve()}
           disabled={isPending}
-          className="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed text-white font-medium text-sm transition-colors shadow-sm"
+          className="px-3.5 py-1.5 rounded-md bg-approve hover:bg-approve-hover disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
         >
-          Approve Plan
+          Approve
         </button>
       </div>
     </header>
