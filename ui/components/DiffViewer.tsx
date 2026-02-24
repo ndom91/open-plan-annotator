@@ -12,8 +12,8 @@ export function DiffViewer({ oldText, newText, oldVersion, newVersion, onClose }
   const lines = computeDiff(oldText, newText);
 
   return (
-    <div className="border border-rule rounded-md overflow-hidden bg-inset">
-      <div className="flex items-center justify-between px-4 py-2 border-b border-rule bg-paper">
+    <div className="border border-rule rounded-xl overflow-hidden bg-inset shadow-[0_1px_2px_oklch(0_0_0/0.12),0_4px_16px_oklch(0_0_0/0.08)]">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-rule bg-paper/80">
         <div className="flex items-center gap-3 text-xs">
           <span className="text-ink-tertiary">
             Comparing <span className="font-medium text-ink-secondary">v{oldVersion}</span> &rarr;{" "}

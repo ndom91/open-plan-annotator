@@ -27,7 +27,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
   };
 
   const btn =
-    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-medium transition-colors focus-visible:ring-2 focus-visible:ring-margin-note/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
+    "flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
 
   return (
     <div
@@ -35,7 +35,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       aria-label="Annotation actions"
       onKeyDown={handleToolbarKeyDown}
       style={{ top, left, transform: "translateX(-50%)" }}
-      className="absolute z-50 flex items-center bg-paper/95 backdrop-blur-sm border border-rule rounded-md shadow-[0_4px_12px_oklch(0_0_0/0.15),0_1px_2px_oklch(0_0_0/0.08)] p-1"
+      className="absolute z-50 flex items-center bg-paper/95 backdrop-blur-xl border border-rule rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.12),0_4px_16px_oklch(0_0_0/0.15),0_12px_40px_oklch(0_0_0/0.1)] p-1.5"
     >
       <button
         type="button"

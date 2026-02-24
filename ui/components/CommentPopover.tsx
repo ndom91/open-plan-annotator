@@ -91,9 +91,11 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
         role="dialog"
         aria-labelledby="popover-title"
         aria-modal="true"
-        className="bg-paper border border-rule rounded-xl shadow-[0_8px_40px_oklch(0_0_0/0.25),0_1px_3px_oklch(0_0_0/0.1)] p-6 w-[26rem]"
+        className="bg-paper border border-rule rounded-2xl shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_40px_oklch(0_0_0/0.25),0_24px_60px_oklch(0_0_0/0.15)] overflow-hidden w-[26rem]"
         onClick={(e) => e.stopPropagation()}
       >
+        <div className="h-[2px] bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+        <div className="p-6">
         <h3 id="popover-title" className="text-sm font-semibold text-ink mb-1.5">
           {title}
         </h3>
@@ -107,7 +109,7 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           aria-label={title}
-          className="w-full h-20 px-3 py-2.5 text-sm rounded-md border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none focus:outline-none focus:ring-2 focus:ring-margin-note/50 focus:border-margin-note/50 transition-colors"
+          className="w-full h-20 px-3 py-2.5 text-sm rounded-lg border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-all"
         />
         <div className="flex items-center justify-between mt-4">
           <kbd className="text-[11px] text-ink-tertiary font-mono">
@@ -128,13 +130,14 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
               onClick={handleSubmit}
               disabled={!text.trim()}
               className={cn(
-                "px-3 py-1.5 text-sm rounded-md text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium focus-visible:ring-2 focus-visible:ring-margin-note/50",
+                "px-3.5 py-1.5 text-sm rounded-lg text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50",
                 buttonClass,
               )}
             >
               {button}
             </button>
           </div>
+        </div>
         </div>
       </div>
     </div>

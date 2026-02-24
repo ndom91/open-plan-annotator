@@ -109,7 +109,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-desk">
+      <div className="min-h-screen bg-desk desk-texture">
         <a
           href="#main-content"
           className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-100 focus:px-4 focus:py-2 focus:bg-paper focus:text-ink focus:rounded-md focus:shadow-lg focus:text-sm focus:font-medium"
@@ -147,7 +147,7 @@ export default function App() {
             <main
               id="main-content"
               tabIndex={-1}
-              className="bg-paper border border-rule-subtle rounded-lg shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_32px_oklch(0_0_0/0.08)]"
+              className="bg-paper border border-rule-subtle rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.15),0_4px_16px_oklch(0_0_0/0.1),0_16px_48px_oklch(0_0_0/0.08)] overflow-hidden"
             >
               <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
                 <PlanDocument blocks={blocks} annotations={annotations} />

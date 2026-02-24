@@ -92,7 +92,7 @@ function renderSegments(segments: Segment[], useInline = true) {
       return (
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
           {content}
-          <span className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1" data-replacement="true">
+          <span className="text-approve bg-approve/10  rounded-sm px-1 ml-1" data-replacement="true">
             +{seg.annotation.replacement}
           </span>
         </span>
@@ -182,8 +182,8 @@ export function BlockComponent({ block, annotations }: BlockProps) {
     case "heading": {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);
       const sizeClasses: Record<number, string> = {
-        1: "text-2xl font-semibold tracking-tight mt-0 mb-6 text-ink scroll-mt-20",
-        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pb-2 border-b border-rule-subtle scroll-mt-20",
+        1: "text-3xl font-bold tracking-[-0.03em] mt-0 mb-8 text-ink scroll-mt-20",
+        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pl-4 border-l-[3px] border-accent/50 scroll-mt-20",
         3: "text-base font-semibold tracking-tight mt-8 mb-2 text-ink scroll-mt-20",
         4: "text-sm font-semibold mt-6 mb-2 text-ink scroll-mt-20",
         5: "text-sm font-medium mt-5 mb-1.5 text-ink-secondary scroll-mt-20",
@@ -202,11 +202,13 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       return (
         <div
           data-block-index={block.index}
-          className="my-5 rounded-md bg-inset border border-rule-subtle overflow-hidden"
+          className="my-5 rounded-lg bg-inset border border-rule-subtle overflow-hidden shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)]"
         >
           {block.lang && (
-            <div className="px-4 py-1.5 border-b border-rule-subtle text-[11px] font-mono text-ink-tertiary tracking-wide">
-              {block.lang}
+            <div className="px-4 py-2 border-b border-rule-subtle bg-gradient-to-b from-paper/50 to-transparent flex items-center">
+              <span className="text-[11px] font-mono text-ink-tertiary tracking-wide bg-ink/5 px-2 py-0.5 rounded-full ring-1 ring-ink/8">
+                {block.lang}
+              </span>
             </div>
           )}
           <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-ink-secondary">
@@ -250,7 +252,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       return (
         <blockquote
           data-block-index={block.index}
-          className="my-5 pl-4 border-l-2 border-ink-tertiary/40 text-[15px] text-ink-secondary italic leading-relaxed"
+          className="my-5 pl-4 border-l-2 border-accent/40 bg-accent/[0.03] rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
         >
           {renderSegments(segments)}
         </blockquote>
