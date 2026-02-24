@@ -17,10 +17,10 @@
     "code-review"
   ],
   "bin": {
-    "open-plan-annotator": "bin/open-plan-annotator"
+    "open-plan-annotator": "bin/open-plan-annotator.cjs"
   },
   "files": [
-    "bin/open-plan-annotator",
+    "bin/open-plan-annotator.cjs",
     "install.cjs",
     ".claude-plugin/",
     "hooks/",
