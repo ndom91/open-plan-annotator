@@ -196,9 +196,9 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
     case "code":
       return (
-        <div data-block-index={block.index} className="my-5 rounded-md bg-inset border border-rule overflow-hidden">
+        <div data-block-index={block.index} className="my-5 rounded-md bg-inset border border-rule-subtle overflow-hidden">
           {block.lang && (
-            <div className="px-4 py-1.5 border-b border-rule text-[11px] font-mono text-ink-tertiary tracking-wide uppercase">
+            <div className="px-4 py-1.5 border-b border-rule-subtle text-[11px] font-mono text-ink-tertiary tracking-wide">
               {block.lang}
             </div>
           )}

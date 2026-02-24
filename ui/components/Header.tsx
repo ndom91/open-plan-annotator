@@ -29,7 +29,7 @@ export function Header({
 
   if (decided) {
     return (
-      <header className="sticky top-0 z-40 flex items-center justify-center px-6 py-5 bg-desk/80 backdrop-blur-md border-b border-rule-subtle">
+      <header className="sticky top-0 z-40 flex items-center justify-center px-8 py-4 bg-desk/80 backdrop-blur-md border-b border-rule-subtle">
         <div className="flex items-center gap-2 text-ink-tertiary">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
             <path
@@ -45,7 +45,7 @@ export function Header({
   }
 
   return (
-    <header className="sticky top-0 z-40 flex items-center justify-between px-6 py-3.5 bg-desk/80 backdrop-blur-md border-b border-rule-subtle">
+    <header className="sticky top-0 z-40 flex items-center justify-between px-8 py-3 bg-desk/80 backdrop-blur-md border-b border-rule-subtle">
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2.5">
           <div className="w-5 h-5 rounded bg-ink/10 flex items-center justify-center">
@@ -108,13 +108,13 @@ export function Header({
           )}
         </button>
 
-        <div className="w-px h-5 bg-rule mx-1" />
+        <div className="w-px h-4 bg-rule/60 mx-1.5" />
 
         <button
           type="button"
           onClick={deny}
           disabled={isPending || annotations.length === 0}
-          className="px-3.5 py-1.5 rounded-md text-sm font-medium text-redline hover:bg-redline-bg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="px-3 py-1.5 rounded-md text-[13px] font-medium text-redline hover:bg-redline-bg disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           title="⌘⇧↵"
         >
           Send Annotations
@@ -123,7 +123,7 @@ export function Header({
           type="button"
           onClick={approve}
           disabled={isPending}
-          className="px-3.5 py-1.5 rounded-md bg-approve hover:bg-approve-hover disabled:opacity-30 disabled:cursor-not-allowed text-white text-sm font-medium transition-colors"
+          className="px-3.5 py-1.5 rounded-md bg-approve hover:bg-approve-hover disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-medium transition-colors"
           title="⌘↵"
         >
           Accept Plan

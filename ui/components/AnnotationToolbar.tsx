@@ -19,7 +19,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
   return (
     <div
       style={{ top, left, transform: "translateX(-50%)" }}
-      className="absolute z-50 flex items-center bg-paper border border-rule rounded-lg shadow-[0_4px_16px_oklch(0_0_0/0.2),0_1px_3px_oklch(0_0_0/0.1)] px-1 py-1"
+      className="absolute z-50 flex items-center bg-paper/95 backdrop-blur-sm border border-rule rounded-lg shadow-[0_4px_12px_oklch(0_0_0/0.15),0_1px_2px_oklch(0_0_0/0.08)] px-1.5 py-1"
     >
       <button
         type="button"

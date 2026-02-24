@@ -6,10 +6,10 @@ button:not(:disabled) {
 
 @theme {
   /* Document surface colors */
-  --color-desk: oklch(0.21 0.006 260);
-  --color-paper: oklch(0.24 0.005 260);
-  --color-paper-edge: oklch(0.28 0.008 260);
-  --color-inset: oklch(0.18 0.008 260);
+  --color-desk: oklch(0.20 0.006 260);
+  --color-paper: oklch(0.25 0.005 260);
+  --color-paper-edge: oklch(0.29 0.008 260);
+  --color-inset: oklch(0.16 0.008 260);
 
   /* Ink hierarchy */
   --color-ink: oklch(0.93 0.005 260);
@@ -49,9 +49,11 @@ button:not(:disabled) {
 }
 
 html {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.011em;
 }
 
 ::selection {
@@ -71,9 +73,9 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.4 0 0 / 0.3);
+  background: oklch(0.4 0 0 / 0.2);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.4 0 0 / 0.5);
+  background: oklch(0.4 0 0 / 0.4);
 }

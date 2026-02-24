@@ -62,11 +62,11 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
     >
       <div
         role="dialog"
-        className="bg-paper border border-rule rounded-xl shadow-[0_8px_40px_oklch(0_0_0/0.25),0_1px_3px_oklch(0_0_0/0.1)] p-5 w-[24rem]"
+        className="bg-paper border border-rule rounded-xl shadow-[0_8px_40px_oklch(0_0_0/0.25),0_1px_3px_oklch(0_0_0/0.1)] p-6 w-[26rem]"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="text-sm font-medium text-ink mb-1">{title}</h3>
-        <p className="text-xs text-ink-tertiary mb-3 truncate">
+        <h3 className="text-sm font-semibold text-ink mb-1.5">{title}</h3>
+        <p className="text-xs text-ink-tertiary mb-4 truncate">
           {mode === "insertion" ? `After: "${selectedText}"` : `"${selectedText}"`}
         </p>
         <textarea
@@ -77,7 +77,7 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
           placeholder={placeholder}
           className="w-full h-20 px-3 py-2.5 text-sm rounded-md border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none focus:outline-none focus:ring-1 focus:ring-margin-note/50 focus:border-margin-note/50 transition-colors"
         />
-        <div className="flex items-center justify-between mt-3">
+        <div className="flex items-center justify-between mt-4">
           <kbd className="text-[11px] text-ink-tertiary font-mono">
             <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">⌘</span>
             <span className="mx-0.5">+</span>

@@ -6,11 +6,11 @@ interface AnnotationSidebarProps {
   onRemove: (id: string) => void;
 }
 
-const typeConfig: Record<Annotation["type"], { label: string; color: string }> = {
-  deletion: { label: "Delete", color: "bg-redline" },
-  replacement: { label: "Replace", color: "bg-ink-secondary" },
-  insertion: { label: "Insert", color: "bg-approve" },
-  comment: { label: "Comment", color: "bg-margin-note" },
+const typeConfig: Record<Annotation["type"], { label: string; pillClass: string }> = {
+  deletion: { label: "Delete", pillClass: "text-redline bg-redline-bg/60" },
+  replacement: { label: "Replace", pillClass: "text-ink-secondary bg-ink/8" },
+  insertion: { label: "Insert", pillClass: "text-approve bg-approve/10" },
+  comment: { label: "Comment", pillClass: "text-margin-note bg-margin-note-bg/60" },
 };
 
 export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarProps) {
@@ -23,12 +23,11 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
           return (
             <div
               key={ann.id}
-              className="group rounded-md border border-rule-subtle bg-paper p-3 hover:border-rule transition-colors"
+              className="group rounded-lg border border-rule-subtle bg-paper p-3.5 hover:border-rule transition-colors"
             >
               <div className="flex items-start justify-between gap-2">
-                <div className={cn("w-1.5 h-1.5 rounded-full mt-1.5 shrink-0", cfg.color)} />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[11px] font-medium text-ink-tertiary uppercase tracking-wide">{cfg.label}</span>
+                  <span className={cn("inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-px rounded", cfg.pillClass)}>{cfg.label}</span>
                   <p
                     className={cn(
                       "mt-0.5 text-xs leading-relaxed",
