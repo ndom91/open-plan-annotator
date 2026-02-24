@@ -21,14 +21,27 @@ function splitIntoSegments(text: string, annotations: Annotation[]): Segment[] {
 
   for (const ann of sorted) {
     if (ann.startOffset > cursor) {
-      segments.push({ text: text.slice(cursor, ann.startOffset), originalStart: cursor, originalEnd: ann.startOffset });
+      segments.push({
+        text: text.slice(cursor, ann.startOffset),
+        originalStart: cursor,
+        originalEnd: ann.startOffset,
+      });
     }
-    segments.push({ text: text.slice(ann.startOffset, ann.endOffset), originalStart: ann.startOffset, originalEnd: ann.endOffset, annotation: ann });
+    segments.push({
+      text: text.slice(ann.startOffset, ann.endOffset),
+      originalStart: ann.startOffset,
+      originalEnd: ann.endOffset,
+      annotation: ann,
+    });
     cursor = ann.endOffset;
   }
 
   if (cursor < text.length) {
-    segments.push({ text: text.slice(cursor), originalStart: cursor, originalEnd: text.length });
+    segments.push({
+      text: text.slice(cursor),
+      originalStart: cursor,
+      originalEnd: text.length,
+    });
   }
 
   return segments;
@@ -40,7 +53,11 @@ function renderSegments(segments: Segment[], useInline = true) {
 
     if (!seg.annotation) {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+        <span
+          key={i}
+          data-seg-start={seg.originalStart}
+          data-seg-end={seg.originalEnd}
+        >
           {content}
         </span>
       );
@@ -48,16 +65,32 @@ function renderSegments(segments: Segment[], useInline = true) {
 
     if (seg.annotation.type === "deletion") {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px" title="Marked for removal">
+        <span
+          key={i}
+          data-seg-start={seg.originalStart}
+          data-seg-end={seg.originalEnd}
+          className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px"
+          title="Marked for removal"
+        >
           {content}
         </span>
       );
     }
     if (seg.annotation.type === "replacement") {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
-          <span className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px">{content}</span>
-          <span className="text-approve bg-approve/10 rounded-sm px-px ml-1 not-italic no-underline" data-replacement="true" style={{ textDecoration: "none" }}>
+        <span
+          key={i}
+          data-seg-start={seg.originalStart}
+          data-seg-end={seg.originalEnd}
+        >
+          <span className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px">
+            {content}
+          </span>
+          <span
+            className="text-approve bg-approve/10 rounded-sm px-px ml-1 not-italic no-underline"
+            data-replacement="true"
+            style={{ textDecoration: "none" }}
+          >
             {seg.annotation.replacement}
           </span>
         </span>
@@ -65,15 +98,29 @@ function renderSegments(segments: Segment[], useInline = true) {
     }
     if (seg.annotation.type === "insertion") {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
-          <span className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px">{content}</span>
-          <span className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1 align-super" data-replacement="true">+{seg.annotation.replacement}</span>
+        <span
+          key={i}
+          data-seg-start={seg.originalStart}
+          data-seg-end={seg.originalEnd}
+        >
+          {content}
+          <span
+            className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1"
+            data-replacement="true"
+          >
+            +{seg.annotation.replacement}
+          </span>
         </span>
       );
     }
     // comment
     return (
-      <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help">
+      <span
+        key={i}
+        data-seg-start={seg.originalStart}
+        data-seg-end={seg.originalEnd}
+        className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help"
+      >
         {content}
         {seg.annotation.comment && (
           <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper border border-rule shadow-[0_4px_16px_oklch(0_0_0/0.2)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-[40rem] opacity-0 group-hover/comment:opacity-100 transition-opacity z-50">
@@ -86,7 +133,10 @@ function renderSegments(segments: Segment[], useInline = true) {
   });
 }
 
-function computeListItemRanges(content: string, items: string[]): { start: number; end: number }[] {
+function computeListItemRanges(
+  content: string,
+  items: string[],
+): { start: number; end: number }[] {
   const ranges: { start: number; end: number }[] = [];
   let searchFrom = 0;
 
@@ -101,7 +151,12 @@ function computeListItemRanges(content: string, items: string[]): { start: numbe
   return ranges;
 }
 
-function splitItemSegments(content: string, itemStart: number, itemEnd: number, annotations: Annotation[]): Segment[] {
+function splitItemSegments(
+  content: string,
+  itemStart: number,
+  itemEnd: number,
+  annotations: Annotation[],
+): Segment[] {
   const itemAnns = annotations
     .filter((a) => a.startOffset < itemEnd && a.endOffset > itemStart)
     .sort((a, b) => a.startOffset - b.startOffset);
@@ -114,21 +169,36 @@ function splitItemSegments(content: string, itemStart: number, itemEnd: number, 
     const annEnd = Math.min(ann.endOffset, itemEnd);
 
     if (annStart > cursor) {
-      segments.push({ text: content.slice(cursor, annStart), originalStart: cursor, originalEnd: annStart });
+      segments.push({
+        text: content.slice(cursor, annStart),
+        originalStart: cursor,
+        originalEnd: annStart,
+      });
     }
-    segments.push({ text: content.slice(annStart, annEnd), originalStart: annStart, originalEnd: annEnd, annotation: ann });
+    segments.push({
+      text: content.slice(annStart, annEnd),
+      originalStart: annStart,
+      originalEnd: annEnd,
+      annotation: ann,
+    });
     cursor = annEnd;
   }
 
   if (cursor < itemEnd) {
-    segments.push({ text: content.slice(cursor, itemEnd), originalStart: cursor, originalEnd: itemEnd });
+    segments.push({
+      text: content.slice(cursor, itemEnd),
+      originalStart: cursor,
+      originalEnd: itemEnd,
+    });
   }
 
   return segments;
 }
 
 export function BlockComponent({ block, annotations }: BlockProps) {
-  const blockAnnotations = annotations.filter((a) => a.blockIndex === block.index);
+  const blockAnnotations = annotations.filter(
+    (a) => a.blockIndex === block.index,
+  );
   const segments = splitIntoSegments(block.content, blockAnnotations);
 
   switch (block.type) {
@@ -151,7 +221,10 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
     case "code":
       return (
-        <div data-block-index={block.index} className="my-5 rounded-md bg-inset border border-rule overflow-hidden">
+        <div
+          data-block-index={block.index}
+          className="my-5 rounded-md bg-inset border border-rule overflow-hidden"
+        >
           {block.lang && (
             <div className="px-4 py-1.5 border-b border-rule text-[11px] font-mono text-ink-tertiary tracking-wide uppercase">
               {block.lang}
@@ -164,16 +237,33 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       );
 
     case "list": {
-      const itemRanges = computeListItemRanges(block.content, block.items ?? []);
+      const itemRanges = computeListItemRanges(
+        block.content,
+        block.items ?? [],
+      );
       return (
         <ul data-block-index={block.index} className="my-3 space-y-1">
           {block.items?.map((item, i) => {
             const range = itemRanges[i];
             const itemSegments = range
-              ? splitItemSegments(block.content, range.start, range.end, blockAnnotations)
-              : [{ text: item, originalStart: 0, originalEnd: item.length } as Segment];
+              ? splitItemSegments(
+                  block.content,
+                  range.start,
+                  range.end,
+                  blockAnnotations,
+                )
+              : [
+                  {
+                    text: item,
+                    originalStart: 0,
+                    originalEnd: item.length,
+                  } as Segment,
+                ];
             return (
-              <li key={i} className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary">
+              <li
+                key={i}
+                className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary"
+              >
                 {renderSegments(itemSegments)}
               </li>
             );
@@ -183,18 +273,29 @@ export function BlockComponent({ block, annotations }: BlockProps) {
     }
 
     case "hr":
-      return <hr data-block-index={block.index} className="my-10 border-0 h-px bg-rule-subtle" />;
+      return (
+        <hr
+          data-block-index={block.index}
+          className="my-10 border-0 h-px bg-rule-subtle"
+        />
+      );
 
     case "blockquote":
       return (
-        <blockquote data-block-index={block.index} className="my-5 pl-4 border-l-2 border-ink-tertiary/40 text-[15px] text-ink-secondary italic leading-relaxed">
+        <blockquote
+          data-block-index={block.index}
+          className="my-5 pl-4 border-l-2 border-ink-tertiary/40 text-[15px] text-ink-secondary italic leading-relaxed"
+        >
           {renderSegments(segments)}
         </blockquote>
       );
 
     default:
       return (
-        <p data-block-index={block.index} className="text-[15px] text-ink-secondary leading-[1.7] my-3">
+        <p
+          data-block-index={block.index}
+          className="text-[15px] text-ink-secondary leading-[1.7] my-3"
+        >
           {renderSegments(segments)}
         </p>
       );
