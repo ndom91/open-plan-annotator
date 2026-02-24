@@ -73,8 +73,14 @@ function renderSegments(segments: Segment[], useInline = true) {
     }
     // comment
     return (
-      <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help" title={seg.annotation.comment}>
+      <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help">
         {content}
+        {seg.annotation.comment && (
+          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper border border-rule shadow-[0_4px_16px_oklch(0_0_0/0.2)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-[40rem] opacity-0 group-hover/comment:opacity-100 transition-opacity z-50">
+            <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
+            {seg.annotation.comment}
+          </span>
+        )}
       </span>
     );
   });
