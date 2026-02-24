@@ -67,7 +67,7 @@ function renderSegments(segments: Segment[], useInline = true) {
       return (
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
           <span className="bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px">{content}</span>
-          <span className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1 align-super" data-replacement="true">+insert</span>
+          <span className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1 align-super" data-replacement="true">+{seg.annotation.replacement}</span>
         </span>
       );
     }
