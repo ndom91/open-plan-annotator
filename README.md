@@ -10,7 +10,7 @@ Select text to strikethrough, replace, insert, or comment — then approve the p
 ## How it works
 
 1. Claude calls `ExitPlanMode`
-2. A `PermissionRequest` hook launches the `open-plan-edit` binary
+2. A `PermissionRequest` hook launches the `open-plan-annotator` binary
 3. An ephemeral HTTP server starts and opens a React UI in your browser
 4. You review and annotate the plan
 5. **Approve** — Claude proceeds with the plan
@@ -25,10 +25,10 @@ bun install
 bun run build
 ```
 
-This produces a single compiled binary at `build/open-plan-edit`. Add it to your `PATH`, then install the plugin in Claude Code:
+This produces a single compiled binary at `build/open-plan-annotator`. Add it to your `PATH`, then install the plugin in Claude Code:
 
 ```sh
-claude plugin add /path/to/open-plan-edit/plugin
+claude plugin add /path/to/open-plan-annotator/plugin
 ```
 
 ## Annotations

@@ -1,4 +1,4 @@
-# open-plan-edit: Plan Review Instructions
+# open-plan-annotator: Plan Review Instructions
 
 ## ALWAYS Use Plan Mode for Non-Trivial Tasks
 
@@ -13,7 +13,7 @@ You MUST use plan mode to present your approach first.
 
 ## Why This Matters
 
-The user has installed the open-plan-edit plugin specifically to review and annotate your plans before you write code. Skipping plan mode bypasses this workflow entirely and removes the user's ability to give structured feedback.
+The user has installed the open-plan-annotator plugin specifically to review and annotate your plans before you write code. Skipping plan mode bypasses this workflow entirely and removes the user's ability to give structured feedback.
 
 ## Plan Quality Standards
 

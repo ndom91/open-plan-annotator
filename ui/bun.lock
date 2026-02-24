@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "@open-plan-edit/ui",
+      "name": "@open-plan-annotator/ui",
       "dependencies": {
         "clsx": "^2.1.1",
         "react": "^19.0.0",

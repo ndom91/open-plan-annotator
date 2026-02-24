@@ -76,13 +76,13 @@ if (isDev) {
       }
     }
   } catch {
-    process.stderr.write("open-plan-edit: failed to parse stdin hook event\n");
+    process.stderr.write("open-plan-annotator: failed to parse stdin hook event\n");
     process.exit(1);
   }
 }
 
 if (!planContent) {
-  process.stderr.write("open-plan-edit: no plan content found\n");
+  process.stderr.write("open-plan-annotator: no plan content found\n");
   process.exit(1);
 }
 
@@ -103,7 +103,7 @@ try {
   try {
     htmlContent = await Bun.file("build/index.html").text();
   } catch {
-    htmlContent = `<!DOCTYPE html><html><body><h1>open-plan-edit</h1><p>UI not built yet. Run <code>bun run build:ui</code> first.</p></body></html>`;
+    htmlContent = `<!DOCTYPE html><html><body><h1>open-plan-annotator</h1><p>UI not built yet. Run <code>bun run build:ui</code> first.</p></body></html>`;
   }
 }
 
@@ -112,7 +112,7 @@ const planHistory: string[] = [];
 let planVersion = 1;
 
 if (!isDev) {
-  const historyDir = `${process.env.HOME}/.open-plan-edit/history`;
+  const historyDir = `${process.env.HOME}/.open-plan-annotator/history`;
   try {
     const files = await Array.fromAsync(new Bun.Glob("*.md").scan(historyDir));
     const sorted = await Promise.all(
@@ -133,11 +133,11 @@ if (!isDev) {
 
   // Save current plan to history
   try {
-    const dir = `${process.env.HOME}/.open-plan-edit/history`;
+    const dir = `${process.env.HOME}/.open-plan-annotator/history`;
     await Bun.write(`${dir}/v${planVersion}.md`, planContent);
   } catch {
     try {
-      const dir = `${process.env.HOME}/.open-plan-edit/history`;
+      const dir = `${process.env.HOME}/.open-plan-annotator/history`;
       const { mkdirSync } = await import("node:fs");
       mkdirSync(dir, { recursive: true });
       await Bun.write(`${dir}/v${planVersion}.md`, planContent);
@@ -170,7 +170,7 @@ const server = Bun.serve({
 });
 
 const url = `http://localhost:${server.port}`;
-process.stderr.write(`open-plan-edit: UI available at ${url}\n`);
+process.stderr.write(`open-plan-annotator: UI available at ${url}\n`);
 
 // 5. Open browser (skip in dev — Vite serves the UI)
 if (!isDev) openBrowser(url);

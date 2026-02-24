@@ -1,5 +1,10 @@
 #!/usr/bin/env node
 
+// Skip postinstall during local development
+if (process.env.OPEN_PLAN_ANNOTATOR_SKIP_INSTALL || process.env.npm_config_dev) {
+  process.exit(0);
+}
+
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
@@ -76,7 +81,7 @@ function extractBinaryFromTarGz(buffer) {
 
 async function main() {
   const destDir = path.join(__dirname, "bin");
-  const destPath = path.join(destDir, "open-plan-annotator");
+  const destPath = path.join(destDir, "open-plan-annotator-binary");
 
   // Skip if binary already exists
   if (fs.existsSync(destPath)) {
