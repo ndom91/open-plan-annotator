@@ -28,13 +28,18 @@ echo ""
 echo "Bumping $CURRENT → $NEW_VERSION"
 echo ""
 
-# --- Update version in package.json and plugin.json ---
+# --- Update version in package.json, plugin.json, and marketplace.json ---
 npm version "$NEW_VERSION" --no-git-tag-version
 node -e "
   const fs = require('fs');
-  const p = JSON.parse(fs.readFileSync('plugin/plugin.json', 'utf8'));
-  p.version = '$NEW_VERSION';
-  fs.writeFileSync('plugin/plugin.json', JSON.stringify(p, null, 2) + '\n');
+
+  const plugin = JSON.parse(fs.readFileSync('.claude-plugin/plugin.json', 'utf8'));
+  plugin.version = '$NEW_VERSION';
+  fs.writeFileSync('.claude-plugin/plugin.json', JSON.stringify(plugin, null, 2) + '\n');
+
+  const market = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
+  for (const p of market.plugins) { p.version = '$NEW_VERSION'; }
+  fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(market, null, 2) + '\n');
 "
 
 # --- Build ---
@@ -48,7 +53,7 @@ echo "Creating tarballs..."
 node scripts/tarball.cjs
 
 # --- Git tag + commit ---
-git add package.json plugin/plugin.json
+git add package.json .claude-plugin/plugin.json .claude-plugin/marketplace.json
 git commit -m "v$NEW_VERSION"
 git tag "v$NEW_VERSION"
 

@@ -1,45 +1,28 @@
-## Project Context
+# open-plan-annotator: Plan Review Instructions
 
-A TypeScript project designed to be used as an agentic coding plugin (i.e. for
-opencode, claude-code, etc.). The project is structured with both
-server-side and client-side code. After being installed as a plugin, the
-project registers a hook that triggers it to be launched after the coding
-assistant has generated a plan. This plan is then rendered in a browser UI
-allowing the user to annotate it with any comments, additions, insertions or
-deletions and the resulting plan is then sent back to the agent.
+## ALWAYS Use Plan Mode for Non-Trivial Tasks
 
-## Commands
+Before beginning any implementation that involves:
+- Creating or modifying more than 2 files
+- Architectural or structural changes
+- Anything the user hasn't explicitly described step-by-step
+- Refactoring, migration, or feature additions
+- Bug fixes that require investigation
 
-```bash
-bun run build:ui
-bun run build:server
-bun run build
-bun run dev
-bun run lint
-bun run format
-```
+You MUST use plan mode to present your approach first.
 
-## Architecture
+## Why This Matters
 
-**Key directories:**
-- `plugin/`
-- `server/` - Server-side code
-- `ui/`
+The user has installed the open-plan-annotator plugin specifically to review and annotate your plans before you write code. Skipping plan mode bypasses this workflow entirely and removes the user's ability to give structured feedback.
 
-## Boundaries
+## Plan Quality Standards
 
-**Always:**
-- Run existing tests before committing changes
-- Run `bun run lint` before committing
-- Follow mixed naming convention
-- Follow flat file organization
-- We use bun, not pnpm, npm or yarn
+When writing a plan, include:
+- A brief summary of what you understood the task to require
+- The specific files you intend to create or modify and why
+- Any assumptions you are making
+- An explicit question if anything is ambiguous
 
-**Ask first:**
-- Adding new dependencies
-- Changing project configuration files
+## When Plan Mode Is Optional
 
-**Never:**
-- Commit secrets, API keys, or .env files
-- Delete or overwrite test files without understanding them
-- Force push to main/master branch
+For truly trivial tasks (fix a typo, rename a single variable, answer a factual question), plan mode is not required. When in doubt, use it anyway — the user can always approve immediately.

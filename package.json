@@ -22,7 +22,9 @@
   "files": [
     "bin/open-plan-annotator",
     "install.cjs",
-    "plugin/",
+    ".claude-plugin/",
+    "hooks/",
+    "CLAUDE.md",
     "README.md"
   ],
   "scripts": {

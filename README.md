@@ -20,15 +20,38 @@ The server shuts down after you decide. Everything runs locally, nothing leaves 
 
 ## Install
 
+**1. Install the binary**
+
 ```sh
+npm install -g open-plan-annotator
+```
+
+This downloads the correct binary for your platform (macOS, Linux).
+
+**2. Add the marketplace and install the plugin**
+
+From within Claude Code:
+
+```
+/plugin marketplace add ndom91/open-plan-annotator
+/plugin install open-plan-annotator@ndom91-open-plan-annotator
+```
+
+This registers the `ExitPlanMode` hook that launches the annotation UI.
+
+### From source
+
+```sh
+git clone https://github.com/ndom91/open-plan-annotator.git
+cd open-plan-annotator
 bun install
 bun run build
 ```
 
-This produces a single compiled binary at `build/open-plan-annotator`. Add it to your `PATH`, then install the plugin in Claude Code:
+Then load it directly in Claude Code:
 
 ```sh
-claude plugin add /path/to/open-plan-annotator/plugin
+claude --plugin-dir ./open-plan-annotator
 ```
 
 ## Annotations

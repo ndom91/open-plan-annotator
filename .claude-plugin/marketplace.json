@@ -1,0 +1,30 @@
+{
+  "name": "open-plan-annotator",
+  "owner": {
+    "name": "ndom91"
+  },
+  "metadata": {
+    "description": "Interactive plan annotation plugin for Claude Code",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "open-plan-annotator",
+      "source": "./",
+      "description": "Interactive plan annotation UI: review, strikethrough, and comment on Claude's plans before approving. Fully local, no external services.",
+      "version": "0.1.2",
+      "author": {
+        "name": "ndom91"
+      },
+      "homepage": "https://github.com/ndom91/open-plan-annotator",
+      "license": "MIT",
+      "keywords": [
+        "planning",
+        "review",
+        "hooks",
+        "ExitPlanMode",
+        "annotations"
+      ]
+    }
+  ]
+}
