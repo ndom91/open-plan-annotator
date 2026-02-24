@@ -2,6 +2,10 @@ import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
 import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
 
+// Embedded at compile time by `bun build --compile`
+// @ts-ignore — returns string in compiled binary, HTMLBundle when run directly
+import embeddedHtml from "../build/index.html" with { type: "text" };
+
 const DEV_PLAN = `# Example Plan
 
 ## Context
@@ -92,12 +96,17 @@ const decisionPromise = new Promise<ServerDecision>((resolve) => {
   resolveDecision = resolve;
 });
 
-// 3. Load the embedded HTML
+// 3. Load the HTML — embedded as string in compiled binary, HTMLBundle object in dev
 let htmlContent: string;
-try {
-  htmlContent = await Bun.file(new URL("../build/index.html", import.meta.url).pathname).text();
-} catch {
-  htmlContent = `<!DOCTYPE html><html><body><h1>open-plan-annotator</h1><p>UI not built yet. Run <code>bun run build:ui</code> first.</p></body></html>`;
+if (typeof embeddedHtml === "string") {
+  htmlContent = embeddedHtml;
+} else {
+  // Dev mode: Bun returns an HTMLBundle object, read from disk instead
+  try {
+    htmlContent = await Bun.file(new URL("../build/index.html", import.meta.url).pathname).text();
+  } catch {
+    htmlContent = `<!DOCTYPE html><html><body><h1>open-plan-annotator</h1><p>UI not built yet. Run <code>bun run build:ui</code> first.</p></body></html>`;
+  }
 }
 
 // Detect version history: check for previous plans stored by session
