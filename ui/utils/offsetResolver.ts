@@ -69,10 +69,14 @@ function resolveSingleBlock(range: Range, block: HTMLElement): ResolvedSelection
 
 // --- Multi-block resolution ---
 
-function resolveMultiBlock(range: Range, anchorBlock: HTMLElement, focusBlock: HTMLElement): ResolvedSelection[] | null {
+function resolveMultiBlock(
+  range: Range,
+  anchorBlock: HTMLElement,
+  focusBlock: HTMLElement,
+): ResolvedSelection[] | null {
   // Determine document order
   const cmp = anchorBlock.compareDocumentPosition(focusBlock);
-  const firstBlock = (cmp & Node.DOCUMENT_POSITION_FOLLOWING) ? anchorBlock : focusBlock;
+  const firstBlock = cmp & Node.DOCUMENT_POSITION_FOLLOWING ? anchorBlock : focusBlock;
   const lastBlock = firstBlock === anchorBlock ? focusBlock : anchorBlock;
 
   const firstIndex = parseInt(firstBlock.dataset.blockIndex ?? "-1", 10);
@@ -88,7 +92,7 @@ function resolveMultiBlock(range: Range, anchorBlock: HTMLElement, focusBlock: H
       const idx = parseInt(el.dataset.blockIndex ?? "-1", 10);
       return idx >= firstIndex && idx <= lastIndex;
     })
-    .sort((a, b) => parseInt(a.dataset.blockIndex!) - parseInt(b.dataset.blockIndex!));
+    .sort((a, b) => parseInt(a.dataset.blockIndex!, 10) - parseInt(b.dataset.blockIndex!, 10));
 
   const results: ResolvedSelection[] = [];
 

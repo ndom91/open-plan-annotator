@@ -11,7 +11,14 @@ interface ShortcutHandlers {
   decided: boolean;
 }
 
-export function useKeyboardShortcuts({ getSelection, onAction, onApprove, onDeny, hasAnnotations, decided }: ShortcutHandlers) {
+export function useKeyboardShortcuts({
+  getSelection,
+  onAction,
+  onApprove,
+  onDeny,
+  hasAnnotations,
+  decided,
+}: ShortcutHandlers) {
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (decided) return;

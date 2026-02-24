@@ -1,6 +1,6 @@
-import type { Block } from "../utils/markdown.ts";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
+import type { Block } from "../utils/markdown.ts";
 
 interface BlockProps {
   block: Block;
@@ -53,11 +53,7 @@ function renderSegments(segments: Segment[], useInline = true) {
 
     if (!seg.annotation) {
       return (
-        <span
-          key={i}
-          data-seg-start={seg.originalStart}
-          data-seg-end={seg.originalEnd}
-        >
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
           {content}
         </span>
       );
@@ -78,11 +74,7 @@ function renderSegments(segments: Segment[], useInline = true) {
     }
     if (seg.annotation.type === "replacement") {
       return (
-        <span
-          key={i}
-          data-seg-start={seg.originalStart}
-          data-seg-end={seg.originalEnd}
-        >
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
           <span className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px">
             {content}
           </span>
@@ -98,16 +90,9 @@ function renderSegments(segments: Segment[], useInline = true) {
     }
     if (seg.annotation.type === "insertion") {
       return (
-        <span
-          key={i}
-          data-seg-start={seg.originalStart}
-          data-seg-end={seg.originalEnd}
-        >
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
           {content}
-          <span
-            className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1"
-            data-replacement="true"
-          >
+          <span className="text-approve bg-approve/10 text-xs rounded-sm px-1 ml-1" data-replacement="true">
             +{seg.annotation.replacement}
           </span>
         </span>
@@ -133,10 +118,7 @@ function renderSegments(segments: Segment[], useInline = true) {
   });
 }
 
-function computeListItemRanges(
-  content: string,
-  items: string[],
-): { start: number; end: number }[] {
+function computeListItemRanges(content: string, items: string[]): { start: number; end: number }[] {
   const ranges: { start: number; end: number }[] = [];
   let searchFrom = 0;
 
@@ -151,12 +133,7 @@ function computeListItemRanges(
   return ranges;
 }
 
-function splitItemSegments(
-  content: string,
-  itemStart: number,
-  itemEnd: number,
-  annotations: Annotation[],
-): Segment[] {
+function splitItemSegments(content: string, itemStart: number, itemEnd: number, annotations: Annotation[]): Segment[] {
   const itemAnns = annotations
     .filter((a) => a.startOffset < itemEnd && a.endOffset > itemStart)
     .sort((a, b) => a.startOffset - b.startOffset);
@@ -196,9 +173,7 @@ function splitItemSegments(
 }
 
 export function BlockComponent({ block, annotations }: BlockProps) {
-  const blockAnnotations = annotations.filter(
-    (a) => a.blockIndex === block.index,
-  );
+  const blockAnnotations = annotations.filter((a) => a.blockIndex === block.index);
   const segments = splitIntoSegments(block.content, blockAnnotations);
 
   switch (block.type) {
@@ -221,10 +196,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
     case "code":
       return (
-        <div
-          data-block-index={block.index}
-          className="my-5 rounded-md bg-inset border border-rule overflow-hidden"
-        >
+        <div data-block-index={block.index} className="my-5 rounded-md bg-inset border border-rule overflow-hidden">
           {block.lang && (
             <div className="px-4 py-1.5 border-b border-rule text-[11px] font-mono text-ink-tertiary tracking-wide uppercase">
               {block.lang}
@@ -237,21 +209,13 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       );
 
     case "list": {
-      const itemRanges = computeListItemRanges(
-        block.content,
-        block.items ?? [],
-      );
+      const itemRanges = computeListItemRanges(block.content, block.items ?? []);
       return (
         <ul data-block-index={block.index} className="my-3 space-y-1">
           {block.items?.map((item, i) => {
             const range = itemRanges[i];
             const itemSegments = range
-              ? splitItemSegments(
-                  block.content,
-                  range.start,
-                  range.end,
-                  blockAnnotations,
-                )
+              ? splitItemSegments(block.content, range.start, range.end, blockAnnotations)
               : [
                   {
                     text: item,
@@ -273,12 +237,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
     }
 
     case "hr":
-      return (
-        <hr
-          data-block-index={block.index}
-          className="my-10 border-0 h-px bg-rule-subtle"
-        />
-      );
+      return <hr data-block-index={block.index} className="my-10 border-0 h-px bg-rule-subtle" />;
 
     case "blockquote":
       return (
@@ -292,10 +251,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
 
     default:
       return (
-        <p
-          data-block-index={block.index}
-          className="text-[15px] text-ink-secondary leading-[1.7] my-3"
-        >
+        <p data-block-index={block.index} className="text-[15px] text-ink-secondary leading-[1.7] my-3">
           {renderSegments(segments)}
         </p>
       );

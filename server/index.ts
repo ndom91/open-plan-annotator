@@ -1,6 +1,6 @@
-import { openBrowser } from "./launch.ts";
 import { createRouter } from "./api.ts";
-import type { HookEvent, HookOutput, ServerState, ServerDecision } from "./types.ts";
+import { openBrowser } from "./launch.ts";
+import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
 
 const DEV_PLAN = `# Example Plan
 
@@ -66,7 +66,7 @@ if (isDev) {
               const path = `${plansDir}/${f}`;
               const stat = await Bun.file(path).stat();
               return { path, mtime: stat?.mtime ?? 0 };
-            })
+            }),
           );
           sorted.sort((a, b) => (b.mtime as number) - (a.mtime as number));
           planContent = await Bun.file(sorted[0].path).text();
@@ -120,7 +120,7 @@ if (!isDev) {
         const path = `${historyDir}/${f}`;
         const stat = await Bun.file(path).stat();
         return { path, mtime: stat?.mtime ?? 0 };
-      })
+      }),
     );
     sorted.sort((a, b) => (a.mtime as number) - (b.mtime as number));
     for (const f of sorted) {
@@ -138,7 +138,7 @@ if (!isDev) {
   } catch {
     try {
       const dir = `${process.env.HOME}/.open-plan-edit/history`;
-      const { mkdirSync } = await import("fs");
+      const { mkdirSync } = await import("node:fs");
       mkdirSync(dir, { recursive: true });
       await Bun.write(`${dir}/v${planVersion}.md`, planContent);
     } catch {
@@ -147,7 +147,9 @@ if (!isDev) {
   }
 } else {
   // Dev mode: simulate a previous version
-  planHistory.push("# Example Plan\n\n## Context\n\nThis is the previous version of the plan.\n\n## Steps\n\n### Step 1: Set up SQLite\n\nUse SQLite instead of PostgreSQL.\n\n### Step 2: Build the API\n\nCreate basic CRUD endpoints.\n\n## Verification\n\nManual testing only.");
+  planHistory.push(
+    "# Example Plan\n\n## Context\n\nThis is the previous version of the plan.\n\n## Steps\n\n### Step 1: Set up SQLite\n\nUse SQLite instead of PostgreSQL.\n\n### Step 2: Build the API\n\nCreate basic CRUD endpoints.\n\n## Verification\n\nManual testing only.",
+  );
   planVersion = 2;
 }
 
@@ -190,5 +192,5 @@ const output: HookOutput = {
   },
 };
 
-process.stdout.write(JSON.stringify(output) + "\n");
+process.stdout.write(`${JSON.stringify(output)}\n`);
 process.exit(0);

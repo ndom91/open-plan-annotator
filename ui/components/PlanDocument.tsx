@@ -1,5 +1,5 @@
-import type { Block } from "../utils/markdown.ts";
 import type { Annotation } from "../utils/annotationSerializer.ts";
+import type { Block } from "../utils/markdown.ts";
 import { BlockComponent } from "./Block.tsx";
 
 interface PlanDocumentProps {

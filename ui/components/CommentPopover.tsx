@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { cn } from "../utils/cn.ts";
 
 interface TextInputPopoverProps {
@@ -9,9 +9,24 @@ interface TextInputPopoverProps {
 }
 
 const config = {
-  comment: { title: "Add Comment", placeholder: "What should be changed here?", button: "Comment", buttonClass: "bg-margin-note/90 hover:bg-margin-note" },
-  replacement: { title: "Replace With", placeholder: "Enter replacement text...", button: "Replace", buttonClass: "bg-ink-secondary hover:bg-ink" },
-  insertion: { title: "Insert After", placeholder: "Enter text to insert...", button: "Insert", buttonClass: "bg-approve hover:bg-approve-hover" },
+  comment: {
+    title: "Add Comment",
+    placeholder: "What should be changed here?",
+    button: "Comment",
+    buttonClass: "bg-margin-note/90 hover:bg-margin-note",
+  },
+  replacement: {
+    title: "Replace With",
+    placeholder: "Enter replacement text...",
+    button: "Replace",
+    buttonClass: "bg-ink-secondary hover:bg-ink",
+  },
+  insertion: {
+    title: "Insert After",
+    placeholder: "Enter text to insert...",
+    button: "Insert",
+    buttonClass: "bg-approve hover:bg-approve-hover",
+  },
 };
 
 export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: TextInputPopoverProps) {
@@ -39,8 +54,17 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30" onClick={onCancel}>
-      <div className="bg-paper border border-rule rounded-xl shadow-[0_8px_40px_oklch(0_0_0/0.25),0_1px_3px_oklch(0_0_0/0.1)] p-5 w-[24rem]" onClick={(e) => e.stopPropagation()}>
+    <div
+      role="presentation"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+      onClick={onCancel}
+      onKeyDown={(e) => e.key === "Escape" && onCancel()}
+    >
+      <div
+        role="dialog"
+        className="bg-paper border border-rule rounded-xl shadow-[0_8px_40px_oklch(0_0_0/0.25),0_1px_3px_oklch(0_0_0/0.1)] p-5 w-[24rem]"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3 className="text-sm font-medium text-ink mb-1">{title}</h3>
         <p className="text-xs text-ink-tertiary mb-3 truncate">
           {mode === "insertion" ? `After: "${selectedText}"` : `"${selectedText}"`}
@@ -60,10 +84,22 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
             <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">↵</span>
           </kbd>
           <div className="flex gap-2">
-            <button onClick={onCancel} className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors"
+            >
               Cancel
             </button>
-            <button onClick={handleSubmit} disabled={!text.trim()} className={cn("px-3 py-1.5 text-sm rounded-md text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium", buttonClass)}>
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={!text.trim()}
+              className={cn(
+                "px-3 py-1.5 text-sm rounded-md text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-medium",
+                buttonClass,
+              )}
+            >
               {button}
             </button>
           </div>

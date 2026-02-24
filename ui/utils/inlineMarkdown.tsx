@@ -25,8 +25,8 @@ function tokenize(text: string): InlineToken[] {
 
   for (const { regex, type } of INLINE_PATTERNS) {
     const re = new RegExp(regex.source, regex.flags);
-    let m;
-    while ((m = re.exec(text)) !== null) {
+    let m: RegExpExecArray | null = re.exec(text);
+    while (m !== null) {
       let content: string;
       let href: string | undefined;
 
@@ -46,6 +46,7 @@ function tokenize(text: string): InlineToken[] {
         end: m.index + m[0].length,
         token: { type, content, href },
       });
+      m = re.exec(text);
     }
   }
 
@@ -106,7 +107,11 @@ export function renderInlineMarkdown(text: string): ReactNode[] {
         );
       case "link":
         return (
-          <span key={i} className="text-margin-note underline decoration-margin-note/30 underline-offset-2" title={token.href}>
+          <span
+            key={i}
+            className="text-margin-note underline decoration-margin-note/30 underline-offset-2"
+            title={token.href}
+          >
             {token.content}
           </span>
         );

@@ -15,7 +15,12 @@ export interface Annotation {
 export function serializeAnnotations(annotations: Annotation[], blocks: Block[]): string {
   if (annotations.length === 0) return "No specific feedback provided.";
 
-  const lines: string[] = ["## Plan Review Feedback", "", "The following changes were requested before proceeding:", ""];
+  const lines: string[] = [
+    "## Plan Review Feedback",
+    "",
+    "The following changes were requested before proceeding:",
+    "",
+  ];
 
   const deletions = annotations.filter((a) => a.type === "deletion");
   const replacements = annotations.filter((a) => a.type === "replacement");
@@ -61,5 +66,5 @@ export function serializeAnnotations(annotations: Annotation[], blocks: Block[])
 }
 
 function truncate(s: string, max: number): string {
-  return s.length > max ? s.slice(0, max) + "..." : s;
+  return s.length > max ? `${s.slice(0, max)}...` : s;
 }

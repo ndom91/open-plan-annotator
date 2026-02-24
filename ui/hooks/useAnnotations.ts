@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import type { ResolvedSelection } from "../utils/offsetResolver.ts";
 
@@ -76,11 +76,20 @@ export function useAnnotations(planHash: string | null) {
 
   const addDeletion = useCallback((sel: ResolvedSelection) => addAnnotation(sel, "deletion"), [addAnnotation]);
 
-  const addComment = useCallback((sel: ResolvedSelection, comment: string) => addAnnotation(sel, "comment", { comment }), [addAnnotation]);
+  const addComment = useCallback(
+    (sel: ResolvedSelection, comment: string) => addAnnotation(sel, "comment", { comment }),
+    [addAnnotation],
+  );
 
-  const addReplacement = useCallback((sel: ResolvedSelection, replacement: string) => addAnnotation(sel, "replacement", { replacement }), [addAnnotation]);
+  const addReplacement = useCallback(
+    (sel: ResolvedSelection, replacement: string) => addAnnotation(sel, "replacement", { replacement }),
+    [addAnnotation],
+  );
 
-  const addInsertion = useCallback((sel: ResolvedSelection, insertText: string) => addAnnotation(sel, "insertion", { replacement: insertText }), [addAnnotation]);
+  const addInsertion = useCallback(
+    (sel: ResolvedSelection, insertText: string) => addAnnotation(sel, "insertion", { replacement: insertText }),
+    [addAnnotation],
+  );
 
   const removeAnnotation = useCallback((id: string) => {
     setAnnotations((prev) => prev.filter((a) => a.id !== id));

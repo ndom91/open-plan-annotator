@@ -1,5 +1,5 @@
-import type { ResolvedSelection } from "../utils/offsetResolver.ts";
 import { cn } from "../utils/cn.ts";
+import type { ResolvedSelection } from "../utils/offsetResolver.ts";
 
 export type ToolbarAction = "deletion" | "comment" | "replacement" | "insertion";
 
@@ -22,30 +22,50 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       className="absolute z-50 flex items-center bg-paper border border-rule rounded-lg shadow-[0_4px_16px_oklch(0_0_0/0.2),0_1px_3px_oklch(0_0_0/0.1)] px-1 py-1"
     >
       <button
-        onClick={() => { onAction("deletion", selections); onDismiss(); }}
+        type="button"
+        onClick={() => {
+          onAction("deletion", selections);
+          onDismiss();
+        }}
         className={cn(btn, "text-redline hover:bg-redline-bg/60")}
         title="Delete (d)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
           <path d="M3.5 8a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 3.5 8Z" />
-          <path fillRule="evenodd" d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM2.5 8a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM2.5 8a5.5 5.5 0 1 1 11 0 5.5 5.5 0 0 1-11 0Z"
+            clipRule="evenodd"
+          />
         </svg>
         Delete
       </button>
       <div className="w-px h-5 bg-rule mx-0.5" />
       <button
-        onClick={() => { onAction("replacement", selections); onDismiss(); }}
+        type="button"
+        onClick={() => {
+          onAction("replacement", selections);
+          onDismiss();
+        }}
         className={cn(btn, "text-ink-secondary hover:bg-ink/5")}
         title="Replace (r)"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" className="w-3.5 h-3.5">
-          <path fillRule="evenodd" d="M13.78 10.47a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 1 1 1.06-1.06l.97.97V8.75a.75.75 0 0 1 1.5 0v2.69l.97-.97a.75.75 0 0 1 1.06 0ZM2.22 5.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1-1.06 1.06l-.97-.97v2.69a.75.75 0 0 1-1.5 0V4.56l-.97.97a.75.75 0 0 1-1.06 0Z" clipRule="evenodd" />
+          <path
+            fillRule="evenodd"
+            d="M13.78 10.47a.75.75 0 0 1 0 1.06l-2.25 2.25a.75.75 0 0 1-1.06 0l-2.25-2.25a.75.75 0 1 1 1.06-1.06l.97.97V8.75a.75.75 0 0 1 1.5 0v2.69l.97-.97a.75.75 0 0 1 1.06 0ZM2.22 5.53a.75.75 0 0 1 0-1.06l2.25-2.25a.75.75 0 0 1 1.06 0l2.25 2.25a.75.75 0 0 1-1.06 1.06l-.97-.97v2.69a.75.75 0 0 1-1.5 0V4.56l-.97.97a.75.75 0 0 1-1.06 0Z"
+            clipRule="evenodd"
+          />
         </svg>
         Replace
       </button>
       <div className="w-px h-5 bg-rule mx-0.5" />
       <button
-        onClick={() => { onAction("insertion", selections); onDismiss(); }}
+        type="button"
+        onClick={() => {
+          onAction("insertion", selections);
+          onDismiss();
+        }}
         className={cn(btn, "text-approve hover:bg-approve/10")}
         title="Insert after (i)"
       >
@@ -56,7 +76,11 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       </button>
       <div className="w-px h-5 bg-rule mx-0.5" />
       <button
-        onClick={() => { onAction("comment", selections); onDismiss(); }}
+        type="button"
+        onClick={() => {
+          onAction("comment", selections);
+          onDismiss();
+        }}
         className={cn(btn, "text-margin-note hover:bg-margin-note-bg/60")}
         title="Comment (c)"
       >

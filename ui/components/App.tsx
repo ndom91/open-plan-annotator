@@ -1,27 +1,31 @@
-import { useState, useCallback, useRef } from "react";
-import { usePlan } from "../hooks/usePlan.ts";
+import { useCallback, useRef, useState } from "react";
 import { useAnnotations } from "../hooks/useAnnotations.ts";
-import { useTextSelection } from "../hooks/useTextSelection.ts";
 import { useDecision } from "../hooks/useDecision.ts";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts.ts";
+import { usePlan } from "../hooks/usePlan.ts";
+import { useTextSelection } from "../hooks/useTextSelection.ts";
 import { parseMarkdownToBlocks } from "../utils/markdown.ts";
-import { resolveSelection, type ResolvedSelection } from "../utils/offsetResolver.ts";
-import { ThemeProvider } from "./ThemeProvider.tsx";
-import { Header } from "./Header.tsx";
-import { PlanDocument } from "./PlanDocument.tsx";
+import { type ResolvedSelection, resolveSelection } from "../utils/offsetResolver.ts";
+import { AnnotationSidebar } from "./AnnotationSidebar.tsx";
 import { AnnotationToolbar, type ToolbarAction } from "./AnnotationToolbar.tsx";
 import { TextInputPopover } from "./CommentPopover.tsx";
-import { AnnotationSidebar } from "./AnnotationSidebar.tsx";
 import { DiffViewer } from "./DiffViewer.tsx";
+import { Header } from "./Header.tsx";
+import { PlanDocument } from "./PlanDocument.tsx";
+import { ThemeProvider } from "./ThemeProvider.tsx";
 
 export default function App() {
   const { plan, planHash, version, history, isLoading, error } = usePlan();
   const blocks = plan ? parseMarkdownToBlocks(plan) : [];
-  const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } = useAnnotations(planHash);
+  const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } =
+    useAnnotations(planHash);
   const selection = useTextSelection();
   const { approve, deny, isPending, decided } = useDecision();
 
-  const [popover, setPopover] = useState<{ mode: "comment" | "replacement" | "insertion"; selections: ResolvedSelection[] } | null>(null);
+  const [popover, setPopover] = useState<{
+    mode: "comment" | "replacement" | "insertion";
+    selections: ResolvedSelection[];
+  } | null>(null);
   const [showDiff, setShowDiff] = useState(false);
 
   // Ref-based getter for keyboard shortcuts (avoids stale closures)
@@ -149,12 +153,22 @@ export default function App() {
 
         {/* Floating toolbar on selection */}
         {selection.isActive && selection.resolved && selection.rect && !popover && !decided && (
-          <AnnotationToolbar rect={selection.rect} selections={selection.resolved} onAction={handleToolbarAction} onDismiss={() => window.getSelection()?.removeAllRanges()} />
+          <AnnotationToolbar
+            rect={selection.rect}
+            selections={selection.resolved}
+            onAction={handleToolbarAction}
+            onDismiss={() => window.getSelection()?.removeAllRanges()}
+          />
         )}
 
         {/* Text input popover */}
         {popover && (
-          <TextInputPopover mode={popover.mode} selectedText={popoverText} onSubmit={handlePopoverSubmit} onCancel={() => setPopover(null)} />
+          <TextInputPopover
+            mode={popover.mode}
+            selectedText={popoverText}
+            onSubmit={handlePopoverSubmit}
+            onCancel={() => setPopover(null)}
+          />
         )}
       </div>
     </ThemeProvider>

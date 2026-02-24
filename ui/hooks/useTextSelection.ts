@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback } from "react";
-import { resolveSelection, type ResolvedSelection } from "../utils/offsetResolver.ts";
+import { useCallback, useEffect, useState } from "react";
+import { type ResolvedSelection, resolveSelection } from "../utils/offsetResolver.ts";
 
 export interface SelectionState {
   resolved: ResolvedSelection[] | null;

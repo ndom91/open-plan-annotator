@@ -85,7 +85,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
           i++;
         } else if (l.startsWith("  ") && listLines.length > 0) {
           // Continuation line
-          listLines[listLines.length - 1] += "\n" + l;
+          listLines[listLines.length - 1] += `\n${l}`;
           i++;
         } else if (l.trim() === "") {
           // Empty line might separate list items — peek ahead
@@ -106,7 +106,16 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
 
     // Paragraph (collect consecutive non-empty, non-special lines)
     const paraLines: string[] = [];
-    while (i < lines.length && lines[i].trim() !== "" && !lines[i].match(/^#{1,6}\s/) && !lines[i].startsWith("```") && !lines[i].startsWith(">") && !/^[-*+]\s/.test(lines[i]) && !/^\d+\.\s/.test(lines[i]) && !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])) {
+    while (
+      i < lines.length &&
+      lines[i].trim() !== "" &&
+      !lines[i].match(/^#{1,6}\s/) &&
+      !lines[i].startsWith("```") &&
+      !lines[i].startsWith(">") &&
+      !/^[-*+]\s/.test(lines[i]) &&
+      !/^\d+\.\s/.test(lines[i]) &&
+      !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])
+    ) {
       paraLines.push(lines[i]);
       i++;
     }

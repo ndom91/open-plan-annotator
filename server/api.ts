@@ -40,7 +40,12 @@ export function createRouter(state: ServerState) {
 function serializeAnnotations(annotations: Annotation[]): string {
   if (annotations.length === 0) return "Plan changes requested.";
 
-  const lines: string[] = ["## Plan Review Feedback", "", "The following changes were requested before proceeding:", ""];
+  const lines: string[] = [
+    "## Plan Review Feedback",
+    "",
+    "The following changes were requested before proceeding:",
+    "",
+  ];
 
   const deletions = annotations.filter((a) => a.type === "deletion");
   const replacements = annotations.filter((a) => a.type === "replacement");
