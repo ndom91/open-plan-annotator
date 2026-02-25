@@ -17,7 +17,7 @@
   --color-redline-bg: oklch(0.30 0.06 25);
   --color-margin-note: oklch(0.75 0.15 85);
   --color-margin-note-bg: oklch(0.32 0.06 85);
-  --color-approve: oklch(0.65 0.18 155);
+  --color-approve: oklch(0.55 0.18 155);
   --color-approve-hover: oklch(0.60 0.18 155);
 
   /* Accent */
@@ -41,11 +41,11 @@
   --color-ink-tertiary: oklch(0.58 0.01 260);
   --color-redline: oklch(0.52 0.2 25);
   --color-redline-bg: oklch(0.93 0.04 25);
-  --color-margin-note: oklch(0.50 0.12 85);
-  --color-margin-note-bg: oklch(0.94 0.04 85);
-  --color-approve: oklch(0.50 0.16 155);
-  --color-approve-hover: oklch(0.45 0.16 155);
-  --color-accent: oklch(0.55 0.12 310);
+  --color-margin-note: oklch(0.55 0.16 75);
+  --color-margin-note-bg: oklch(0.95 0.04 75);
+  --color-approve: oklch(0.57 0.12 155);
+  --color-approve-hover: oklch(0.47 0.12 155);
+  --color-accent: oklch(0.65 0.16 310);
   --color-accent-subtle: oklch(0.90 0.05 310);
   --color-rule: oklch(0.88 0.005 260);
   --color-rule-subtle: oklch(0.92 0.005 260);

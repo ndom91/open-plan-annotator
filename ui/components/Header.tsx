@@ -146,7 +146,7 @@ export function Header({
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Send Annotations
