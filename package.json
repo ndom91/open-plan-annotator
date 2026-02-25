@@ -17,15 +17,19 @@
     "code-review"
   ],
   "bin": {
-    "open-plan-annotator": "bin/open-plan-annotator.cjs"
+    "open-plan-annotator": "bin/open-plan-annotator.cjs",
+    "open-plan-annotator-install-opencode": "bin/open-plan-annotator-install-opencode.cjs"
   },
   "files": [
     "bin/open-plan-annotator.cjs",
+    "bin/open-plan-annotator-install-opencode.cjs",
     "install.cjs",
     ".claude-plugin/",
+    "opencode-plugin/",
     "hooks/",
     "CLAUDE.md",
-    "README.md"
+    "README.md",
+    "scripts/install-opencode-plugin.cjs"
   ],
   "scripts": {
     "postinstall": "node install.cjs",
@@ -41,6 +45,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
+    "install:opencode-plugin": "node scripts/install-opencode-plugin.cjs",
     "do-release": "./scripts/release.sh",
     "prepack": "mv CLAUDE.md CLAUDE.dev.md.bak && cp CLAUDE.plugin.md CLAUDE.md",
     "postpack": "mv CLAUDE.dev.md.bak CLAUDE.md"

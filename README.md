@@ -4,7 +4,7 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
 [![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-pink?style=flat-square)]()
 
-A fully local agentic coding plugin (claude-code, opencode) that intercepts plan mode, opens an annotation UI in your browser, and feeds structured feedback back to the agent.
+A fully local plan-review plugin for Claude Code and OpenCode. It opens an annotation UI in your browser and returns structured approve/deny decisions back to the host.
 
 Select text to <code style="color: purple">strikethrough</code>, <code style="color: orange">replace</code>, <code style="color: blue">insert</code>, or <code style="color: red">comment</code> — then approve the plan or request changes.
 
@@ -14,12 +14,11 @@ Select text to <code style="color: purple">strikethrough</code>, <code style="co
 
 ## How it works
 
-1. Claude calls `ExitPlanMode`
-2. A `PermissionRequest` hook launches the `open-plan-annotator` binary
-3. An ephemeral HTTP server starts and opens a React UI in your browser
-4. You review and annotate the plan
-5. **Approve** — Claude proceeds with the plan
-6. **Request Changes** — annotations are serialized as structured feedback and Claude revises
+1. Host submits a plan to `open-plan-annotator`
+2. An ephemeral HTTP server starts and opens a React UI in your browser
+3. You review and annotate the plan
+4. **Approve** or **Request Changes**
+5. The tool returns host-specific JSON output (Claude hook output or OpenCode plugin output)
 
 The server shuts down after you decide. Everything runs locally, nothing leaves your machine.
 
@@ -38,7 +37,9 @@ This JS shim downloads the correct binary for your platform (macOS, Linux).
 > 'open-plan-annotator' manually to trigger a download, or the first invocation
 > by Claude will also trigger the binary download.
 
-**2. Add the marketplace and install the plugin**
+### Claude Code
+
+Add the marketplace and install the plugin:
 
 From within Claude Code:
 
@@ -54,6 +55,22 @@ This registers the `ExitPlanMode` hook that launches the annotation UI.
 > The first run might take a few seconds if you hadn't installed the binary, as
 > Claude will trigger the download then.
 
+### OpenCode
+
+If you installed `open-plan-annotator` globally, install the OpenCode plugin assets from your target project directory:
+
+```sh
+npm install -g open-plan-annotator
+cd /path/to/your/project
+open-plan-annotator-install-opencode
+```
+
+This installs `opencode-plugin/` to:
+
+```text
+./.opencode/plugins/open-plan-annotator
+```
+
 ### From source
 
 ```sh
@@ -68,6 +85,53 @@ Then load it directly in Claude Code:
 ```sh
 claude --plugin-dir ./open-plan-annotator
 ```
+
+For OpenCode local development:
+
+```sh
+bun run install:opencode-plugin
+```
+
+Then configure OpenCode to call the local plugin command `submit_plan` from `./.opencode/plugins/open-plan-annotator`.
+
+## OpenCode submit_plan contract
+
+This repo ships a pragmatic, self-contained OpenCode plugin contract (until a strict upstream schema is finalized).
+
+Input JSON (plugin -> binary):
+
+```json
+{
+  "host": "opencode",
+  "command": "submit_plan",
+  "plan": "# Plan...",
+  "sessionId": "optional-session-id",
+  "conversationId": "optional-conversation-id",
+  "cwd": "/optional/cwd",
+  "metadata": {}
+}
+```
+
+Output JSON (binary -> plugin/OpenCode):
+
+```json
+{
+  "ok": true,
+  "decision": "approve"
+}
+```
+
+or
+
+```json
+{
+  "ok": false,
+  "decision": "deny",
+  "feedback": "Plan changes requested..."
+}
+```
+
+If `plan` is missing/empty, output is deterministic deny with a clear feedback message.
 
 ## Annotations
 

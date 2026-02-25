@@ -105,4 +105,26 @@ describe("resolveHistoryKey", () => {
     expect(keyA).toMatch(/^history_[a-f0-9]{32}$/);
     expect(keyB).toMatch(/^history_[a-f0-9]{32}$/);
   });
+
+  test("uses OpenCode conversation id when available", () => {
+    const keyA = resolveHistoryKey({
+      opencode_conversation_id: "conv-123",
+      opencode_session_id: "sess-a",
+      session_id: "claude-session",
+    });
+    const keyB = resolveHistoryKey({ opencode_conversation_id: "conv-123" });
+    const keyC = resolveHistoryKey({ opencode_conversation_id: "conv-456" });
+
+    expect(keyA).toBe(keyB);
+    expect(keyA).not.toBe(keyC);
+  });
+
+  test("falls back to OpenCode session id when conversation id missing", () => {
+    const keyA = resolveHistoryKey({ opencode_session_id: "sess-a" });
+    const keyB = resolveHistoryKey({ opencode_session_id: "sess-a" });
+    const keyC = resolveHistoryKey({ opencode_session_id: "sess-b" });
+
+    expect(keyA).toBe(keyB);
+    expect(keyA).not.toBe(keyC);
+  });
 });

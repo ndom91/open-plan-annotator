@@ -1,9 +1,11 @@
 // Embedded at compile time by `bun build --compile`
 import embeddedHtml from "../build/index.html" with { type: "text" };
+import { claudeAdapter } from "./adapters/claude.ts";
+import { opencodeAdapter } from "./adapters/opencode.ts";
 import { createRouter } from "./api.ts";
 import { resolveHistoryKey } from "./historyKey.ts";
 import { openBrowser } from "./launch.ts";
-import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
+import type { HostAdapter, PlanReviewDecision, PlanReviewRequest, ServerState } from "./types.ts";
 
 const DEV_PLAN = `# Example Plan
 
@@ -45,55 +47,65 @@ Run the test suite and verify all endpoints return correct status codes.
 `;
 
 const isDev = process.env.NODE_ENV === "development";
+const adapters: Record<"claude" | "opencode", HostAdapter> = {
+  claude: claudeAdapter,
+  opencode: opencodeAdapter,
+};
 
-// 1. Read stdin
-let planContent: string;
-let hookEvent: HookEvent | null = null;
+function toStringOrNull(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
 
-if (isDev) {
-  planContent = DEV_PLAN;
-} else {
-  const stdinText = await Bun.stdin.text();
+function resolveAdapter(stdinText: string): HostAdapter {
+  const fromEnv = toStringOrNull(process.env.OPEN_PLAN_ANNOTATOR_HOST)?.toLowerCase();
+  if (fromEnv === "claude" || fromEnv === "opencode") {
+    return adapters[fromEnv];
+  }
+
+  if (!stdinText.trim()) {
+    return adapters.claude;
+  }
+
   try {
-    hookEvent = JSON.parse(stdinText) as HookEvent;
-    const event = hookEvent;
-    planContent = (event.tool_input?.plan as string) ?? "";
+    const parsed = JSON.parse(stdinText) as Record<string, unknown>;
 
-    // Fallback: read the most recent plan file from ~/.claude/plans/
-    if (!planContent) {
-      const plansDir = `${process.env.HOME}/.claude/plans`;
-      try {
-        const files = await Array.fromAsync(new Bun.Glob("*.md").scan(plansDir));
-        if (files.length > 0) {
-          // Sort by modification time, newest first
-          const sorted = await Promise.all(
-            files.map(async (f) => {
-              const path = `${plansDir}/${f}`;
-              const stat = await Bun.file(path).stat();
-              return { path, mtime: stat?.mtime ?? 0 };
-            }),
-          );
-          sorted.sort((a, b) => (b.mtime as number) - (a.mtime as number));
-          planContent = await Bun.file(sorted[0].path).text();
-        }
-      } catch {
-        // Plans directory doesn't exist or is empty
-      }
+    const command = toStringOrNull(parsed.command) ?? toStringOrNull(parsed.tool);
+    if (command === "submit_plan") {
+      return adapters.opencode;
+    }
+
+    if (toStringOrNull(parsed.host)?.toLowerCase() === "opencode") {
+      return adapters.opencode;
+    }
+
+    if (typeof parsed.tool_input === "object" || toStringOrNull(parsed.hook_event_name) === "PermissionRequest") {
+      return adapters.claude;
     }
   } catch {
-    process.stderr.write("open-plan-annotator: failed to parse stdin hook event\n");
-    process.exit(1);
+    return adapters.claude;
   }
+
+  return adapters.claude;
 }
 
-if (!planContent) {
-  process.stderr.write("open-plan-annotator: no plan content found\n");
-  process.exit(1);
+const stdinText = isDev ? "" : await Bun.stdin.text();
+const adapter = resolveAdapter(stdinText);
+const parsed = await adapter.parseRequest({ stdinText, isDev, devPlan: DEV_PLAN });
+
+if (!parsed.ok) {
+  if (parsed.stderr) process.stderr.write(parsed.stderr);
+  if (parsed.stdout) process.stdout.write(parsed.stdout);
+  process.exit(parsed.exitCode);
 }
+
+const request: PlanReviewRequest = parsed.request;
+const planContent = request.planContent;
 
 // 2. Set up decision promise
-let resolveDecision: ((d: ServerDecision) => void) | null = null;
-const decisionPromise = new Promise<ServerDecision>((resolve) => {
+let resolveDecision: ((d: PlanReviewDecision) => void) | null = null;
+const decisionPromise = new Promise<PlanReviewDecision>((resolve) => {
   resolveDecision = resolve;
 });
 
@@ -115,7 +127,7 @@ const planHistory: string[] = [];
 let planVersion = 1;
 const configBase = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME}/.config`;
 const historyRootDir = `${configBase}/open-plan-annotator/history`;
-const historySessionKey = resolveHistoryKey(hookEvent);
+const historySessionKey = resolveHistoryKey(request.historyKeySource);
 const historyDir = `${historyRootDir}/${historySessionKey}`;
 
 if (!isDev) {
@@ -197,13 +209,4 @@ await Bun.sleep(1200);
 server.stop();
 
 // 9. Write hook decision to stdout
-const output: HookOutput = {
-  hookSpecificOutput: {
-    hookEventName: "PermissionRequest",
-    decision: decision.approved
-      ? { behavior: "allow" }
-      : { behavior: "deny", message: decision.feedback ?? "Plan changes requested." },
-  },
-};
-
-console.log(JSON.stringify(output));
+console.log(adapter.formatDecision(decision));
