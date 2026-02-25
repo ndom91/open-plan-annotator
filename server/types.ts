@@ -21,6 +21,10 @@ export interface Annotation {
   createdAt: string;
 }
 
+export interface UserPreferences {
+  autoCloseOnSubmit: boolean;
+}
+
 export interface HookOutput {
   hookSpecificOutput: {
     hookEventName: "PermissionRequest";
@@ -32,8 +36,10 @@ export interface ServerState {
   planContent: string;
   planVersion: number;
   planHistory: string[];
+  preferences: UserPreferences;
   htmlContent: string;
   resolveDecision: ((decision: ServerDecision) => void) | null;
+  persistPreferences: (preferences: UserPreferences) => Promise<void>;
 }
 
 export interface ServerDecision {

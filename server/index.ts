@@ -3,7 +3,7 @@ import embeddedHtml from "../build/index.html" with { type: "text" };
 import { createRouter } from "./api.ts";
 import { resolveHistoryKey } from "./historyKey.ts";
 import { openBrowser } from "./launch.ts";
-import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
+import type { HookEvent, HookOutput, ServerDecision, ServerState, UserPreferences } from "./types.ts";
 
 const DEV_PLAN = `# Example Plan
 
@@ -45,6 +45,9 @@ Run the test suite and verify all endpoints return correct status codes.
 `;
 
 const isDev = process.env.NODE_ENV === "development";
+const DEFAULT_PREFERENCES: UserPreferences = {
+  autoCloseOnSubmit: false,
+};
 
 // 1. Read stdin
 let planContent: string;
@@ -91,6 +94,34 @@ if (!planContent) {
   process.exit(1);
 }
 
+const configBase = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME}/.config`;
+const configDir = `${configBase}/open-plan-annotator`;
+const historyRootDir = `${configDir}/history`;
+const preferencesPath = `${configDir}/preferences.json`;
+
+let preferences: UserPreferences = { ...DEFAULT_PREFERENCES };
+try {
+  const rawPreferences = await Bun.file(preferencesPath).text();
+  const parsed = JSON.parse(rawPreferences) as Partial<UserPreferences>;
+  if (typeof parsed.autoCloseOnSubmit === "boolean") {
+    preferences = { autoCloseOnSubmit: parsed.autoCloseOnSubmit };
+  }
+} catch {
+  // Keep defaults when no file exists or parsing fails
+}
+
+const persistPreferences = async (nextPreferences: UserPreferences): Promise<void> => {
+  const serialized = `${JSON.stringify(nextPreferences, null, 2)}\n`;
+  try {
+    await Bun.write(preferencesPath, serialized);
+    return;
+  } catch {
+    const { mkdirSync } = await import("node:fs");
+    mkdirSync(configDir, { recursive: true });
+    await Bun.write(preferencesPath, serialized);
+  }
+};
+
 // 2. Set up decision promise
 let resolveDecision: ((d: ServerDecision) => void) | null = null;
 const decisionPromise = new Promise<ServerDecision>((resolve) => {
@@ -113,8 +144,6 @@ if (typeof embeddedHtml === "string") {
 // Detect version history: check for previous plans stored by session
 const planHistory: string[] = [];
 let planVersion = 1;
-const configBase = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME}/.config`;
-const historyRootDir = `${configBase}/open-plan-annotator/history`;
 const historySessionKey = resolveHistoryKey(hookEvent);
 const historyDir = `${historyRootDir}/${historySessionKey}`;
 
@@ -161,8 +190,10 @@ const state: ServerState = {
   planContent,
   planVersion,
   planHistory,
+  preferences,
   htmlContent,
   resolveDecision,
+  persistPreferences,
 };
 
 // 4. Start server

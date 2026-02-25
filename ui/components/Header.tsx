@@ -8,10 +8,24 @@ interface HeaderProps {
   deny: () => void;
   isPending: boolean;
   decided: boolean;
+  autoCloseOnSubmit: boolean;
+  onToggleAutoClose: (nextValue: boolean) => void;
+  isSavingAutoClose: boolean;
 }
 
-export function Header({ annotations, version, approve, deny, isPending, decided }: HeaderProps) {
+export function Header({
+  annotations,
+  version,
+  approve,
+  deny,
+  isPending,
+  decided,
+  autoCloseOnSubmit,
+  onToggleAutoClose,
+  isSavingAutoClose,
+}: HeaderProps) {
   const { dark, toggle } = useTheme();
+  const isAutoCloseDisabled = isPending || isSavingAutoClose;
 
   if (decided) {
     return (
@@ -105,6 +119,27 @@ export function Header({ annotations, version, approve, deny, isPending, decided
           </button>
 
           <div className="w-px h-5 bg-rule mx-2" />
+
+          <div className="flex items-center gap-2 mr-1">
+            <span className="text-[12px] font-medium text-ink-tertiary">Auto-close</span>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={autoCloseOnSubmit}
+              aria-label="Auto-close tab after submitting"
+              onClick={() => onToggleAutoClose(!autoCloseOnSubmit)}
+              disabled={isAutoCloseDisabled}
+              className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-accent/50 disabled:opacity-40 disabled:cursor-not-allowed ${
+                autoCloseOnSubmit ? "bg-accent/70" : "bg-ink/15"
+              }`}
+            >
+              <span
+                className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${
+                  autoCloseOnSubmit ? "translate-x-5" : "translate-x-0.5"
+                }`}
+              />
+            </button>
+          </div>
 
           <button
             type="button"

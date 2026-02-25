@@ -5,6 +5,9 @@ interface PlanData {
   plan: string;
   version: number;
   history: string[];
+  preferences?: {
+    autoCloseOnSubmit?: boolean;
+  };
 }
 
 export function usePlan() {
@@ -35,6 +38,7 @@ export function usePlan() {
     planHash,
     version: data?.version ?? 1,
     history: data?.history ?? [],
+    autoCloseOnSubmit: data?.preferences?.autoCloseOnSubmit ?? false,
     isLoading,
     error,
   };

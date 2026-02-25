@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAnnotations } from "../hooks/useAnnotations.ts";
 import { useDecision } from "../hooks/useDecision.ts";
 import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts.ts";
@@ -10,14 +10,14 @@ import { AnnotationSidebar } from "./AnnotationSidebar.tsx";
 import { AnnotationToolbar, type ToolbarAction } from "./AnnotationToolbar.tsx";
 import { TextInputPopover } from "./CommentPopover.tsx";
 import { DiffViewer } from "./DiffViewer.tsx";
+import { DocumentChrome } from "./DocumentChrome.tsx";
 import { Header } from "./Header.tsx";
 import { PlanDocument } from "./PlanDocument.tsx";
-import { DocumentChrome } from "./DocumentChrome.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
 import { VersionSidebar } from "./VersionSidebar.tsx";
 
 export default function App() {
-  const { plan, planHash, version, history, isLoading, error } = usePlan();
+  const { plan, planHash, version, history, autoCloseOnSubmit: initialAutoCloseOnSubmit, isLoading, error } = usePlan();
   const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } =
     useAnnotations(planHash);
   const selection = useTextSelection();
@@ -29,6 +29,12 @@ export default function App() {
   } | null>(null);
   const [showDiff, setShowDiff] = useState(false);
   const [selectedVersion, setSelectedVersion] = useState<number | null>(null);
+  const [autoCloseOnSubmit, setAutoCloseOnSubmit] = useState(initialAutoCloseOnSubmit);
+  const [isSavingAutoClose, setIsSavingAutoClose] = useState(false);
+
+  useEffect(() => {
+    setAutoCloseOnSubmit(initialAutoCloseOnSubmit);
+  }, [initialAutoCloseOnSubmit]);
 
   const activeVersion = selectedVersion ?? version;
   const isViewingHistory = activeVersion !== version;
@@ -39,10 +45,7 @@ export default function App() {
     return history[activeVersion - 1] ?? plan;
   }, [isViewingHistory, activeVersion, history, plan]);
 
-  const blocks = useMemo(
-    () => (displayedPlan ? parseMarkdownToBlocks(displayedPlan) : []),
-    [displayedPlan],
-  );
+  const blocks = useMemo(() => (displayedPlan ? parseMarkdownToBlocks(displayedPlan) : []), [displayedPlan]);
 
   // Ref-based getter for keyboard shortcuts (avoids stale closures)
   const selectionRef = useRef(selection);
@@ -88,6 +91,42 @@ export default function App() {
   const handleDeny = useCallback(() => {
     if (!isPending && !decided && annotations.length > 0) deny(annotations);
   }, [deny, isPending, decided, annotations]);
+
+  const handleToggleAutoClose = useCallback(
+    async (nextValue: boolean) => {
+      if (isSavingAutoClose || isPending || decided) return;
+
+      const previousValue = autoCloseOnSubmit;
+      setAutoCloseOnSubmit(nextValue);
+      setIsSavingAutoClose(true);
+
+      try {
+        const response = await fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ autoCloseOnSubmit: nextValue }),
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      } catch (err) {
+        setAutoCloseOnSubmit(previousValue);
+        console.error("Failed to persist auto-close setting", err);
+      } finally {
+        setIsSavingAutoClose(false);
+      }
+    },
+    [autoCloseOnSubmit, decided, isPending, isSavingAutoClose],
+  );
+
+  useEffect(() => {
+    if (!decided || !autoCloseOnSubmit) return;
+    const closeTimer = window.setTimeout(() => {
+      window.close();
+    }, 50);
+    return () => window.clearTimeout(closeTimer);
+  }, [autoCloseOnSubmit, decided]);
 
   useKeyboardShortcuts({
     getSelection: getResolvedSelection,
@@ -139,6 +178,9 @@ export default function App() {
           deny={handleDeny}
           isPending={isPending}
           decided={decided}
+          autoCloseOnSubmit={autoCloseOnSubmit}
+          onToggleAutoClose={handleToggleAutoClose}
+          isSavingAutoClose={isSavingAutoClose}
         />
 
         <div className="flex justify-center px-4 py-8 sm:px-6 lg:px-8">
@@ -193,19 +235,14 @@ export default function App() {
         </div>
 
         {/* Floating toolbar on selection — only on current version */}
-        {!isViewingHistory &&
-          selection.isActive &&
-          selection.resolved &&
-          selection.rect &&
-          !popover &&
-          !decided && (
-            <AnnotationToolbar
-              rect={selection.rect}
-              selections={selection.resolved}
-              onAction={handleToolbarAction}
-              onDismiss={() => window.getSelection()?.removeAllRanges()}
-            />
-          )}
+        {!isViewingHistory && selection.isActive && selection.resolved && selection.rect && !popover && !decided && (
+          <AnnotationToolbar
+            rect={selection.rect}
+            selections={selection.resolved}
+            onAction={handleToolbarAction}
+            onDismiss={() => window.getSelection()?.removeAllRanges()}
+          />
+        )}
 
         {/* Text input popover */}
         {popover && (
