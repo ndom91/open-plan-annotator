@@ -32,7 +32,7 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
 
                   <div
                     className={cn(
-                      "group flex-1 rounded-lg border border-rule-subtle bg-paper p-3.5 card-lift",
+                      "group flex-1 rounded-sm border border-rule-subtle bg-paper p-3.5 card-lift",
                       "border-l-[3px]",
                       ann.type === "deletion" && "border-l-redline",
                       ann.type === "replacement" && "border-l-ink-secondary",

@@ -27,7 +27,7 @@ export function Header({
   if (decided) {
     return (
       <header className="sticky top-0 z-40">
-        <div className="flex items-center justify-center px-8 py-4 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
+        <div className="flex flex-col items-center gap-2 px-8 py-4 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
           <div className="flex items-center gap-2.5 text-ink-tertiary">
             <div className="w-5 h-5 rounded-full bg-approve/15 flex items-center justify-center">
               <svg
@@ -46,6 +46,22 @@ export function Header({
             </div>
             <span className="text-sm">Decision sent. You can close this tab.</span>
           </div>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={autoCloseOnSubmit}
+            onClick={onToggleAutoClose}
+            className="flex items-center gap-1.5 px-2 py-1 rounded text-ink-tertiary/60 hover:text-ink-tertiary transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
+          >
+            <span
+              className={`relative inline-flex h-3 w-5.5 items-center rounded-full transition-colors ${autoCloseOnSubmit ? "bg-accent/70" : "bg-ink/10"}`}
+            >
+              <span
+                className={`inline-block h-2 w-2 rounded-full bg-white shadow-sm transition-transform ${autoCloseOnSubmit ? "translate-x-3" : "translate-x-0.5"}`}
+              />
+            </span>
+            <span className="text-[11px] select-none">Auto-close going forward</span>
+          </button>
         </div>
       </header>
     );
@@ -56,7 +72,7 @@ export function Header({
       <div className="flex items-center justify-between px-8 py-3 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-accent/15 flex items-center justify-center ring-1 ring-accent/20">
+            <div className="w-6 h-6 rounded-sm bg-accent/15 flex items-center justify-center ring-1 ring-accent/20">
               <svg
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
@@ -75,7 +91,10 @@ export function Header({
             </span>
           )}
           {annotations.length > 0 && (
-            <span className="text-[11px] text-margin-note bg-margin-note-bg/80 px-2.5 py-0.5 rounded-full font-semibold tabular-nums ring-1 ring-margin-note/20 shadow-[0_0_8px_oklch(0.75_0.15_85/0.15)]">
+            <span
+              title={`${annotations.length} Annotations`}
+              className="text-[11px] text-margin-note bg-margin-note-bg/80 px-2.5 py-0.5 rounded-sm font-semibold tabular-nums ring-1 ring-margin-note/20 shadow-[0_0_8px_oklch(0.75_0.15_85/0.15)]"
+            >
               {annotations.length}
             </span>
           )}
@@ -115,31 +134,13 @@ export function Header({
             )}
           </button>
 
-          <button
-            type="button"
-            role="switch"
-            aria-checked={autoCloseOnSubmit}
-            onClick={onToggleAutoClose}
-            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
-            title="Auto-close tab after submitting"
-          >
-            <span className="text-[11px] select-none">Auto-close</span>
-            <span
-              className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${autoCloseOnSubmit ? "bg-accent" : "bg-ink/15"}`}
-            >
-              <span
-                className={`inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform ${autoCloseOnSubmit ? "translate-x-3.5" : "translate-x-0.5"}`}
-              />
-            </span>
-          </button>
-
           <div className="w-px h-5 bg-rule mx-2" />
 
           <button
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="px-3.5 py-1.5 rounded-lg text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="px-3.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Send Annotations
@@ -148,7 +149,7 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="px-4 py-1.5 rounded-lg bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="px-4 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             Accept Plan

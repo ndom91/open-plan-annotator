@@ -27,8 +27,6 @@ export function DocumentChrome({
           <div className="w-2.25 h-2.25 rounded-full bg-ink/10" />
         </div>
 
-        <div className="w-px h-3.5 bg-rule-subtle mx-0.5" />
-
         {isViewingHistory ? (
           <div className="flex items-center gap-2.5">
             <span className="text-xs text-ink-secondary">
@@ -44,7 +42,7 @@ export function DocumentChrome({
             </button>
           </div>
         ) : (
-          <span className="text-xs text-ink-tertiary">Plan</span>
+          <span className="text-sm font-medium text-ink-secondary">Plan</span>
         )}
       </div>
 
@@ -54,10 +52,8 @@ export function DocumentChrome({
             type="button"
             onClick={onToggleDiff}
             className={cn(
-              "flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium transition-all focus-visible:ring-2 focus-visible:ring-accent/50",
-              showDiff
-                ? "bg-ink/10 text-ink-secondary ring-1 ring-ink/10"
-                : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5",
+              "flex border-ink-tertiary/25 border items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-accent/50",
+              showDiff ? "bg-ink/10 text-ink ring-1 ring-ink/10" : "text-ink-secondary hover:text-ink hover:bg-ink/5",
             )}
             title="Show changes from previous version"
           >
@@ -66,7 +62,7 @@ export function DocumentChrome({
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 16 16"
               fill="currentColor"
-              className="w-3 h-3"
+              className="w-3.5 h-3.5"
             >
               <path d="M8 1a.75.75 0 0 1 .75.75v6.5a.75.75 0 0 1-1.5 0v-6.5A.75.75 0 0 1 8 1ZM3.75 9a.75.75 0 0 0 0 1.5h8.5a.75.75 0 0 0 0-1.5h-8.5ZM3 12.25a.75.75 0 0 1 .75-.75h8.5a.75.75 0 0 1 0 1.5h-8.5a.75.75 0 0 1-.75-.75Z" />
             </svg>

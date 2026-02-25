@@ -18,13 +18,7 @@
       },
       "homepage": "https://github.com/ndom91/open-plan-annotator",
       "license": "MIT",
-      "keywords": [
-        "planning",
-        "review",
-        "hooks",
-        "ExitPlanMode",
-        "annotations"
-      ]
+      "keywords": ["planning", "review", "hooks", "ExitPlanMode", "annotations"]
     }
   ]
 }

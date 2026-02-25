@@ -167,7 +167,7 @@ export default function App() {
           onToggleAutoClose={handleToggleAutoClose}
         />
 
-        <div className="flex justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8">
           {/* Version history sidebar */}
           {totalVersions > 1 && (
             <aside className="w-56 shrink-0 pl-2 mr-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
@@ -180,7 +180,7 @@ export default function App() {
             </aside>
           )}
 
-          <div className="w-full max-w-208">
+          <div className="w-full max-w-208 min-w-0">
             {/* Document surface */}
             <main
               id="main-content"
@@ -210,7 +210,7 @@ export default function App() {
             </main>
           </div>
 
-          {/* Annotation sidebar — always reserve space to prevent layout shift */}
+          {/* Annotation sidebar — only reserve space when there are annotations */}
           <aside className="w-72 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
             {!isViewingHistory && annotations.length > 0 && (
               <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />

@@ -104,7 +104,7 @@ function renderSegments(segments: Segment[], useInline = true) {
         key={i}
         data-seg-start={seg.originalStart}
         data-seg-end={seg.originalEnd}
-        className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-sm px-px cursor-help"
+        className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-xs px-px cursor-help"
         role="note"
         aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
       >
