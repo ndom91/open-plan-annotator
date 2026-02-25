@@ -108,6 +108,107 @@ async function runSession(args: {
   }
 }
 
+describe("stdout immediacy", () => {
+  test("hook output arrives on stdout before process exits", async () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "open-plan-annotator-stdout-"));
+    const fakeBin = join(tempRoot, "bin");
+    const configHome = join(tempRoot, "config");
+
+    try {
+      mkdirSync(fakeBin, { recursive: true });
+      mkdirSync(configHome, { recursive: true });
+
+      for (const name of ["open", "xdg-open", "cmd"]) {
+        const shimPath = join(fakeBin, name);
+        writeFileSync(shimPath, "#!/bin/sh\nexit 0\n", "utf8");
+        chmodSync(shimPath, 0o755);
+      }
+
+      const hookEvent = {
+        transcript_path: "/tmp/stdout-test.jsonl",
+        session_id: "session-stdout",
+        cwd: "/repo",
+        permission_mode: "acceptEdits",
+        hook_event_name: "PermissionRequest",
+        tool_name: "Write",
+        tool_use_id: "tool-stdout",
+      };
+
+      // Use a long shutdown delay — stdout must arrive well before this expires
+      const shutdownDelayMs = 8000;
+      const env = {
+        NODE_ENV: "test",
+        XDG_CONFIG_HOME: configHome,
+        SHUTDOWN_DELAY_MS: String(shutdownDelayMs),
+        PATH: `${fakeBin}${delimiter}${process.env.PATH ?? ""}`,
+      };
+
+      const child = spawn(process.execPath, ["run", "server/index.ts"], {
+        cwd: join(import.meta.dir, ".."),
+        env: { ...process.env, ...env },
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+
+      let stdout = "";
+      let stderr = "";
+      let stdoutReceivedAt: number | null = null;
+
+      child.stdout.on("data", (chunk) => {
+        stdout += String(chunk);
+        if (!stdoutReceivedAt && stdout.includes("hookSpecificOutput")) {
+          stdoutReceivedAt = Date.now();
+        }
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += String(chunk);
+      });
+
+      const childExit = new Promise<number>((resolve, reject) => {
+        child.once("error", reject);
+        child.once("close", (code) => resolve(code ?? -1));
+      });
+
+      const payload = { ...hookEvent, tool_input: { plan: "Stdout timing test" } };
+      child.stdin.write(`${JSON.stringify(payload)}\n`);
+      child.stdin.end();
+
+      // Wait for the server to be ready
+      const baseUrl = await waitForServerUrl(() => stderr);
+      const decisionSentAt = Date.now();
+
+      // Send approval
+      await fetch(`${baseUrl}/api/approve`, { method: "POST" });
+
+      // Wait for stdout to arrive (should be almost immediate, not after shutdown delay)
+      const stdoutDeadline = Date.now() + 3000;
+      while (!stdoutReceivedAt && Date.now() < stdoutDeadline) {
+        await Bun.sleep(25);
+      }
+
+      expect(stdoutReceivedAt).not.toBeNull();
+
+      const latencyMs = stdoutReceivedAt! - decisionSentAt;
+
+      // stdout must arrive in under 2 seconds — well before the 8s shutdown delay
+      expect(latencyMs).toBeLessThan(2000);
+
+      // Verify it's valid hook output
+      const output = JSON.parse(stdout.trim());
+      expect(output.hookSpecificOutput.decision.behavior).toBe("allow");
+
+      // Clean up: kill the process (it would otherwise wait for the shutdown delay)
+      child.kill("SIGTERM");
+      await Promise.race([childExit.catch(() => -1), Bun.sleep(1000)]);
+      if (child.exitCode === null) {
+        child.kill("SIGKILL");
+        await childExit.catch(() => -1);
+      }
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
+  }, 15000);
+});
+
 describe("history lifecycle", () => {
   test("deny preserves history and approve clears it while version increments", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "open-plan-annotator-test-"));

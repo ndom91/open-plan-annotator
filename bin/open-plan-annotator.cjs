@@ -65,13 +65,12 @@ child.stdout.on("data", (chunk) => {
     if (!trimmed) continue;
     try {
       JSON.parse(trimmed);
-      // Valid JSON — forward it and exit, letting the binary run in the background
+      // Valid JSON — write directly to fd 1 (bypasses Node stream buffering),
+      // detach child, and exit immediately.
       forwarded = true;
-      process.stdout.write(trimmed + "\n", () => {
-        child.unref();
-        process.exit(0);
-      });
-      return;
+      fs.writeSync(1, trimmed + "\n");
+      child.unref();
+      process.exit(0);
     } catch {
       // Not JSON yet, keep buffering
     }
@@ -81,7 +80,9 @@ child.stdout.on("data", (chunk) => {
 child.on("close", (code) => {
   if (!forwarded) {
     // Binary exited without producing valid JSON — forward whatever we have
-    if (stdout.trim()) process.stdout.write(stdout);
+    if (stdout.trim()) {
+      fs.writeSync(1, stdout);
+    }
     process.exit(code || 1);
   }
 });
