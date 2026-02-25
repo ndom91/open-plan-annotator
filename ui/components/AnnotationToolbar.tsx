@@ -27,7 +27,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
   };
 
   const btn =
-    "flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
+    "flex items-center gap-1.5 px-2.5 py-1.5 rounded-sm text-xs font-medium cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
 
   return (
     <div
@@ -35,7 +35,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       aria-label="Annotation actions"
       onKeyDown={handleToolbarKeyDown}
       style={{ top, left, transform: "translateX(-50%)" }}
-      className="absolute z-50 flex items-center bg-paper-edge backdrop-blur-xl border border-rule rounded-xl shadow-[0_2px_4px_oklch(0_0_0/0.2),0_8px_24px_oklch(0_0_0/0.25),0_16px_48px_oklch(0_0_0/0.15)] p-1.5"
+      className="absolute z-50 flex items-center bg-paper-edge backdrop-blur-xl rounded-lg border border-ink/10 ring-1 ring-inset ring-white/[0.07] shadow-[0_1px_2px_oklch(0_0_0/0.25),0_4px_12px_oklch(0_0_0/0.2),0_12px_36px_oklch(0_0_0/0.18)] px-1 py-1"
     >
       <button
         type="button"
@@ -62,7 +62,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
         </svg>
         Delete
       </button>
-      <div className="w-px h-5 bg-rule mx-0.5" />
+      <div className="w-px h-4 bg-ink/10 shadow-[1px_0_0_oklch(1_0_0/0.04)] mx-0.5" />
       <button
         type="button"
         onClick={() => {
@@ -87,7 +87,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
         </svg>
         Replace
       </button>
-      <div className="w-px h-5 bg-rule mx-0.5" />
+      <div className="w-px h-4 bg-ink/10 shadow-[1px_0_0_oklch(1_0_0/0.04)] mx-0.5" />
       <button
         type="button"
         onClick={() => {
@@ -108,7 +108,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
         </svg>
         Insert
       </button>
-      <div className="w-px h-5 bg-rule mx-0.5" />
+      <div className="w-px h-4 bg-ink/10 shadow-[1px_0_0_oklch(1_0_0/0.04)] mx-0.5" />
       <button
         type="button"
         onClick={() => {

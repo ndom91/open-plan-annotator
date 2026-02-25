@@ -256,7 +256,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       return (
         <blockquote
           data-block-index={block.index}
-          className="my-5 pl-4 border-l-2 border-accent/40 bg-accent/3 rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
+          className="my-5 pl-4 border-l-[3px] border-accent/40 bg-accent/3 rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
         >
           {renderSegments(segments)}
         </blockquote>

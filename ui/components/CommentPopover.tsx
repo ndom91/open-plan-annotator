@@ -138,8 +138,12 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
               >
                 {button}
                 <kbd className="flex items-center gap-0.5 text-[11px] font-mono transition-opacity">
-                  <span className="flex items-center justify-center size-[20px] rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">⌘</span>
-                  <span className="flex items-center justify-center size-[20px] rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">↵</span>
+                  <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+                    ⌘
+                  </span>
+                  <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+                    ↵
+                  </span>
                 </kbd>
               </button>
             </div>
