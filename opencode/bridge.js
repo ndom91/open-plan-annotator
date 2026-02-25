@@ -1,10 +1,12 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
-import { dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const WRAPPER_PATH = fileURLToPath(new URL("../bin/open-plan-annotator.cjs", import.meta.url));
+const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
+const BINARY_PATH = join(PKG_ROOT, "bin", "open-plan-annotator-binary");
+const INSTALL_SCRIPT = join(PKG_ROOT, "install.cjs");
 
 /**
  * @typedef {{
@@ -97,10 +99,42 @@ function validateHookOutput(value) {
   throw new Error("unsupported decision payload");
 }
 
+/** Ensure the compiled binary exists, downloading if necessary. */
+function ensureBinary() {
+  if (existsSync(BINARY_PATH)) return;
+
+  // Try to find node on PATH for running the install script
+  try {
+    execFileSync(process.execPath, [INSTALL_SCRIPT], {
+      cwd: PKG_ROOT,
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+  } catch {
+    // Retry with "node" explicitly in case process.execPath is bun
+    try {
+      execFileSync("node", [INSTALL_SCRIPT], {
+        cwd: PKG_ROOT,
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+    } catch {
+      // ignore — we'll check below
+    }
+  }
+
+  if (!existsSync(BINARY_PATH)) {
+    throw new Error(
+      `open-plan-annotator: binary not found at ${BINARY_PATH}. ` +
+        `Try running: node ${INSTALL_SCRIPT}`,
+    );
+  }
+}
+
 /**
  * @param {{ plan: string, sessionId?: string, cwd?: string }} options
  */
 export async function runPlanReview(options) {
+  ensureBinary();
+
   const payload = buildHookPayload(options);
 
   const result = await new Promise((resolve, reject) => {
@@ -112,11 +146,12 @@ export async function runPlanReview(options) {
         cwd = dirname(cwd);
       }
     } catch {
-      // Fall back to wrapper's directory if all else fails
-      cwd = dirname(WRAPPER_PATH);
+      cwd = PKG_ROOT;
     }
 
-    const child = spawn(process.execPath, [WRAPPER_PATH], {
+    // Spawn the compiled binary directly (skip the Node wrapper).
+    // This avoids issues with bun vs node runtime differences.
+    const child = spawn(BINARY_PATH, [], {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
       env: process.env,
