@@ -9,7 +9,36 @@ export function createRouter(state: ServerState) {
         plan: state.planContent,
         version: state.planVersion,
         history: state.planHistory,
+        preferences: state.preferences,
       });
+    }
+
+    if (url.pathname === "/api/settings" && req.method === "POST") {
+      let body: unknown;
+      try {
+        body = await req.json();
+      } catch {
+        return Response.json({ error: "Invalid JSON body" }, { status: 400 });
+      }
+
+      const autoCloseOnSubmit = (body as { autoCloseOnSubmit?: unknown })?.autoCloseOnSubmit;
+      if (typeof autoCloseOnSubmit !== "boolean") {
+        return Response.json({ error: "autoCloseOnSubmit must be a boolean" }, { status: 400 });
+      }
+
+      const updatedPreferences = {
+        ...state.preferences,
+        autoCloseOnSubmit,
+      };
+
+      try {
+        await state.persistPreferences(updatedPreferences);
+      } catch {
+        return Response.json({ error: "Failed to persist settings" }, { status: 500 });
+      }
+
+      state.preferences = updatedPreferences;
+      return Response.json({ ok: true, preferences: state.preferences });
     }
 
     if (url.pathname === "/api/approve" && req.method === "POST") {

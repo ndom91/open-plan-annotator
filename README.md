@@ -18,7 +18,7 @@ Select text to <code style="color: purple">strikethrough</code>, <code style="co
 2. An ephemeral HTTP server starts and opens a React UI in your browser
 3. You review and annotate the plan
 4. **Approve** or **Request Changes**
-5. The tool returns host-specific JSON output (Claude hook output or OpenCode plugin output)
+5. The tool returns structured JSON output back to the host
 
 The server shuts down after you decide. Everything runs locally, nothing leaves your machine.
 
@@ -57,34 +57,35 @@ This registers the `ExitPlanMode` hook that launches the annotation UI.
 
 ### OpenCode
 
-The OpenCode plugin uses the `@opencode-ai/plugin` SDK to register a `submit_plan` tool and inject system prompt instructions that tell the agent to use plan mode.
+Add `open-plan-annotator` to the `plugin` array in your OpenCode config (`opencode.json` or `.opencode/config.json`):
 
-**Option A: Install from npm (recommended)**
-
-```sh
-npm install -g open-plan-annotator
-cd /path/to/your/project
-open-plan-annotator-install-opencode
+```json
+{
+  "plugin": ["open-plan-annotator"]
+}
 ```
 
-This installs the plugin to `~/.config/opencode/plugins/open-plan-annotator/`, installs dependencies, and creates a loader shim that OpenCode auto-discovers — no config changes needed.
-
-**Option B: From source**
-
-```sh
-git clone https://github.com/ndom91/open-plan-annotator.git
-cd open-plan-annotator
-bun install
-bun run install:opencode-plugin   # installs to .opencode/plugins/ in CWD
-```
-
-The install script creates the auto-discovery shim, so no config changes needed.
-
-The plugin automatically:
+OpenCode will install the package and load it automatically. The plugin:
 - Injects plan-mode instructions into the agent's system prompt
 - Registers a `submit_plan` tool that the agent calls after creating a plan
 - Spawns the annotation UI in your browser for review
 - Returns structured feedback to the agent on approval or rejection
+- Optionally hands off to an implementation agent after approval
+
+#### Implementation handoff
+
+By default, after a plan is approved the plugin sends "Proceed with implementation." to a `build` agent. To customize or disable this, create `open-plan-annotator.json` in your project's `.opencode/` directory or globally in `~/.config/opencode/`:
+
+```json
+{
+  "implementationHandoff": {
+    "enabled": true,
+    "agent": "build"
+  }
+}
+```
+
+Set `enabled` to `false` to disable auto-handoff. Project config overrides global config.
 
 ### From source (Claude Code)
 

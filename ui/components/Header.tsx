@@ -8,9 +8,20 @@ interface HeaderProps {
   deny: () => void;
   isPending: boolean;
   decided: boolean;
+  autoCloseOnSubmit: boolean;
+  onToggleAutoClose: () => void;
 }
 
-export function Header({ annotations, version, approve, deny, isPending, decided }: HeaderProps) {
+export function Header({
+  annotations,
+  version,
+  approve,
+  deny,
+  isPending,
+  decided,
+  autoCloseOnSubmit,
+  onToggleAutoClose,
+}: HeaderProps) {
   const { dark, toggle } = useTheme();
 
   if (decided) {
@@ -102,6 +113,24 @@ export function Header({ annotations, version, approve, deny, isPending, decided
                 />
               </svg>
             )}
+          </button>
+
+          <button
+            type="button"
+            role="switch"
+            aria-checked={autoCloseOnSubmit}
+            onClick={onToggleAutoClose}
+            className="flex items-center gap-1.5 px-2 py-1.5 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
+            title="Auto-close tab after submitting"
+          >
+            <span className="text-[11px] select-none">Auto-close</span>
+            <span
+              className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${autoCloseOnSubmit ? "bg-accent" : "bg-ink/15"}`}
+            >
+              <span
+                className={`inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform ${autoCloseOnSubmit ? "translate-x-3.5" : "translate-x-0.5"}`}
+              />
+            </span>
           </button>
 
           <div className="w-px h-5 bg-rule mx-2" />

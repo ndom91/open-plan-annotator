@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import { hashString } from "../utils/hash.ts";
 
+interface PlanPreferences {
+  autoCloseOnSubmit: boolean;
+}
+
 interface PlanData {
   plan: string;
   version: number;
   history: string[];
+  preferences: PlanPreferences;
 }
 
 export function usePlan() {
@@ -35,6 +40,7 @@ export function usePlan() {
     planHash,
     version: data?.version ?? 1,
     history: data?.history ?? [],
+    autoCloseOnSubmit: data?.preferences?.autoCloseOnSubmit ?? false,
     isLoading,
     error,
   };

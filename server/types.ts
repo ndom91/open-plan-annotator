@@ -9,17 +9,6 @@ export interface HookEvent {
   tool_input: Record<string, unknown>;
 }
 
-export interface OpenCodeSubmitPlanPayload {
-  host?: string;
-  command?: string;
-  tool?: string;
-  plan?: unknown;
-  sessionId?: unknown;
-  conversationId?: unknown;
-  cwd?: unknown;
-  metadata?: Record<string, unknown>;
-}
-
 export interface Annotation {
   id: string;
   type: "deletion" | "comment" | "insertion" | "replacement";
@@ -32,18 +21,15 @@ export interface Annotation {
   createdAt: string;
 }
 
+export interface UserPreferences {
+  autoCloseOnSubmit: boolean;
+}
+
 export interface HookOutput {
   hookSpecificOutput: {
     hookEventName: "PermissionRequest";
     decision: { behavior: "allow" } | { behavior: "deny"; message: string };
   };
-}
-
-export interface OpenCodeOutput {
-  ok: boolean;
-  decision: "approve" | "deny";
-  feedback?: string;
-  message?: string;
 }
 
 export interface HistoryKeySource {
@@ -52,43 +38,19 @@ export interface HistoryKeySource {
   cwd?: unknown;
   hook_event_name?: unknown;
   tool_name?: unknown;
-  opencode_conversation_id?: unknown;
-  opencode_session_id?: unknown;
 }
 
-export interface PlanReviewRequest {
-  host: "claude" | "opencode" | "dev";
-  planContent: string;
-  historyKeySource: HistoryKeySource;
-}
-
-export interface PlanReviewDecision {
+export interface ServerDecision {
   approved: boolean;
   feedback?: string;
-}
-
-export type AdapterParseResult =
-  | {
-      ok: true;
-      request: PlanReviewRequest;
-    }
-  | {
-      ok: false;
-      exitCode: number;
-      stdout?: string;
-      stderr?: string;
-    };
-
-export interface HostAdapter {
-  readonly host: "claude" | "opencode";
-  parseRequest(args: { stdinText: string; isDev: boolean; devPlan: string }): Promise<AdapterParseResult>;
-  formatDecision(decision: PlanReviewDecision): string;
 }
 
 export interface ServerState {
   planContent: string;
   planVersion: number;
   planHistory: string[];
+  preferences: UserPreferences;
   htmlContent: string;
-  resolveDecision: ((decision: PlanReviewDecision) => void) | null;
+  resolveDecision: ((decision: ServerDecision) => void) | null;
+  persistPreferences: (preferences: UserPreferences) => Promise<void>;
 }
