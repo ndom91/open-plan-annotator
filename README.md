@@ -9,7 +9,7 @@ A fully local agentic coding plugin (claude-code, opencode) that intercepts plan
 Select text to <code style="color: purple">strikethrough</code>, <code style="color: orange">replace</code>, <code style="color: blue">insert</code>, or <code style="color: red">comment</code> — then approve the plan or request changes.
 
 
-![](.github/assets/screenshot_01.png)
+![](.github/assets/screenshot_1.png)
 
 
 ## How it works
