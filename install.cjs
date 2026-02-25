@@ -89,7 +89,7 @@ async function main() {
   }
 
   const url = getDownloadUrl();
-  console.log(`Downloading open-plan-annotator for ${getPlatformKey()}...`);
+  console.error(`Downloading open-plan-annotator for ${getPlatformKey()}...`);
 
   const buffer = await fetch(url);
   const binaryBuffer = extractBinaryFromTarGz(buffer);
@@ -99,7 +99,7 @@ async function main() {
   }
 
   fs.writeFileSync(destPath, binaryBuffer, { mode: 0o755 });
-  console.log(`Installed open-plan-annotator to ${destPath}`);
+  console.error(`Installed open-plan-annotator to ${destPath}`);
 }
 
 main().catch((err) => {

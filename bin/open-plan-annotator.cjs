@@ -20,7 +20,7 @@ if (!fs.existsSync(binaryPath)) {
   console.error("open-plan-annotator: binary not found, downloading...");
   try {
     execFileSync(process.execPath, [installScript], {
-      stdio: ["ignore", "inherit", "inherit"],
+      stdio: ["ignore", 2, "inherit"],
     });
   } catch (e) {
     console.error(
