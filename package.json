@@ -40,7 +40,9 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "do-release": "./scripts/release.sh"
+    "do-release": "./scripts/release.sh",
+    "prepack": "mv CLAUDE.md CLAUDE.dev.md.bak && cp CLAUDE.plugin.md CLAUDE.md",
+    "postpack": "mv CLAUDE.dev.md.bak CLAUDE.md"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4"
