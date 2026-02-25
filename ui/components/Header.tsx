@@ -10,14 +10,7 @@ interface HeaderProps {
   decided: boolean;
 }
 
-export function Header({
-  annotations,
-  version,
-  approve,
-  deny,
-  isPending,
-  decided,
-}: HeaderProps) {
+export function Header({ annotations, version, approve, deny, isPending, decided }: HeaderProps) {
   const { dark, toggle } = useTheme();
 
   if (decided) {
@@ -126,7 +119,7 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="px-4 py-1.5 rounded-lg bg-gradient-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="px-4 py-1.5 rounded-lg bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             Accept Plan

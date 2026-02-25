@@ -91,53 +91,53 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
         role="dialog"
         aria-labelledby="popover-title"
         aria-modal="true"
-        className="bg-paper border border-rule rounded-2xl shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_40px_oklch(0_0_0/0.25),0_24px_60px_oklch(0_0_0/0.15)] overflow-hidden w-[26rem]"
+        className="bg-paper border border-rule rounded-2xl shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_40px_oklch(0_0_0/0.25),0_24px_60px_oklch(0_0_0/0.15)] overflow-hidden w-104"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-[2px] bg-gradient-to-r from-transparent via-accent/50 to-transparent" />
+        <div className="h-0.5 bg-linear-to-r from-transparent via-accent/50 to-transparent" />
         <div className="p-6">
-        <h3 id="popover-title" className="text-sm font-semibold text-ink mb-1.5">
-          {title}
-        </h3>
-        <p className="text-xs text-ink-tertiary mb-4 truncate">
-          {mode === "insertion" ? `After: "${selectedText}"` : `"${selectedText}"`}
-        </p>
-        <textarea
-          ref={inputRef}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={placeholder}
-          aria-label={title}
-          className="w-full h-20 px-3 py-2.5 text-sm rounded-lg border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-all"
-        />
-        <div className="flex items-center justify-between mt-4">
-          <kbd className="text-[11px] text-ink-tertiary font-mono">
-            <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">⌘</span>
-            <span className="mx-0.5">+</span>
-            <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">↵</span>
-          </kbd>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors focus-visible:ring-2 focus-visible:ring-margin-note/50"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!text.trim()}
-              className={cn(
-                "px-3.5 py-1.5 text-sm rounded-lg text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50",
-                buttonClass,
-              )}
-            >
-              {button}
-            </button>
+          <h3 id="popover-title" className="text-sm font-semibold text-ink mb-1.5">
+            {title}
+          </h3>
+          <p className="text-xs text-ink-tertiary mb-4 truncate">
+            {mode === "insertion" ? `After: "${selectedText}"` : `"${selectedText}"`}
+          </p>
+          <textarea
+            ref={inputRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder={placeholder}
+            aria-label={title}
+            className="w-full h-20 px-3 py-2.5 text-sm rounded-lg border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-all"
+          />
+          <div className="flex items-center justify-between mt-4">
+            <kbd className="text-[11px] text-ink-tertiary font-mono">
+              <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">⌘</span>
+              <span className="mx-0.5">+</span>
+              <span className="px-1 py-0.5 rounded border border-rule-subtle bg-inset">↵</span>
+            </kbd>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors focus-visible:ring-2 focus-visible:ring-margin-note/50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={!text.trim()}
+                className={cn(
+                  "px-3.5 py-1.5 text-sm rounded-lg text-white disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50",
+                  buttonClass,
+                )}
+              >
+                {button}
+              </button>
+            </div>
           </div>
-        </div>
         </div>
       </div>
     </div>

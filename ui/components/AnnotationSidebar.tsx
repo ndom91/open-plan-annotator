@@ -16,25 +16,19 @@ const typeConfig: Record<Annotation["type"], { label: string; pillClass: string;
 export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarProps) {
   return (
     <div>
-      <h3 className="text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest mb-5 pl-1">
-        Annotations
-      </h3>
+      <h3 className="text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest mb-5 pl-1">Annotations</h3>
       <div className="relative">
         {/* Timeline line */}
-        <div className="absolute left-[5px] top-2 bottom-2 w-px bg-rule-subtle" />
+        <div className="absolute left-1.25 top-2 bottom-2 w-px bg-rule-subtle" />
 
         <div className="space-y-3 relative">
           {annotations.map((ann, i) => {
             const cfg = typeConfig[ann.type];
             return (
-              <div
-                key={ann.id}
-                className="animate-fade-in-up"
-                style={{ animationDelay: `${i * 40}ms` }}
-              >
+              <div key={ann.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 40}ms` }}>
                 {/* Timeline dot */}
                 <div className="flex items-start gap-3">
-                  <div className={cn("w-[11px] h-[11px] rounded-full mt-3.5 shrink-0 ring-2 ring-desk", cfg.barClass)} />
+                  <div className={cn("w-2.75 h-2.75 rounded-full mt-3.5 shrink-0 ring-2 ring-desk", cfg.barClass)} />
 
                   <div
                     className={cn(
@@ -65,10 +59,14 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
                           {truncate(ann.text, 60)}
                         </p>
                         {ann.type === "replacement" && ann.replacement && (
-                          <p className="mt-1.5 text-xs text-approve leading-relaxed">&rarr; {truncate(ann.replacement, 60)}</p>
+                          <p className="mt-1.5 text-xs text-approve leading-relaxed">
+                            &rarr; {truncate(ann.replacement, 60)}
+                          </p>
                         )}
                         {ann.type === "insertion" && ann.replacement && (
-                          <p className="mt-1.5 text-xs text-approve leading-relaxed">+ {truncate(ann.replacement, 60)}</p>
+                          <p className="mt-1.5 text-xs text-approve leading-relaxed">
+                            + {truncate(ann.replacement, 60)}
+                          </p>
                         )}
                         {ann.comment && (
                           <p className="mt-1.5 text-xs text-ink-secondary/80 leading-relaxed italic">{ann.comment}</p>

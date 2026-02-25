@@ -110,7 +110,7 @@ function renderSegments(segments: Segment[], useInline = true) {
       >
         {content}
         {seg.annotation.comment && (
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper border border-rule shadow-[0_4px_16px_oklch(0_0_0/0.2)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-[40rem] opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity z-50">
+          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper border border-rule shadow-[0_4px_16px_oklch(0_0_0/0.2)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity z-50">
             <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
             {seg.annotation.comment}
           </span>
@@ -205,7 +205,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
           className="my-5 rounded-lg bg-inset border border-rule-subtle overflow-hidden shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)]"
         >
           {block.lang && (
-            <div className="px-4 py-2 border-b border-rule-subtle bg-gradient-to-b from-paper/50 to-transparent flex items-center">
+            <div className="px-4 py-2 border-b border-rule-subtle bg-linear-to-b from-paper/50 to-transparent flex items-center">
               <span className="text-[11px] font-mono text-ink-tertiary tracking-wide bg-ink/5 px-2 py-0.5 rounded-full ring-1 ring-ink/8">
                 {block.lang}
               </span>
@@ -252,7 +252,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       return (
         <blockquote
           data-block-index={block.index}
-          className="my-5 pl-4 border-l-2 border-accent/40 bg-accent/[0.03] rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
+          className="my-5 pl-4 border-l-2 border-accent/40 bg-accent/3 rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
         >
           {renderSegments(segments)}
         </blockquote>
