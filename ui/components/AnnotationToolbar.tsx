@@ -35,7 +35,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       aria-label="Annotation actions"
       onKeyDown={handleToolbarKeyDown}
       style={{ top, left, transform: "translateX(-50%)" }}
-      className="absolute z-50 flex items-center bg-paper/95 backdrop-blur-xl border border-rule rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.12),0_4px_16px_oklch(0_0_0/0.15),0_12px_40px_oklch(0_0_0/0.1)] p-1.5"
+      className="absolute z-50 flex items-center bg-paper-edge backdrop-blur-xl border border-rule rounded-xl shadow-[0_2px_4px_oklch(0_0_0/0.2),0_8px_24px_oklch(0_0_0/0.25),0_16px_48px_oklch(0_0_0/0.15)] p-1.5"
     >
       <button
         type="button"
