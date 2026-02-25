@@ -104,10 +104,15 @@ export default function App() {
   // Auto-close tab after decision is sent (only if it was enabled before deciding)
   const autoCloseRef = useRef(autoCloseOnSubmit);
   autoCloseRef.current = autoCloseOnSubmit;
+  const [settingsExpired, setSettingsExpired] = useState(false);
   useEffect(() => {
     if (decided && autoCloseRef.current) {
       const timer = setTimeout(() => window.close(), 1500);
       return () => clearTimeout(timer);
+    }
+    if (decided) {
+      const expiry = setTimeout(() => setSettingsExpired(true), 10000);
+      return () => clearTimeout(expiry);
     }
   }, [decided]);
 
@@ -119,10 +124,13 @@ export default function App() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ autoCloseOnSubmit: next }),
     }).catch(() => {
-      // Revert on failure
-      setAutoCloseOnSubmit(!next);
+      // Don't revert after decision — server shuts down, so failure is expected.
+      // The toggle still works visually; the preference will be saved next session.
+      if (!decided) {
+        setAutoCloseOnSubmit(!next);
+      }
     });
-  }, [autoCloseOnSubmit]);
+  }, [autoCloseOnSubmit, decided]);
 
   if (isLoading) {
     return (
@@ -167,6 +175,7 @@ export default function App() {
           decided={decided}
           autoCloseOnSubmit={autoCloseOnSubmit}
           onToggleAutoClose={handleToggleAutoClose}
+          settingsExpired={settingsExpired}
         />
 
         <div className="flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8">

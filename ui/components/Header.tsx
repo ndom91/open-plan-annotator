@@ -10,6 +10,7 @@ interface HeaderProps {
   decided: boolean;
   autoCloseOnSubmit: boolean;
   onToggleAutoClose: () => void;
+  settingsExpired: boolean;
 }
 
 export function Header({
@@ -21,6 +22,7 @@ export function Header({
   decided,
   autoCloseOnSubmit,
   onToggleAutoClose,
+  settingsExpired,
 }: HeaderProps) {
   const { dark, toggle } = useTheme();
 
@@ -52,7 +54,8 @@ export function Header({
             role="switch"
             aria-checked={autoCloseOnSubmit}
             onClick={onToggleAutoClose}
-            className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
+            disabled={settingsExpired}
+            className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <span className="text-[11px] select-none">
               {autoCloseOnSubmit ? "Auto-closing" : "Auto-close next time"}

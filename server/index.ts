@@ -234,11 +234,7 @@ if (!isDev && decision.approved) {
   }
 }
 
-// 8. Give browser time to show confirmation
-await Bun.sleep(1200);
-server.stop();
-
-// 9. Write hook decision to stdout
+// 8. Write hook decision to stdout immediately so the host can proceed
 const output: HookOutput = {
   hookSpecificOutput: {
     hookEventName: "PermissionRequest",
@@ -248,3 +244,7 @@ const output: HookOutput = {
   },
 };
 console.log(JSON.stringify(output));
+
+// 9. Keep server alive briefly so the browser can persist settings (e.g. auto-close toggle)
+await Bun.sleep(10000);
+server.stop();

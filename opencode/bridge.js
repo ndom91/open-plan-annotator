@@ -1,5 +1,7 @@
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
+import { existsSync, statSync } from "node:fs";
+import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const WRAPPER_PATH = fileURLToPath(new URL("../bin/open-plan-annotator.cjs", import.meta.url));
@@ -102,7 +104,18 @@ export async function runPlanReview(options) {
   const payload = buildHookPayload(options);
 
   const result = await new Promise((resolve, reject) => {
-    const cwd = options.cwd ?? process.cwd();
+    let cwd = options.cwd ?? process.cwd();
+
+    // Guard: ensure cwd is a directory, not a file
+    try {
+      if (existsSync(cwd) && !statSync(cwd).isDirectory()) {
+        cwd = dirname(cwd);
+      }
+    } catch {
+      // Fall back to wrapper's directory if all else fails
+      cwd = dirname(WRAPPER_PATH);
+    }
+
     const child = spawn(process.execPath, [WRAPPER_PATH], {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
