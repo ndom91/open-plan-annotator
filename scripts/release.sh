@@ -59,7 +59,7 @@ node scripts/tarball.cjs
 echo ""
 git add package.json .claude-plugin/plugin.json .claude-plugin/marketplace.json
 git commit -m "v$NEW_VERSION"
-git tag "v$NEW_VERSION"
+git tag -m "v$NEW_VERSION" "v$NEW_VERSION"
 
 # --- Push ---
 echo ""
