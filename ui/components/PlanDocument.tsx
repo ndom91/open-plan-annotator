@@ -9,7 +9,7 @@ interface PlanDocumentProps {
 
 export function PlanDocument({ blocks, annotations }: PlanDocumentProps) {
   return (
-    <article className="max-w-none cursor-text">
+    <article className="max-w-none">
       {blocks.map((block) => (
         <BlockComponent key={block.index} block={block} annotations={annotations} />
       ))}

@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-button:not(:disabled) {
-  cursor: pointer;
-}
-
 @theme {
   /* Document surface colors */
   --color-desk: oklch(0.20 0.006 260);
@@ -25,8 +21,8 @@ button:not(:disabled) {
   --color-approve-hover: oklch(0.60 0.18 155);
 
   /* Accent */
-  --color-accent: oklch(0.55 0.12 270);
-  --color-accent-subtle: oklch(0.35 0.06 270);
+  --color-accent: oklch(0.65 0.10 310);
+  --color-accent-subtle: oklch(0.40 0.05 310);
 
   /* Structure */
   --color-rule: oklch(0.30 0.005 260);
@@ -49,8 +45,8 @@ button:not(:disabled) {
   --color-margin-note-bg: oklch(0.94 0.04 85);
   --color-approve: oklch(0.50 0.16 155);
   --color-approve-hover: oklch(0.45 0.16 155);
-  --color-accent: oklch(0.50 0.14 270);
-  --color-accent-subtle: oklch(0.85 0.06 270);
+  --color-accent: oklch(0.55 0.12 310);
+  --color-accent-subtle: oklch(0.90 0.05 310);
   --color-rule: oklch(0.88 0.005 260);
   --color-rule-subtle: oklch(0.92 0.005 260);
 }
@@ -65,7 +61,7 @@ html {
 }
 
 ::selection {
-  background: oklch(0.55 0.15 250 / 0.35);
+  background: oklch(from var(--color-accent) l c h / 0.35);
 }
 
 /* Smooth scrolling */

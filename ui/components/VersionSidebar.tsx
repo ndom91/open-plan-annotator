@@ -31,7 +31,7 @@ export function VersionSidebar({
               type="button"
               onClick={() => onSelectVersion(v)}
               className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-sm text-left text-sm transition-all",
+                "w-full flex items-center gap-2.5 px-3 py-2 rounded-sm text-left text-sm cursor-pointer transition-all",
                 isSelected
                   ? "bg-paper border border-rule-subtle shadow-[0_1px_3px_oklch(0_0_0/0.08)] border-l-[3px] border-l-accent"
                   : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 border border-transparent",

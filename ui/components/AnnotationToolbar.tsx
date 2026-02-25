@@ -27,7 +27,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
   };
 
   const btn =
-    "flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium transition-all focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
+    "flex items-center gap-1.5 px-3 py-2 rounded-md text-xs font-medium cursor-pointer transition-all focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
 
   return (
     <div
