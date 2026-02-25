@@ -1,7 +1,7 @@
 // Embedded at compile time by `bun build --compile`
-// @ts-expect-error — returns string in compiled binary, HTMLBundle when run directly
 import embeddedHtml from "../build/index.html" with { type: "text" };
 import { createRouter } from "./api.ts";
+import { resolveHistoryKey } from "./historyKey.ts";
 import { openBrowser } from "./launch.ts";
 import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
 
@@ -45,14 +45,6 @@ Run the test suite and verify all endpoints return correct status codes.
 `;
 
 const isDev = process.env.NODE_ENV === "development";
-
-function toSafeDirname(input: string): string {
-  const trimmed = input.trim();
-  if (!trimmed) return "unknown-session";
-  const sanitized = trimmed.replace(/[^a-zA-Z0-9._-]/g, "_");
-  if (sanitized === "." || sanitized === "..") return "unknown-session";
-  return sanitized;
-}
 
 // 1. Read stdin
 let planContent: string;
@@ -123,7 +115,7 @@ const planHistory: string[] = [];
 let planVersion = 1;
 const configBase = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME}/.config`;
 const historyRootDir = `${configBase}/open-plan-annotator/history`;
-const historySessionKey = hookEvent?.session_id ? toSafeDirname(hookEvent.session_id) : "unknown-session";
+const historySessionKey = resolveHistoryKey(hookEvent);
 const historyDir = `${historyRootDir}/${historySessionKey}`;
 
 if (!isDev) {
