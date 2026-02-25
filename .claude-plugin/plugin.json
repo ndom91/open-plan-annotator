@@ -1,12 +1,18 @@
 {
   "name": "open-plan-annotator",
   "description": "Interactive plan annotation UI: review, strikethrough, and comment on Claude's plans before approving. Fully local, no external services.",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "author": {
     "name": "ndom91"
   },
   "homepage": "https://github.com/ndom91/open-plan-annotator",
   "repository": "https://github.com/ndom91/open-plan-annotator",
   "license": "MIT",
-  "keywords": ["planning", "review", "hooks", "ExitPlanMode", "annotations"]
+  "keywords": [
+    "planning",
+    "review",
+    "hooks",
+    "ExitPlanMode",
+    "annotations"
+  ]
 }
