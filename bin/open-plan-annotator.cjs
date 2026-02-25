@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const { execFileSync } = require("child_process");
+const { execFileSync, spawn } = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
@@ -39,11 +39,54 @@ if (!fs.existsSync(binaryPath)) {
   }
 }
 
-try {
-  execFileSync(binaryPath, process.argv.slice(2), {
-    stdio: ["pipe", "inherit", "inherit"],
-    input: stdinBuffer,
-  });
-} catch (e) {
-  process.exit(e.status || 1);
-}
+// Spawn the binary with detached so it can outlive this wrapper.
+// We pipe stdout to detect the JSON hook output, then forward it and exit
+// immediately — the binary keeps its server alive in the background.
+const child = spawn(binaryPath, process.argv.slice(2), {
+  stdio: ["pipe", "pipe", "inherit"],
+  detached: true,
+});
+
+child.stdin.write(stdinBuffer);
+child.stdin.end();
+
+let stdout = "";
+let forwarded = false;
+
+child.stdout.on("data", (chunk) => {
+  stdout += chunk;
+
+  if (forwarded) return;
+
+  // Look for a complete JSON line (the hook output)
+  const lines = stdout.split("\n");
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      JSON.parse(trimmed);
+      // Valid JSON — forward it and exit, letting the binary run in the background
+      forwarded = true;
+      process.stdout.write(trimmed + "\n", () => {
+        child.unref();
+        process.exit(0);
+      });
+      return;
+    } catch {
+      // Not JSON yet, keep buffering
+    }
+  }
+});
+
+child.on("close", (code) => {
+  if (!forwarded) {
+    // Binary exited without producing valid JSON — forward whatever we have
+    if (stdout.trim()) process.stdout.write(stdout);
+    process.exit(code || 1);
+  }
+});
+
+child.on("error", (err) => {
+  console.error("open-plan-annotator: failed to spawn binary:", err.message);
+  process.exit(1);
+});

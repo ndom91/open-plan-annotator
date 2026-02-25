@@ -101,20 +101,31 @@ export default function App() {
     setAutoCloseOnSubmit(initialAutoClose);
   }, [initialAutoClose]);
 
-  // Auto-close tab after decision is sent (only if it was enabled before deciding)
+  // Auto-close: when decided + auto-close enabled, close after 5s (check ref to handle toggle-off)
   const autoCloseRef = useRef(autoCloseOnSubmit);
   autoCloseRef.current = autoCloseOnSubmit;
   const [settingsExpired, setSettingsExpired] = useState(false);
   useEffect(() => {
-    if (decided && autoCloseRef.current) {
-      const timer = setTimeout(() => window.close(), 1500);
-      return () => clearTimeout(timer);
-    }
-    if (decided) {
-      const expiry = setTimeout(() => setSettingsExpired(true), 10000);
+    if (!decided) return;
+
+    const expiry = setTimeout(() => setSettingsExpired(true), 10000);
+
+    if (!autoCloseOnSubmit) {
       return () => clearTimeout(expiry);
     }
-  }, [decided]);
+
+    const closeTimer = setTimeout(() => {
+      // Re-check: user may have toggled it off during the wait
+      if (autoCloseRef.current) {
+        window.close();
+      }
+    }, 5000);
+
+    return () => {
+      clearTimeout(closeTimer);
+      clearTimeout(expiry);
+    };
+  }, [decided, autoCloseOnSubmit]);
 
   const handleToggleAutoClose = useCallback(() => {
     const next = !autoCloseOnSubmit;

@@ -148,6 +148,7 @@ describe("history lifecycle", () => {
       const env = {
         NODE_ENV: "test",
         XDG_CONFIG_HOME: configHome,
+        SHUTDOWN_DELAY_MS: "100",
         PATH: `${fakeBin}${delimiter}${process.env.PATH ?? ""}`,
       };
 
