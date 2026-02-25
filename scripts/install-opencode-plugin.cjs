@@ -46,6 +46,36 @@ function main() {
   console.log(
     `open-plan-annotator: installed OpenCode plugin (${mode}) at ${destinationDir}`,
   );
+
+  // Install plugin dependencies using the first available package manager
+  const { execFileSync } = require("child_process");
+  const packageManagers = [
+    { cmd: "bun", args: ["install"] },
+    { cmd: "pnpm", args: ["install"] },
+    { cmd: "npm", args: ["install"] },
+  ];
+
+  let installed = false;
+  for (const pm of packageManagers) {
+    try {
+      execFileSync(pm.cmd, pm.args, { cwd: destinationDir, stdio: "inherit" });
+      installed = true;
+      break;
+    } catch {
+      // Try the next package manager
+    }
+  }
+
+  if (!installed) {
+    console.log(
+      "open-plan-annotator: could not install dependencies automatically. Run `npm install` in:",
+      destinationDir,
+    );
+  }
+
+  console.log(
+    '\nTo activate, add to your opencode.json:\n  { "plugin": [".opencode/plugins/open-plan-annotator"] }',
+  );
 }
 
 main();

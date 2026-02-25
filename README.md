@@ -57,7 +57,9 @@ This registers the `ExitPlanMode` hook that launches the annotation UI.
 
 ### OpenCode
 
-If you installed `open-plan-annotator` globally, install the OpenCode plugin assets from your target project directory:
+The OpenCode plugin uses the `@opencode-ai/plugin` SDK to register a `submit_plan` tool and inject system prompt instructions that tell the agent to use plan mode.
+
+**Option A: Install from npm (recommended)**
 
 ```sh
 npm install -g open-plan-annotator
@@ -65,13 +67,34 @@ cd /path/to/your/project
 open-plan-annotator-install-opencode
 ```
 
-This installs `opencode-plugin/` to:
+This installs the plugin to `.opencode/plugins/open-plan-annotator` and runs `bun install` / `npm install` for its dependencies.
 
-```text
-./.opencode/plugins/open-plan-annotator
+Then register it in your project's `opencode.json`:
+
+```json
+{
+  "plugin": [".opencode/plugins/open-plan-annotator"]
+}
 ```
 
-### From source
+**Option B: From source**
+
+```sh
+git clone https://github.com/ndom91/open-plan-annotator.git
+cd open-plan-annotator
+bun install
+bun run install:opencode-plugin   # installs to .opencode/plugins/ in CWD
+```
+
+Then register in `opencode.json` as above.
+
+The plugin automatically:
+- Injects plan-mode instructions into the agent's system prompt
+- Registers a `submit_plan` tool that the agent calls after creating a plan
+- Spawns the annotation UI in your browser for review
+- Returns structured feedback to the agent on approval or rejection
+
+### From source (Claude Code)
 
 ```sh
 git clone https://github.com/ndom91/open-plan-annotator.git
@@ -85,53 +108,6 @@ Then load it directly in Claude Code:
 ```sh
 claude --plugin-dir ./open-plan-annotator
 ```
-
-For OpenCode local development:
-
-```sh
-bun run install:opencode-plugin
-```
-
-Then configure OpenCode to call the local plugin command `submit_plan` from `./.opencode/plugins/open-plan-annotator`.
-
-## OpenCode submit_plan contract
-
-This repo ships a pragmatic, self-contained OpenCode plugin contract (until a strict upstream schema is finalized).
-
-Input JSON (plugin -> binary):
-
-```json
-{
-  "host": "opencode",
-  "command": "submit_plan",
-  "plan": "# Plan...",
-  "sessionId": "optional-session-id",
-  "conversationId": "optional-conversation-id",
-  "cwd": "/optional/cwd",
-  "metadata": {}
-}
-```
-
-Output JSON (binary -> plugin/OpenCode):
-
-```json
-{
-  "ok": true,
-  "decision": "approve"
-}
-```
-
-or
-
-```json
-{
-  "ok": false,
-  "decision": "deny",
-  "feedback": "Plan changes requested..."
-}
-```
-
-If `plan` is missing/empty, output is deterministic deny with a clear feedback message.
 
 ## Annotations
 
