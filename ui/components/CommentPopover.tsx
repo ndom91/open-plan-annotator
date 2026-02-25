@@ -116,14 +116,14 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             aria-label={title}
-            className="w-full h-20 px-3 py-2.5 text-sm rounded-lg border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-all"
+            className="w-full h-20 px-3 py-2.5 text-sm rounded-lg border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-all duration-200"
           />
           <div className="flex items-center justify-end mt-4">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-margin-note/50"
+                className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-margin-note/50"
               >
                 Cancel
               </button>
@@ -132,7 +132,7 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
                 onClick={handleSubmit}
                 disabled={!text.trim()}
                 className={cn(
-                  "group flex items-center gap-3 pl-4 pr-2.5 py-1.5 text-sm rounded-lg text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all font-medium shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50",
+                  "group flex items-center gap-3 pl-4 pr-2.5 py-1.5 text-sm rounded-lg text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50",
                   buttonClass,
                 )}
               >

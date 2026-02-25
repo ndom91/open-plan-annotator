@@ -195,7 +195,7 @@ export function renderInlineMarkdown(text: string): ReactNode[] {
           <a
             key={i}
             href={token.href}
-            className="text-margin-note underline decoration-margin-note/30 underline-offset-2"
+            className="text-accent underline decoration-accent/30 underline-offset-2 hover:decoration-accent/60 transition-colors duration-200"
             target="_blank"
             rel="noopener noreferrer"
           >

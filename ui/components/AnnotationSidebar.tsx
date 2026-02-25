@@ -75,7 +75,7 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
                       <button
                         type="button"
                         onClick={() => onRemove(ann.id)}
-                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-tertiary hover:text-ink-secondary cursor-pointer transition-all shrink-0 focus-visible:ring-2 focus-visible:ring-accent/50 rounded-sm p-0.5"
+                        className="opacity-0 group-hover:opacity-100 focus-visible:opacity-100 text-ink-tertiary hover:text-ink-secondary cursor-pointer transition-all duration-200 shrink-0 focus-visible:ring-2 focus-visible:ring-accent/50 rounded-sm p-0.5"
                         title="Remove"
                         aria-label="Remove annotation"
                       >

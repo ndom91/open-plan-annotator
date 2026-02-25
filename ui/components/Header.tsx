@@ -55,13 +55,13 @@ export function Header({
             aria-checked={autoCloseOnSubmit}
             onClick={onToggleAutoClose}
             disabled={settingsExpired}
-            className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer disabled:opacity-40 disabled:pointer-events-none transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer disabled:opacity-40 disabled:pointer-events-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <span className="text-[11px] select-none">
               {autoCloseOnSubmit ? "Auto-closing" : "Auto-close next time"}
             </span>
             <span
-              className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${autoCloseOnSubmit ? "bg-accent" : "bg-ink/15"}`}
+              className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200 ${autoCloseOnSubmit ? "bg-accent" : "bg-ink/15"}`}
             >
               <span
                 className={`inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform ${autoCloseOnSubmit ? "translate-x-3.5" : "translate-x-0.5"}`}
@@ -109,7 +109,7 @@ export function Header({
           <button
             type="button"
             onClick={toggle}
-            className="p-2 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="p-2 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
             title="Toggle theme"
             aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
           >
@@ -146,7 +146,7 @@ export function Header({
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Send Annotations
@@ -166,7 +166,7 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all duration-200 shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             Accept Plan

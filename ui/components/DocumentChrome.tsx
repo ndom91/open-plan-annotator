@@ -36,7 +36,7 @@ export function DocumentChrome({
             <button
               type="button"
               onClick={onReturnToCurrent}
-              className="text-[11px] font-medium text-accent hover:text-ink px-1.5 py-0.5 rounded hover:bg-ink/5 cursor-pointer transition-colors"
+              className="text-[11px] font-medium text-accent hover:text-ink px-1.5 py-0.5 rounded hover:bg-ink/5 cursor-pointer transition-colors duration-200"
             >
               Return to current
             </button>
@@ -52,7 +52,7 @@ export function DocumentChrome({
             type="button"
             onClick={onToggleDiff}
             className={cn(
-              "flex border-ink-tertiary/25 border items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-all focus-visible:ring-2 focus-visible:ring-accent/50",
+              "flex border-ink-tertiary/25 border items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50",
               showDiff ? "bg-ink/10 text-ink ring-1 ring-ink/10" : "text-ink-secondary hover:text-ink hover:bg-ink/5",
             )}
             title="Show changes from previous version"
