@@ -50,10 +50,12 @@ function splitIntoSegments(text: string, annotations: Annotation[]): Segment[] {
 function renderSegments(segments: Segment[], useInline = true) {
   return segments.map((seg, i) => {
     const content = useInline ? renderInlineMarkdown(seg.text) : seg.text;
+    // Expose markdown source for inline segments so offsetResolver can map rendered→source offsets
+    const segSourceAttr = useInline ? { "data-seg-source": seg.text } : {};
 
     if (!seg.annotation) {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
           {content}
         </span>
       );
@@ -65,6 +67,7 @@ function renderSegments(segments: Segment[], useInline = true) {
           key={i}
           data-seg-start={seg.originalStart}
           data-seg-end={seg.originalEnd}
+          {...segSourceAttr}
           className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px"
           title="Marked for removal"
         >
@@ -74,7 +77,7 @@ function renderSegments(segments: Segment[], useInline = true) {
     }
     if (seg.annotation.type === "replacement") {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
           <span className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px">
             {content}
           </span>
@@ -90,7 +93,7 @@ function renderSegments(segments: Segment[], useInline = true) {
     }
     if (seg.annotation.type === "insertion") {
       return (
-        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd}>
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
           {content}
           <span className="text-approve bg-approve/10  rounded-sm px-1 ml-1" data-replacement="true">
             +{seg.annotation.replacement}
@@ -104,6 +107,7 @@ function renderSegments(segments: Segment[], useInline = true) {
         key={i}
         data-seg-start={seg.originalStart}
         data-seg-end={seg.originalEnd}
+        {...segSourceAttr}
         className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-xs px-px cursor-help"
         role="note"
         aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}

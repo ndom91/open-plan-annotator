@@ -77,6 +77,91 @@ function tokenize(text: string): InlineToken[] {
   return tokens;
 }
 
+/**
+ * Map a rendered-text offset (no syntax chars) to a markdown-source offset
+ * (including `**`, backticks, `[](url)`, etc.) within the same string.
+ */
+export function renderedToSourceOffset(markdownSource: string, renderedOffset: number): number {
+  const tokens = tokenize(markdownSource);
+  let renderedCursor = 0;
+  let sourceCursor = 0;
+
+  for (const token of tokens) {
+    const renderedLen = token.content.length;
+    // Reconstruct source length for this token
+    let sourceLen: number;
+    if (token.type === "text") {
+      sourceLen = token.content.length;
+    } else {
+      // Find the original source text by scanning markdownSource at sourceCursor
+      sourceLen = findSourceLength(markdownSource, sourceCursor, token);
+    }
+
+    if (renderedCursor + renderedLen >= renderedOffset) {
+      // The target offset falls within this token
+      const intraRendered = renderedOffset - renderedCursor;
+      if (token.type === "text") {
+        return sourceCursor + intraRendered;
+      }
+      // For formatted tokens, compute how far into the source the rendered offset maps.
+      // The content starts after the opening syntax.
+      const openingSyntaxLen = computeOpeningSyntaxLength(token);
+      return sourceCursor + openingSyntaxLen + intraRendered;
+    }
+
+    renderedCursor += renderedLen;
+    sourceCursor += sourceLen;
+  }
+
+  return sourceCursor;
+}
+
+function findSourceLength(source: string, cursor: number, token: InlineToken): number {
+  // Re-match the token at cursor position in the source
+  switch (token.type) {
+    case "boldItalic": {
+      // ***content*** or ___content___
+      const m = source.slice(cursor).match(/^(\*{3}|_{3}).+?\1/);
+      return m ? m[0].length : token.content.length;
+    }
+    case "bold": {
+      const m = source.slice(cursor).match(/^(\*{2}|_{2}).+?\1/);
+      return m ? m[0].length : token.content.length;
+    }
+    case "italic": {
+      const m = source.slice(cursor).match(/^\*(.+?)\*|^_(.+?)_/);
+      return m ? m[0].length : token.content.length;
+    }
+    case "code": {
+      const m = source.slice(cursor).match(/^`[^`]+`/);
+      return m ? m[0].length : token.content.length;
+    }
+    case "link": {
+      const m = source.slice(cursor).match(/^\[[^\]]+\]\([^)]+\)/);
+      return m ? m[0].length : token.content.length;
+    }
+    default:
+      return token.content.length;
+  }
+}
+
+function computeOpeningSyntaxLength(token: InlineToken): number {
+  switch (token.type) {
+    case "boldItalic":
+      return 3; // ***
+    case "bold":
+      return 2; // **
+    case "italic":
+      return 1; // * or _
+    case "code":
+      return 1; // `
+    case "link":
+      return 1; // [
+    default:
+      return 0;
+  }
+}
+
 export function renderInlineMarkdown(text: string): ReactNode[] {
   const tokens = tokenize(text);
   return tokens.map((token, i) => {

@@ -9,13 +9,13 @@ const DEV_PLAN = `# Example Plan
 
 ## Context
 
-This is a test plan for development purposes.
+This is a **test plan** for development purposes. It exercises _inline formatting_ to verify annotation offsets.
 
 ## Steps
 
 ### Step 1: Set up the database
 
-Create a new PostgreSQL database with the following schema for user management.
+Create a new **PostgreSQL** database with the following schema for _user management_.
 
 \`\`\`sql
 CREATE TABLE users (
@@ -27,21 +27,23 @@ CREATE TABLE users (
 
 ### Step 2: Implement the API
 
-Build REST endpoints for CRUD operations on the users table.
+Build **REST endpoints** for CRUD operations using the \`express\` framework on the _users_ table.
 
-- GET /api/users — list all users
-- POST /api/users — create a new user
-- DELETE /api/users/:id — delete a user
+- GET \`/api/users\` — list **all** users with _pagination_ and \`cursor\`-based navigation
+- POST \`/api/users\` — create a **new** user (see [validation docs](https://example.com/docs) for _schema rules_)
+- DELETE \`/api/users/:id\` — **permanently** delete a user, \`invalidate\` their _active sessions_, and notify via [webhooks](https://example.com/hooks)
 
 ### Step 3: Add authentication
 
-Use JWT tokens for stateless authentication. Store refresh tokens in Redis.
+Use **JWT tokens** for _stateless_ authentication with \`RS256\` signing. Store refresh tokens in **Redis** using \`SETEX\` with a _configurable_ TTL. See [RFC 7519](https://tools.ietf.org/html/rfc7519) for the **full spec** and _implementation notes_.
 
-> Note: We should consider rate limiting on the auth endpoints.
+The \`/auth/login\` endpoint should accept **email** and _password_, validate with \`bcrypt\`, and return a [JSON response](https://example.com/schema) containing **both** tokens.
+
+> Note: We should consider **rate limiting** on the _auth endpoints_ using a \`sliding window\` algorithm and [redis-rate-limiter](https://example.com/lib).
 
 ## Verification
 
-Run the test suite and verify all endpoints return correct status codes.
+Run the test suite with \`bun test\` and verify **all endpoints** return _correct_ status codes. Check \`coverage\` reports for any **untested** [edge cases](https://example.com/edge-cases) in the _auth flow_.
 `;
 
 const isDev = process.env.NODE_ENV === "development";

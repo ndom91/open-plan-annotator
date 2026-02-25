@@ -1,3 +1,5 @@
+import { renderedToSourceOffset } from "./inlineMarkdown.tsx";
+
 export interface ResolvedSelection {
   blockIndex: number;
   startOffset: number;
@@ -50,18 +52,21 @@ function resolveSingleBlock(range: Range, block: HTMLElement): ResolvedSelection
   const preRange = document.createRange();
   preRange.selectNodeContents(startSeg);
   preRange.setEnd(range.startContainer, range.startOffset);
-  const startOffset = segStart + preRange.toString().length;
+  const startOffset = segStart + toSourceOffset(startSeg, preRange.toString().length);
 
   let endOffset: number;
   if (startSeg === endSeg) {
-    endOffset = startOffset + text.length;
+    const fullPreRange = document.createRange();
+    fullPreRange.selectNodeContents(startSeg);
+    fullPreRange.setEnd(range.endContainer, range.endOffset);
+    endOffset = segStart + toSourceOffset(startSeg, fullPreRange.toString().length);
     if (endOffset > segEnd) endOffset = segEnd;
   } else {
     const endSegStart = parseInt(endSeg.dataset.segStart ?? "0", 10);
     const preRangeEnd = document.createRange();
     preRangeEnd.selectNodeContents(endSeg);
     preRangeEnd.setEnd(range.endContainer, range.endOffset);
-    endOffset = endSegStart + preRangeEnd.toString().length;
+    endOffset = endSegStart + toSourceOffset(endSeg, preRangeEnd.toString().length);
   }
 
   return { blockIndex, startOffset, endOffset, text };
@@ -143,7 +148,7 @@ function computeStartOffset(range: Range, block: HTMLElement): number {
   const preRange = document.createRange();
   preRange.selectNodeContents(seg);
   preRange.setEnd(range.startContainer, range.startOffset);
-  return segStart + preRange.toString().length;
+  return segStart + toSourceOffset(seg, preRange.toString().length);
 }
 
 function computeEndOffset(range: Range, block: HTMLElement): number {
@@ -157,7 +162,7 @@ function computeEndOffset(range: Range, block: HTMLElement): number {
   const preRange = document.createRange();
   preRange.selectNodeContents(seg);
   preRange.setEnd(range.endContainer, range.endOffset);
-  return segStart + preRange.toString().length;
+  return segStart + toSourceOffset(seg, preRange.toString().length);
 }
 
 function getBlockContentLength(block: HTMLElement): number {
@@ -183,6 +188,19 @@ function collectSegmentText(block: HTMLElement, startOffset: number, endOffset: 
     text += segText.slice(overlapStart, overlapEnd);
   }
   return text;
+}
+
+/**
+ * Convert a rendered-text distance (from preRange.toString().length) to a
+ * markdown-source distance using data-seg-source when available.
+ */
+function toSourceOffset(seg: HTMLElement, renderedLen: number): number {
+  const source = (seg as HTMLElement).dataset.segSource;
+  if (source) {
+    return renderedToSourceOffset(source, renderedLen);
+  }
+  // No source attr (e.g. code blocks) — rendered === source
+  return renderedLen;
 }
 
 // --- DOM traversal helpers ---
