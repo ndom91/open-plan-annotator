@@ -146,19 +146,38 @@ export function Header({
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="px-3.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 disabled:opacity-30 disabled:cursor-not-allowed transition-all focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Send Annotations
+            <kbd className="flex items-center gap-0.5 text-md font-mono">
+              <span className="flex items-center justify-center size-[20px] rounded bg-redline/15 text-redline/60 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.08)]">
+                ⌘
+              </span>
+              <span className="flex items-center justify-center size-[20px] rounded bg-redline/15 text-redline/60 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.08)]">
+                ⇧
+              </span>
+              <span className="flex items-center justify-center size-[20px] rounded bg-redline/15 text-redline/60 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.08)]">
+                ↵
+              </span>
+            </kbd>
           </button>
           <button
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="px-4 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             Accept Plan
+            <kbd className="flex items-center gap-0.5 text-md font-mono">
+              <span className="flex items-center justify-center size-[20px] rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+                ⌘
+              </span>
+              <span className="flex items-center justify-center size-[20px] rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+                ↵
+              </span>
+            </kbd>
           </button>
         </div>
       </div>
