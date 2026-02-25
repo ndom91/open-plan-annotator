@@ -8,7 +8,8 @@ function resolveTargetRoot() {
   if (fromArg && fromArg.trim().length > 0) {
     return path.resolve(process.cwd(), fromArg);
   }
-  return path.resolve(process.cwd(), ".opencode", "plugins");
+  const configHome = process.env.XDG_CONFIG_HOME || path.join(require("os").homedir(), ".config");
+  return path.join(configHome, "opencode", "plugins");
 }
 
 function ensureParentDir(dir) {
@@ -73,8 +74,17 @@ function main() {
     );
   }
 
+  // Create wrapper shim at plugins/open-plan-annotator.ts for OpenCode auto-discovery
+  // OpenCode scans plugins/*.{ts,js} but not subdirectories
+  const shimPath = path.join(targetRoot, "open-plan-annotator.ts");
+  fs.writeFileSync(
+    shimPath,
+    `export { default } from "./open-plan-annotator/index.ts";\n`,
+  );
+  console.log(`open-plan-annotator: created loader shim at ${shimPath}`);
+
   console.log(
-    '\nTo activate, add to your opencode.json:\n  { "plugin": [".opencode/plugins/open-plan-annotator"] }',
+    "\nThe plugin will be auto-discovered by OpenCode — no config changes needed.",
   );
 }
 

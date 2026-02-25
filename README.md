@@ -67,15 +67,7 @@ cd /path/to/your/project
 open-plan-annotator-install-opencode
 ```
 
-This installs the plugin to `.opencode/plugins/open-plan-annotator` and runs `bun install` / `npm install` for its dependencies.
-
-Then register it in your project's `opencode.json`:
-
-```json
-{
-  "plugin": [".opencode/plugins/open-plan-annotator"]
-}
-```
+This installs the plugin to `~/.config/opencode/plugins/open-plan-annotator/`, installs dependencies, and creates a loader shim that OpenCode auto-discovers — no config changes needed.
 
 **Option B: From source**
 
@@ -86,7 +78,7 @@ bun install
 bun run install:opencode-plugin   # installs to .opencode/plugins/ in CWD
 ```
 
-Then register in `opencode.json` as above.
+The install script creates the auto-discovery shim, so no config changes needed.
 
 The plugin automatically:
 - Injects plan-mode instructions into the agent's system prompt
