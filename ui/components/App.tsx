@@ -101,13 +101,15 @@ export default function App() {
     setAutoCloseOnSubmit(initialAutoClose);
   }, [initialAutoClose]);
 
-  // Auto-close tab after decision is sent
+  // Auto-close tab after decision is sent (only if it was enabled before deciding)
+  const autoCloseRef = useRef(autoCloseOnSubmit);
+  autoCloseRef.current = autoCloseOnSubmit;
   useEffect(() => {
-    if (decided && autoCloseOnSubmit) {
+    if (decided && autoCloseRef.current) {
       const timer = setTimeout(() => window.close(), 1500);
       return () => clearTimeout(timer);
     }
-  }, [decided, autoCloseOnSubmit]);
+  }, [decided]);
 
   const handleToggleAutoClose = useCallback(() => {
     const next = !autoCloseOnSubmit;
@@ -196,12 +198,13 @@ export default function App() {
                 hasPreviousVersion={hasPreviousVersion}
               />
               {/* Diff view — between chrome and content */}
-              {showDiff && hasPreviousVersion && !isViewingHistory && (
+              {hasPreviousVersion && !isViewingHistory && (
                 <DiffViewer
                   oldText={history[history.length - 1]}
                   newText={plan!}
                   oldVersion={version - 1}
                   newVersion={version}
+                  visible={showDiff}
                 />
               )}
               <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">

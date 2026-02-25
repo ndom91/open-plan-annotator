@@ -5,27 +5,35 @@ interface DiffViewerProps {
   newText: string;
   oldVersion: number;
   newVersion: number;
+  visible: boolean;
 }
 
-export function DiffViewer({ oldText, newText, oldVersion, newVersion }: DiffViewerProps) {
+export function DiffViewer({ oldText, newText, oldVersion, newVersion, visible }: DiffViewerProps) {
   const lines = computeDiff(oldText, newText);
 
   return (
-    <div className="bg-inset border-b border-rule-subtle">
-      <div className="flex items-center gap-3 px-4 py-2 border-b border-rule-subtle bg-inset/80 text-xs">
-        <span className="text-ink-tertiary">
-          Comparing <span className="font-medium text-ink-secondary">v{oldVersion}</span> &rarr;{" "}
-          <span className="font-medium text-ink-secondary">v{newVersion}</span>
-        </span>
-        <span className="text-approve">{lines.filter((l) => l.type === "added").length} added</span>
-        <span className="text-redline">{lines.filter((l) => l.type === "removed").length} removed</span>
-      </div>
-      <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
-        <pre className="text-[13px] font-mono leading-relaxed">
-          {lines.map((line, i) => (
-            <DiffLineRow key={`${line.type}-${i}`} line={line} />
-          ))}
-        </pre>
+    <div
+      className="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
+      style={{ gridTemplateRows: visible ? "1fr" : "0fr", opacity: visible ? 1 : 0 }}
+    >
+      <div className="overflow-hidden">
+        <div className="bg-inset border-b border-rule-subtle">
+          <div className="flex items-center gap-3 px-4 py-2 border-b border-rule-subtle bg-inset/80 text-xs">
+            <span className="text-ink-tertiary">
+              Comparing <span className="font-medium text-ink-secondary">v{oldVersion}</span> &rarr;{" "}
+              <span className="font-medium text-ink-secondary">v{newVersion}</span>
+            </span>
+            <span className="text-approve">{lines.filter((l) => l.type === "added").length} added</span>
+            <span className="text-redline">{lines.filter((l) => l.type === "removed").length} removed</span>
+          </div>
+          <div className="overflow-x-auto max-h-[60vh] overflow-y-auto">
+            <pre className="text-[13px] font-mono leading-relaxed">
+              {lines.map((line, i) => (
+                <DiffLineRow key={`${line.type}-${i}`} line={line} />
+              ))}
+            </pre>
+          </div>
+        </div>
       </div>
     </div>
   );

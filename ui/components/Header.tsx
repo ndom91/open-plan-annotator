@@ -27,7 +27,7 @@ export function Header({
   if (decided) {
     return (
       <header className="sticky top-0 z-40">
-        <div className="flex flex-col items-center gap-2 px-8 py-4 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
+        <div className="flex items-center justify-center gap-4 px-8 py-4 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
           <div className="flex items-center gap-2.5 text-ink-tertiary">
             <div className="w-5 h-5 rounded-full bg-approve/15 flex items-center justify-center">
               <svg
@@ -46,21 +46,24 @@ export function Header({
             </div>
             <span className="text-sm">Decision sent. You can close this tab.</span>
           </div>
+          <div className="w-px h-4 bg-rule-subtle" />
           <button
             type="button"
             role="switch"
             aria-checked={autoCloseOnSubmit}
             onClick={onToggleAutoClose}
-            className="flex items-center gap-1.5 px-2 py-1 rounded text-ink-tertiary/60 hover:text-ink-tertiary transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 transition-colors focus-visible:ring-2 focus-visible:ring-accent/50"
           >
+            <span className="text-[11px] select-none">
+              {autoCloseOnSubmit ? "Auto-closing" : "Auto-close next time"}
+            </span>
             <span
-              className={`relative inline-flex h-3 w-5.5 items-center rounded-full transition-colors ${autoCloseOnSubmit ? "bg-accent/70" : "bg-ink/10"}`}
+              className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors ${autoCloseOnSubmit ? "bg-accent" : "bg-ink/15"}`}
             >
               <span
-                className={`inline-block h-2 w-2 rounded-full bg-white shadow-sm transition-transform ${autoCloseOnSubmit ? "translate-x-3" : "translate-x-0.5"}`}
+                className={`inline-block h-3 w-3 rounded-full bg-white shadow-sm transition-transform ${autoCloseOnSubmit ? "translate-x-3.5" : "translate-x-0.5"}`}
               />
             </span>
-            <span className="text-[11px] select-none">Auto-close going forward</span>
           </button>
         </div>
       </header>
