@@ -1,10 +1,9 @@
+// Embedded at compile time by `bun build --compile`
+// @ts-expect-error — returns string in compiled binary, HTMLBundle when run directly
+import embeddedHtml from "../build/index.html" with { type: "text" };
 import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
 import type { HookEvent, HookOutput, ServerDecision, ServerState } from "./types.ts";
-
-// Embedded at compile time by `bun build --compile`
-// @ts-ignore — returns string in compiled binary, HTMLBundle when run directly
-import embeddedHtml from "../build/index.html" with { type: "text" };
 
 const DEV_PLAN = `# Example Plan
 
@@ -47,15 +46,25 @@ Run the test suite and verify all endpoints return correct status codes.
 
 const isDev = process.env.NODE_ENV === "development";
 
+function toSafeDirname(input: string): string {
+  const trimmed = input.trim();
+  if (!trimmed) return "unknown-session";
+  const sanitized = trimmed.replace(/[^a-zA-Z0-9._-]/g, "_");
+  if (sanitized === "." || sanitized === "..") return "unknown-session";
+  return sanitized;
+}
+
 // 1. Read stdin
 let planContent: string;
+let hookEvent: HookEvent | null = null;
 
 if (isDev) {
   planContent = DEV_PLAN;
 } else {
   const stdinText = await Bun.stdin.text();
   try {
-    const event = JSON.parse(stdinText) as HookEvent;
+    hookEvent = JSON.parse(stdinText) as HookEvent;
+    const event = hookEvent;
     planContent = (event.tool_input?.plan as string) ?? "";
 
     // Fallback: read the most recent plan file from ~/.claude/plans/
@@ -113,7 +122,9 @@ if (typeof embeddedHtml === "string") {
 const planHistory: string[] = [];
 let planVersion = 1;
 const configBase = process.env.XDG_CONFIG_HOME ?? `${process.env.HOME}/.config`;
-const historyDir = `${configBase}/open-plan-annotator/history`;
+const historyRootDir = `${configBase}/open-plan-annotator/history`;
+const historySessionKey = hookEvent?.session_id ? toSafeDirname(hookEvent.session_id) : "unknown-session";
+const historyDir = `${historyRootDir}/${historySessionKey}`;
 
 if (!isDev) {
   try {
@@ -180,7 +191,7 @@ if (!isDev) openBrowser(url);
 const decision = await decisionPromise;
 
 // 7. Clean up history directory
-if (!isDev) {
+if (!isDev && decision.approved) {
   try {
     const { rmSync } = await import("node:fs");
     rmSync(historyDir, { recursive: true, force: true });
