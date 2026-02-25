@@ -144,6 +144,7 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
           const result = await runPlanReview({
             plan: args.plan,
             sessionId: context.sessionID,
+            cwd: ctx.directory,
           });
 
           if (result.approved) {

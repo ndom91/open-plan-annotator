@@ -102,8 +102,9 @@ export async function runPlanReview(options) {
   const payload = buildHookPayload(options);
 
   const result = await new Promise((resolve, reject) => {
-    const child = spawn(WRAPPER_PATH, [], {
-      cwd: options.cwd ?? process.cwd(),
+    const cwd = options.cwd ?? process.cwd();
+    const child = spawn(process.execPath, [WRAPPER_PATH], {
+      cwd,
       stdio: ["pipe", "pipe", "pipe"],
       env: process.env,
     });
