@@ -250,11 +250,11 @@ const output: HookOutput = {
 
 const jsonLine = `${JSON.stringify(output)}\n`;
 
-// Write to stdout and close the fd so the pipe reader gets the data immediately.
-// We use Bun.write for reliable flushing, then close fd 1 so the pipe gets EOF.
-// After this, all logging must use stderr (which we already do everywhere).
-await Bun.write(Bun.stdout, jsonLine);
-const { closeSync } = await import("node:fs");
+// Write to stdout synchronously so the bytes land in the kernel pipe buffer
+// before we do anything else.  Bun.write() is async internally and closeSync(1)
+// can race with it, losing the data.  writeSync is blocking all the way down.
+const { writeSync, closeSync } = await import("node:fs");
+writeSync(1, jsonLine);
 closeSync(1);
 
 // 9. Keep server alive briefly so the browser can persist settings (e.g. auto-close toggle)

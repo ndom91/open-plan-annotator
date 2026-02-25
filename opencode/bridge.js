@@ -175,7 +175,7 @@ export async function runPlanReview(options) {
 
   const payload = buildHookPayload(options);
 
-  const result = await new Promise((resolve, reject) => {
+  const output = await new Promise((resolve, reject) => {
     let cwd = options.cwd ?? process.cwd();
 
     // Guard: ensure cwd is a directory, not a file
@@ -187,19 +187,39 @@ export async function runPlanReview(options) {
       cwd = PKG_ROOT;
     }
 
-    // Spawn the compiled binary directly (skip the Node wrapper).
-    // This avoids issues with bun vs node runtime differences.
+    // Spawn detached so the binary can outlive this call — it keeps its
+    // HTTP server alive for ~10s after emitting the JSON hook response.
     const child = spawn(BINARY_PATH, [], {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
       env: process.env,
+      detached: true,
     });
 
     let stdout = "";
     let stderr = "";
+    let resolved = false;
 
     child.stdout.on("data", (chunk) => {
       stdout += String(chunk);
+      if (resolved) return;
+
+      // Scan for a complete JSON hook-output line.  Once found, resolve
+      // immediately and let the binary keep running in the background.
+      const lines = stdout.split("\n");
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        try {
+          const parsed = validateHookOutput(JSON.parse(trimmed));
+          resolved = true;
+          child.unref();
+          resolve(parsed);
+          return;
+        } catch {
+          // Not valid hook JSON yet, keep buffering
+        }
+      }
     });
 
     child.stderr.on("data", (chunk) => {
@@ -207,40 +227,38 @@ export async function runPlanReview(options) {
     });
 
     child.on("error", (error) => {
-      reject(error);
+      if (!resolved) reject(error);
     });
 
     child.on("close", (code, signal) => {
-      resolve({ code, signal, stdout, stderr });
+      if (resolved) return;
+      // Binary exited without producing valid JSON
+      if (signal) {
+        reject(
+          new Error(
+            stderr.trim()
+              ? `open-plan-annotator was terminated by signal ${signal}: ${stderr.trim()}`
+              : `open-plan-annotator was terminated by signal ${signal}`,
+          ),
+        );
+      } else if (code !== 0) {
+        reject(
+          new Error(
+            stderr.trim()
+              ? `open-plan-annotator exited with code ${code}: ${stderr.trim()}`
+              : `open-plan-annotator exited with code ${code}`,
+          ),
+        );
+      } else {
+        reject(new Error("open-plan-annotator exited without producing hook output"));
+      }
     });
 
     child.stdin.write(`${JSON.stringify(payload)}\n`);
     child.stdin.end();
   });
 
-  const settled =
-    /** @type {{ code: number | null, signal: NodeJS.Signals | null, stdout: string, stderr: string }} */ (result);
-
-  if (settled.signal) {
-    const errorText = settled.stderr.trim();
-    throw new Error(
-      errorText
-        ? `open-plan-annotator was terminated by signal ${settled.signal}: ${errorText}`
-        : `open-plan-annotator was terminated by signal ${settled.signal}`,
-    );
-  }
-
-  if (settled.code !== 0) {
-    const errorText = settled.stderr.trim();
-    throw new Error(
-      errorText
-        ? `open-plan-annotator exited with code ${settled.code}: ${errorText}`
-        : `open-plan-annotator exited with code ${settled.code}`,
-    );
-  }
-
-  const output = parseHookOutput(settled.stdout, settled.stderr);
-  const decision = output.hookSpecificOutput.decision;
+  const decision = /** @type {HookOutput} */ (output).hookSpecificOutput.decision;
 
   if (decision.behavior === "allow") {
     return { approved: true };
