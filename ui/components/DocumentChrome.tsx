@@ -18,7 +18,7 @@ export function DocumentChrome({
   hasPreviousVersion,
 }: DocumentChromeProps) {
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-paper-edge/50 border-b border-rule-subtle">
+    <div className="min-h-11 flex items-center justify-between px-4 py-2 bg-paper-edge/50 border-b border-rule-subtle">
       <div className="flex items-center gap-3">
         {/* Window control dots */}
         <div className="flex items-center gap-1.5">
