@@ -38,6 +38,18 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
     inputRef.current?.focus();
   }, []);
 
+  // Close on Escape regardless of focus
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onCancel();
+      }
+    };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [onCancel]);
+
   // Focus trap: keep Tab/Shift+Tab within the dialog
   useEffect(() => {
     const dialog = inputRef.current?.closest('[role="dialog"]');
@@ -75,9 +87,6 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
       e.preventDefault();
       handleSubmit();
     }
-    if (e.key === "Escape") {
-      onCancel();
-    }
   };
 
   return (
@@ -85,7 +94,6 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
       role="presentation"
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 overscroll-contain"
       onClick={onCancel}
-      onKeyDown={(e) => e.key === "Escape" && onCancel()}
     >
       <div
         role="dialog"
@@ -94,7 +102,6 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
         className="bg-paper border border-rule rounded-2xl shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_40px_oklch(0_0_0/0.25),0_24px_60px_oklch(0_0_0/0.15)] overflow-hidden w-104"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="h-0.5 bg-linear-to-r from-transparent via-accent/50 to-transparent" />
         <div className="p-6">
           <h3 id="popover-title" className="text-sm font-semibold text-ink mb-1.5">
             {title}
