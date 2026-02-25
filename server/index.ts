@@ -234,7 +234,9 @@ if (!isDev && decision.approved) {
   }
 }
 
-// 8. Write hook decision to stdout immediately so the host can proceed
+// 8. Write hook decision to stdout and close the fd so the pipe flushes immediately.
+//    This lets the parent process (wrapper/Claude/OpenCode) read the output and proceed
+//    while the binary keeps running to serve the settings endpoint.
 const output: HookOutput = {
   hookSpecificOutput: {
     hookEventName: "PermissionRequest",
@@ -243,7 +245,14 @@ const output: HookOutput = {
       : { behavior: "deny", message: decision.feedback ?? "Plan changes requested." },
   },
 };
-console.log(JSON.stringify(output));
+
+const jsonLine = `${JSON.stringify(output)}\n`;
+const { closeSync, writeSync } = await import("node:fs");
+
+// Write directly to fd 1 (stdout) and close it to flush the pipe buffer.
+// After this, all logging must use stderr (which we already do everywhere).
+writeSync(1, jsonLine);
+closeSync(1);
 
 // 9. Keep server alive briefly so the browser can persist settings (e.g. auto-close toggle)
 const keepAliveMs = isDev ? 10000 : Number(process.env.SHUTDOWN_DELAY_MS) || 10000;
