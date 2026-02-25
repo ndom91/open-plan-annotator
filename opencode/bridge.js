@@ -5,8 +5,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
-const BINARY_PATH = join(PKG_ROOT, "bin", "open-plan-annotator-binary");
+const LOCAL_BINARY_PATH = join(PKG_ROOT, "bin", "open-plan-annotator-binary");
 const INSTALL_SCRIPT = join(PKG_ROOT, "install.cjs");
+
+/** Resolved path to the binary (may differ from LOCAL_BINARY_PATH if found on PATH). */
+let BINARY_PATH = LOCAL_BINARY_PATH;
 
 /**
  * @typedef {{
@@ -99,9 +102,33 @@ function validateHookOutput(value) {
   throw new Error("unsupported decision payload");
 }
 
+/**
+ * Check if `open-plan-annotator` is available on PATH.
+ * The CLI wrapper handles binary discovery/download and stdin/stdout
+ * forwarding, so we can spawn it directly as a fallback when the local
+ * binary isn't available (e.g. OpenCode loads the plugin from its own
+ * node_modules but the binary only exists in a global pnpm install).
+ * @returns {string | undefined}
+ */
+function findWrapperOnPath() {
+  const cmd = process.platform === "win32" ? "where" : "which";
+  try {
+    const result = execFileSync(cmd, ["open-plan-annotator"], {
+      encoding: "utf-8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim().split("\n")[0];
+    return result || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Ensure the compiled binary exists, downloading if necessary. */
 function ensureBinary() {
-  if (existsSync(BINARY_PATH)) return;
+  if (existsSync(LOCAL_BINARY_PATH)) {
+    BINARY_PATH = LOCAL_BINARY_PATH;
+    return;
+  }
 
   // Try to find node on PATH for running the install script
   try {
@@ -121,12 +148,23 @@ function ensureBinary() {
     }
   }
 
-  if (!existsSync(BINARY_PATH)) {
-    throw new Error(
-      `open-plan-annotator: binary not found at ${BINARY_PATH}. ` +
-        `Try running: node ${INSTALL_SCRIPT}`,
-    );
+  if (existsSync(LOCAL_BINARY_PATH)) {
+    BINARY_PATH = LOCAL_BINARY_PATH;
+    return;
   }
+
+  // Fallback: use the CLI wrapper from PATH (e.g. global pnpm install).
+  // The wrapper handles binary discovery/download and stdio forwarding.
+  const wrapperPath = findWrapperOnPath();
+  if (wrapperPath) {
+    BINARY_PATH = wrapperPath;
+    return;
+  }
+
+  throw new Error(
+    `open-plan-annotator: binary not found at ${LOCAL_BINARY_PATH}. ` +
+      `Try running: node ${INSTALL_SCRIPT}`,
+  );
 }
 
 /**
