@@ -49,6 +49,16 @@ The \`/auth/login\` endpoint should accept **email** and _password_, validate wi
 
 > Note: We should consider **rate limiting** on the _auth endpoints_ using a \`sliding window\` algorithm and [redis-rate-limiter](https://example.com/lib).
 
+## Files
+
+| File | Action | Description |
+|------|--------|-------------|
+| \`src/db/schema.ts\` | **Create** | PostgreSQL schema and migrations |
+| \`src/routes/users.ts\` | **Create** | CRUD endpoints for _user management_ |
+| \`src/auth/jwt.ts\` | **Create** | \`RS256\` token signing and verification |
+| \`src/middleware/rateLimit.ts\` | **Create** | Sliding window **rate limiter** |
+| \`tests/users.test.ts\` | **Create** | Integration tests for all endpoints |
+
 ## Verification
 
 Run the test suite with \`bun test\` and verify **all endpoints** return _correct_ status codes. Check \`coverage\` reports for any **untested** [edge cases](https://example.com/edge-cases) in the _auth flow_.
