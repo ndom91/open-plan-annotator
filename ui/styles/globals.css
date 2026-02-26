@@ -5,7 +5,7 @@
   --color-desk: oklch(0.20 0.006 260);
   --color-paper: oklch(0.25 0.006 255);
   --color-paper-edge: oklch(0.29 0.008 260);
-  --color-inset: oklch(0.16 0.008 260);
+  --color-inset: oklch(0.21 0.008 260);
 
   /* Ink hierarchy */
   --color-ink: oklch(0.93 0.005 260);

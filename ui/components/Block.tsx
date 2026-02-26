@@ -256,7 +256,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
         return "text-left";
       };
       return (
-        <div data-block-index={block.index} className="my-5 overflow-x-auto rounded-lg border border-rule-subtle">
+        <div data-block-index={block.index} className="my-5 overflow-x-auto rounded-lg border border-rule">
           <table className="w-full text-[13px] text-ink-secondary">
             {block.headerRow && (
               <thead>
@@ -272,7 +272,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
             {block.bodyRows && (
               <tbody>
                 {block.bodyRows.map((row, ri) => (
-                  <tr key={ri} className="border-b border-rule-subtle last:border-b-0">
+                  <tr key={ri} className="border-b border-rule last:border-b-0">
                     {row.map((cell, ci) => (
                       <td key={ci} className={`px-4 py-2 ${alignClass(cell.align)}`}>
                         {renderInlineMarkdown(cell.text)}
