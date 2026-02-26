@@ -25,5 +25,20 @@ for (const dir of dirs) {
   ], { stdio: "inherit" });
 }
 
-console.log(`\nCreated ${dirs.length} archives in dist/.`);
-console.log("Upload these to the GitHub Release.");
+// Generate SHA256 checksum manifest
+const crypto = require("crypto");
+const fs = require("fs");
+
+const tarballs = readdirSync(distDir).filter((f) => f.endsWith(".tar.gz"));
+const checksumLines = [];
+
+for (const tarball of tarballs) {
+  const content = fs.readFileSync(path.join(distDir, tarball));
+  const hash = crypto.createHash("sha256").update(content).digest("hex");
+  checksumLines.push(`${hash}  ${tarball}`);
+}
+
+const checksumPath = path.join(distDir, "SHA256SUMS.txt");
+fs.writeFileSync(checksumPath, checksumLines.join("\n") + "\n");
+
+console.log(`\nCreated ${dirs.length} archives and SHA256SUMS.txt in dist/.`);
