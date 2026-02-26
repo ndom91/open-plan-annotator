@@ -108,7 +108,7 @@ export default function App() {
   useEffect(() => {
     if (!decided) return;
 
-    const expiry = setTimeout(() => setSettingsExpired(true), 10000);
+    const expiry = setTimeout(() => setSettingsExpired(true), 5000);
 
     if (!autoCloseOnSubmit) {
       return () => clearTimeout(expiry);

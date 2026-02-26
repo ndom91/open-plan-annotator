@@ -258,6 +258,6 @@ writeSync(1, jsonLine);
 closeSync(1);
 
 // 9. Keep server alive briefly so the browser can persist settings (e.g. auto-close toggle)
-const keepAliveMs = isDev ? 10000 : Number(process.env.SHUTDOWN_DELAY_MS) || 10000;
+const keepAliveMs = Number(process.env.SHUTDOWN_DELAY_MS) || 5000;
 await Bun.sleep(keepAliveMs);
 server.stop();
