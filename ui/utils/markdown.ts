@@ -1,4 +1,9 @@
-export type BlockType = "heading" | "paragraph" | "code" | "list" | "blockquote" | "hr";
+export type BlockType = "heading" | "paragraph" | "code" | "list" | "blockquote" | "hr" | "table";
+
+export interface TableCell {
+  text: string;
+  align?: "left" | "center" | "right";
+}
 
 export interface Block {
   index: number;
@@ -8,6 +13,8 @@ export interface Block {
   level?: number;
   lang?: string;
   items?: string[];
+  headerRow?: TableCell[];
+  bodyRows?: TableCell[][];
 }
 
 export function parseMarkdownToBlocks(markdown: string): Block[] {
@@ -102,6 +109,52 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
       const items = listLines.map((l) => l.replace(/^[-*+]\s+/, "").replace(/^\d+\.\s+/, ""));
       blocks.push({ index: index++, type: "list", raw, content: raw, items });
       continue;
+    }
+
+    // Table (lines starting with |, with a separator row like |---|---|)
+    if (line.trimStart().startsWith("|")) {
+      const tableLines: string[] = [];
+      while (i < lines.length && lines[i].trimStart().startsWith("|")) {
+        tableLines.push(lines[i]);
+        i++;
+      }
+      // Need at least header + separator + one body row, and second line must be a separator
+      if (tableLines.length >= 2 && /^\|[\s:]*-{2,}[\s:|-]*\|?\s*$/.test(tableLines[1])) {
+        const parseCells = (row: string): string[] =>
+          row
+            .replace(/^\|/, "")
+            .replace(/\|$/, "")
+            .split("|")
+            .map((c) => c.trim());
+
+        const parseAlignments = (sep: string): Array<"left" | "center" | "right" | undefined> =>
+          parseCells(sep).map((c) => {
+            const left = c.startsWith(":");
+            const right = c.endsWith(":");
+            if (left && right) return "center";
+            if (right) return "right";
+            return left ? "left" : undefined;
+          });
+
+        const alignments = parseAlignments(tableLines[1]);
+        const headerCells = parseCells(tableLines[0]);
+        const headerRow: TableCell[] = headerCells.map((text, ci) => ({
+          text,
+          align: alignments[ci],
+        }));
+
+        const bodyRows: TableCell[][] = tableLines.slice(2).map((row) => {
+          const cells = parseCells(row);
+          return cells.map((text, ci) => ({ text, align: alignments[ci] }));
+        });
+
+        const raw = tableLines.join("\n");
+        const content = raw;
+        blocks.push({ index: index++, type: "table", raw, content, headerRow, bodyRows });
+        continue;
+      }
+      // Not a valid table — rewind and let paragraph handle it
+      i -= tableLines.length;
     }
 
     // Paragraph (collect consecutive non-empty, non-special lines)

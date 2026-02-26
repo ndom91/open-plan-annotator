@@ -249,6 +249,44 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       );
     }
 
+    case "table": {
+      const alignClass = (align?: "left" | "center" | "right") => {
+        if (align === "center") return "text-center";
+        if (align === "right") return "text-right";
+        return "text-left";
+      };
+      return (
+        <div data-block-index={block.index} className="my-5 overflow-x-auto rounded-lg border border-rule-subtle">
+          <table className="w-full text-[13px] text-ink-secondary">
+            {block.headerRow && (
+              <thead>
+                <tr className="border-b border-rule bg-inset">
+                  {block.headerRow.map((cell, ci) => (
+                    <th key={ci} className={`px-4 py-2 font-semibold text-ink ${alignClass(cell.align)}`}>
+                      {renderInlineMarkdown(cell.text)}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+            )}
+            {block.bodyRows && (
+              <tbody>
+                {block.bodyRows.map((row, ri) => (
+                  <tr key={ri} className="border-b border-rule-subtle last:border-b-0">
+                    {row.map((cell, ci) => (
+                      <td key={ci} className={`px-4 py-2 ${alignClass(cell.align)}`}>
+                        {renderInlineMarkdown(cell.text)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            )}
+          </table>
+        </div>
+      );
+    }
+
     case "hr":
       return <hr data-block-index={block.index} className="my-10 border-0 h-px bg-rule-subtle" />;
 
