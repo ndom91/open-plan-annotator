@@ -176,9 +176,12 @@ async function main() {
   const fallbackUrl = getDownloadUrl();
   console.error(`Downloading open-plan-annotator for ${getPlatformKey()}...`);
 
+  let archiveBuffer;
+
+  // Try checksum-verified download via GitHub API first, fall back to direct URL
   try {
     const { assetName, assetUrl, expectedSha256 } = await resolveReleaseAssetAndChecksum();
-    const archiveBuffer = await fetch(assetUrl);
+    archiveBuffer = await fetch(assetUrl);
     const actualSha256 = sha256Hex(archiveBuffer);
 
     if (actualSha256 !== expectedSha256) {
@@ -186,7 +189,21 @@ async function main() {
         `Checksum verification failed for ${assetName} (expected ${expectedSha256}, got ${actualSha256})`,
       );
     }
+  } catch (verifiedErr) {
+    const message = verifiedErr && verifiedErr.message ? verifiedErr.message : String(verifiedErr);
+    console.error(`open-plan-annotator: checksum-verified install failed: ${message}`);
+    console.error(`Falling back to direct download (without checksum verification)...`);
 
+    try {
+      archiveBuffer = await fetch(fallbackUrl);
+    } catch (fallbackErr) {
+      const fbMsg = fallbackErr && fallbackErr.message ? fallbackErr.message : String(fallbackErr);
+      console.error(`open-plan-annotator: fallback download also failed: ${fbMsg}`);
+      throw verifiedErr;
+    }
+  }
+
+  try {
     const binaryBuffer = extractBinaryFromTarGz(archiveBuffer);
 
     if (!fs.existsSync(destDir)) {
@@ -203,10 +220,6 @@ async function main() {
     } catch {
       // Temp file may not exist
     }
-
-    const message = err && err.message ? err.message : String(err);
-    console.error(`open-plan-annotator: install failed: ${message}`);
-    console.error(`Fallback URL for diagnostics: ${fallbackUrl}`);
     throw err;
   }
 }
