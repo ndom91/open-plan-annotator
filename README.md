@@ -24,6 +24,10 @@ The server shuts down after you decide. Everything runs locally, nothing leaves 
 
 ## Install
 
+> [!NOTE]
+> The first run might take a few seconds if you use pnpm as it blocks postinstall scripts.
+> Claude / OpenCode will trigger the download upon first use then.
+
 **1. Install the binary**
 
 ```sh
@@ -49,11 +53,6 @@ From within Claude Code:
 ```
 
 This registers the `ExitPlanMode` hook that launches the annotation UI.
-
-
-> [!NOTE]
-> The first run might take a few seconds if you hadn't installed the binary, as
-> Claude will trigger the download then.
 
 ### OpenCode
 
