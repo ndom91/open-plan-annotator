@@ -6,6 +6,27 @@ const fs = require("fs");
 
 const binaryPath = path.join(__dirname, "open-plan-annotator-binary");
 const installScript = path.join(__dirname, "..", "install.cjs");
+const VERSION = require("../package.json").version;
+
+const arg = process.argv[2];
+
+if (arg === "--version" || arg === "-v") {
+  console.log(VERSION);
+  process.exit(0);
+}
+
+if (arg === "--help" || arg === "-h") {
+  console.log(`open-plan-annotator v${VERSION}
+
+Usage:
+  open-plan-annotator              Run as a Claude Code hook (reads stdin)
+  open-plan-annotator update       Update the binary to the latest version
+  open-plan-annotator --version    Print version
+  open-plan-annotator --help       Show this help
+
+https://github.com/ndom91/open-plan-annotator`);
+  process.exit(0);
+}
 
 // Buffer stdin immediately so it's not lost if we need to download first.
 // Skip when stdin is a TTY (manual invocation) to avoid blocking forever.
