@@ -40,6 +40,19 @@ if (!fs.existsSync(binaryPath)) {
   }
 }
 
+// Handle `open-plan-annotator update` subcommand
+if (process.argv[2] === "update") {
+  try {
+    execFileSync(binaryPath, ["update"], {
+      stdio: "inherit",
+      env: { ...process.env, OPEN_PLAN_PKG_MANAGER: detectPackageManager() },
+    });
+  } catch (e) {
+    process.exit(e.status || 1);
+  }
+  process.exit(0);
+}
+
 // Detect package manager so the binary can suggest the right update command
 function detectPackageManager() {
   const ua = process.env.npm_config_user_agent || "";

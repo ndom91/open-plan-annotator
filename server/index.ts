@@ -7,6 +7,12 @@ import type { HookEvent, HookOutput, ServerDecision, ServerState, UserPreference
 import { checkForUpdate } from "./updateCheck.ts";
 import { VERSION } from "./version.ts";
 
+if (process.argv.includes("update")) {
+  const { runCliUpdate } = await import("./cliUpdate.ts");
+  await runCliUpdate();
+  process.exit(0);
+}
+
 const DEV_PLAN = `# Example Plan
 
 ## Context
