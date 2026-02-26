@@ -105,14 +105,21 @@ export default function App() {
   const autoCloseRef = useRef(autoCloseOnSubmit);
   autoCloseRef.current = autoCloseOnSubmit;
   const [settingsExpired, setSettingsExpired] = useState(false);
+  const [autoCloseCountdown, setAutoCloseCountdown] = useState(5);
   useEffect(() => {
     if (!decided) return;
 
     const expiry = setTimeout(() => setSettingsExpired(true), 5000);
 
     if (!autoCloseOnSubmit) {
+      setAutoCloseCountdown(5);
       return () => clearTimeout(expiry);
     }
+
+    setAutoCloseCountdown(5);
+    const tick = setInterval(() => {
+      setAutoCloseCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
 
     const closeTimer = setTimeout(() => {
       // Re-check: user may have toggled it off during the wait
@@ -124,6 +131,7 @@ export default function App() {
     return () => {
       clearTimeout(closeTimer);
       clearTimeout(expiry);
+      clearInterval(tick);
     };
   }, [decided, autoCloseOnSubmit]);
 
@@ -187,6 +195,7 @@ export default function App() {
           autoCloseOnSubmit={autoCloseOnSubmit}
           onToggleAutoClose={handleToggleAutoClose}
           settingsExpired={settingsExpired}
+          autoCloseCountdown={autoCloseCountdown}
         />
 
         <div className="flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8">

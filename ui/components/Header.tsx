@@ -11,6 +11,7 @@ interface HeaderProps {
   autoCloseOnSubmit: boolean;
   onToggleAutoClose: () => void;
   settingsExpired: boolean;
+  autoCloseCountdown: number;
 }
 
 export function Header({
@@ -23,6 +24,7 @@ export function Header({
   autoCloseOnSubmit,
   onToggleAutoClose,
   settingsExpired,
+  autoCloseCountdown,
 }: HeaderProps) {
   const { dark, toggle } = useTheme();
 
@@ -58,7 +60,11 @@ export function Header({
             className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer disabled:opacity-40 disabled:pointer-events-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <span className="text-[11px] select-none">
-              {autoCloseOnSubmit ? "Auto-closing" : "Auto-close next time"}
+              {autoCloseOnSubmit ? (
+                <>Auto-closing in <span className="tabular-nums font-medium">{autoCloseCountdown}s</span></>
+              ) : (
+                "Auto-close next time"
+              )}
             </span>
             <span
               className={`relative inline-flex h-4 w-7 items-center rounded-full transition-colors duration-200 ${autoCloseOnSubmit ? "bg-accent" : "bg-ink/15"}`}
