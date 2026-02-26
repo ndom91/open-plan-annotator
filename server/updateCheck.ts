@@ -307,9 +307,13 @@ async function fetchLatestRelease(): Promise<{ version: string; assetUrl: string
   return { version, assetUrl, assetSha256 };
 }
 
-export async function checkForUpdate(configDir: string, packageManager: string): Promise<UpdateInfo> {
+export async function checkForUpdate(
+  configDir: string,
+  packageManager: string,
+  options?: { skipCache?: boolean },
+): Promise<UpdateInfo> {
   try {
-    const cache = await readCache(configDir);
+    const cache = options?.skipCache ? null : await readCache(configDir);
     const now = Date.now();
 
     let latestVersion: string;

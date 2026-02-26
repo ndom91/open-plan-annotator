@@ -9,7 +9,7 @@ export async function runCliUpdate(): Promise<void> {
 
   let info: UpdateInfo;
   try {
-    info = await checkForUpdate(configDir, packageManager);
+    info = await checkForUpdate(configDir, packageManager, { skipCache: true });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     console.error(`Failed to check for updates: ${message}`);
