@@ -48,6 +48,10 @@ The OpenCode plugin bridges to the same binary by constructing a Claude-format `
 - **`CLAUDE.plugin.md` is user-facing.** It tells Claude to use plan mode. Keep developer-only content in this file (`CLAUDE.md`), not in `CLAUDE.plugin.md`.
 - **The binary is not committed.** `bin/open-plan-annotator-binary` is in `.gitignore` and downloaded at install time.
 - **The OpenCode plugin uses plain JS (not TypeScript).** The `opencode/` directory ships as-is in the npm package — no build step. Keep it as `.js` files with JSDoc types.
+- **Never use 'as any'** Always use the correct type.
+- **We use bun** not pnpm, npm or yarn in this project.
+- **Always double check your work** before telling me you're done by running the
+  typecheck, lint, and test scripts.
 
 ## Development
 
