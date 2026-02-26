@@ -7,10 +7,11 @@ const fs = require("fs");
 const binaryPath = path.join(__dirname, "open-plan-annotator-binary");
 const installScript = path.join(__dirname, "..", "install.cjs");
 
-// Buffer stdin immediately so it's not lost if we need to download first
+// Buffer stdin immediately so it's not lost if we need to download first.
+// Skip when stdin is a TTY (manual invocation) to avoid blocking forever.
 let stdinBuffer;
 try {
-  stdinBuffer = fs.readFileSync(0);
+  stdinBuffer = process.stdin.isTTY ? Buffer.alloc(0) : fs.readFileSync(0);
 } catch {
   stdinBuffer = Buffer.alloc(0);
 }
