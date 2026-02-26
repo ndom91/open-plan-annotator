@@ -38,7 +38,7 @@ for (const tarball of tarballs) {
   checksumLines.push(`${hash}  ${tarball}`);
 }
 
-const checksumPath = path.join(distDir, "SHA256SUMS.txt");
+const checksumPath = path.join(distDir, "sha256sums.txt");
 fs.writeFileSync(checksumPath, checksumLines.join("\n") + "\n");
 
-console.log(`\nCreated ${dirs.length} archives and SHA256SUMS.txt in dist/.`);
+console.log(`\nCreated ${dirs.length} archives and sha256sums.txt in dist/.`);

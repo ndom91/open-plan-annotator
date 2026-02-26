@@ -67,7 +67,7 @@ git push --follow-tags
 
 # --- GitHub Release ---
 echo "Creating GitHub Release..."
-gh release create "v$NEW_VERSION" dist/*.tar.gz dist/SHA256SUMS.txt --title "v$NEW_VERSION" --generate-notes
+gh release create "v$NEW_VERSION" dist/*.tar.gz dist/sha256sums.txt --title "v$NEW_VERSION" --generate-notes
 
 # --- npm publish ---
 echo "Publishing to npm..."
