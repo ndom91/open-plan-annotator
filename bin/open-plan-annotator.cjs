@@ -37,6 +37,7 @@ try {
   stdinBuffer = Buffer.alloc(0);
 }
 
+let justInstalled = false;
 if (!fs.existsSync(binaryPath)) {
   // Auto-download the binary (handles pnpm blocking postinstall)
   console.error("open-plan-annotator: binary not found, downloading...");
@@ -59,10 +60,15 @@ if (!fs.existsSync(binaryPath)) {
     );
     process.exit(1);
   }
+  justInstalled = true;
 }
 
 // Handle `open-plan-annotator update` subcommand
 if (process.argv[2] === "update") {
+  if (justInstalled) {
+    console.log("Binary installed (v" + VERSION + ")");
+    process.exit(0);
+  }
   try {
     execFileSync(binaryPath, ["update"], {
       stdio: "inherit",
