@@ -5,6 +5,7 @@ import { resolveHistoryKey } from "./historyKey.ts";
 import { openBrowser } from "./launch.ts";
 import type { HookEvent, HookOutput, ServerDecision, ServerState, UserPreferences } from "./types.ts";
 import { checkForUpdate } from "./updateCheck.ts";
+import { VERSION } from "./version.ts";
 
 const DEV_PLAN = `# Example Plan
 
@@ -231,7 +232,19 @@ checkForUpdate(configDir, packageManager)
       process.stderr.write(`open-plan-annotator: update available ${info.currentVersion} → ${info.latestVersion}\n`);
     }
   })
-  .catch(() => {});
+  .catch((err) => {
+    const message = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`open-plan-annotator: update check failed: ${message}\n`);
+    state.updateInfo = {
+      currentVersion: VERSION,
+      latestVersion: null,
+      updateAvailable: false,
+      selfUpdatePossible: false,
+      assetUrl: null,
+      assetSha256: null,
+      updateCommand: `${packageManager} update open-plan-annotator`,
+    };
+  });
 
 // 5. Open browser (skip in dev — Vite serves the UI)
 if (!isDev) openBrowser(url);

@@ -51,6 +51,7 @@ export interface UpdateInfo {
   updateAvailable: boolean;
   selfUpdatePossible: boolean;
   assetUrl: string | null;
+  assetSha256: string | null;
   updateCommand: string;
 }
 

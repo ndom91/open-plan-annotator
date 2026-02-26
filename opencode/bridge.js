@@ -123,6 +123,14 @@ function findWrapperOnPath() {
   }
 }
 
+function detectPackageManager() {
+  const ua = process.env.npm_config_user_agent || "";
+  if (ua.startsWith("pnpm")) return "pnpm";
+  if (ua.startsWith("yarn")) return "yarn";
+  if (ua.startsWith("bun")) return "bun";
+  return "npm";
+}
+
 /** Ensure the compiled binary exists, downloading if necessary. */
 function ensureBinary() {
   if (existsSync(LOCAL_BINARY_PATH)) {
@@ -192,7 +200,10 @@ export async function runPlanReview(options) {
     const child = spawn(BINARY_PATH, [], {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
-      env: process.env,
+      env: {
+        ...process.env,
+        OPEN_PLAN_PKG_MANAGER: process.env.OPEN_PLAN_PKG_MANAGER || detectPackageManager(),
+      },
       detached: true,
     });
 

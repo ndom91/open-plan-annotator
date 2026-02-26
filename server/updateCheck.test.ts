@@ -2,8 +2,8 @@ import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { extractBinaryFromTar } from "./selfUpdate.ts";
-import { checkForUpdate, isNewerVersion } from "./updateCheck.ts";
+import { extractBinaryFromTar, sha256Hex, verifyChecksumOrThrow } from "./selfUpdate.ts";
+import { checkForUpdate, isNewerVersion, parseChecksumManifest } from "./updateCheck.ts";
 
 // ---------------------------------------------------------------------------
 // isNewerVersion
@@ -31,6 +31,38 @@ describe("isNewerVersion", () => {
 
   test("handles multi-digit segments", () => {
     expect(isNewerVersion("1.0.9", "1.0.10")).toBe(true);
+  });
+
+  test("supports v-prefixed tags", () => {
+    expect(isNewerVersion("v1.0.0", "v1.1.0")).toBe(true);
+  });
+
+  test("treats stable version as newer than prerelease", () => {
+    expect(isNewerVersion("1.0.0-beta.2", "1.0.0")).toBe(true);
+  });
+
+  test("does not treat prerelease as newer than same stable", () => {
+    expect(isNewerVersion("1.0.0", "1.0.0-beta.1")).toBe(false);
+  });
+
+  test("returns false for invalid semver", () => {
+    expect(isNewerVersion("1.0", "1.0.1")).toBe(false);
+  });
+});
+
+describe("parseChecksumManifest", () => {
+  test("parses GNU style checksum lines", () => {
+    const checksum = "a".repeat(64);
+    const manifest = `${checksum}  open-plan-annotator-darwin-arm64.tar.gz\n`;
+    const parsed = parseChecksumManifest(manifest);
+    expect(parsed.get("open-plan-annotator-darwin-arm64.tar.gz")).toBe(checksum);
+  });
+
+  test("parses BSD style checksum lines", () => {
+    const checksum = "b".repeat(64);
+    const manifest = `SHA256 (open-plan-annotator-linux-x64.tar.gz) = ${checksum}\n`;
+    const parsed = parseChecksumManifest(manifest);
+    expect(parsed.get("open-plan-annotator-linux-x64.tar.gz")).toBe(checksum);
   });
 });
 
@@ -140,18 +172,131 @@ describe("checkForUpdate", () => {
 
     const mockResponse = {
       ok: true,
-      json: async () => ({
-        tag_name: "v99.0.0",
-        assets: [{ name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" }],
-      }),
+      json: async () => [
+        {
+          tag_name: "v99.0.0",
+          prerelease: false,
+          draft: false,
+          created_at: "2026-01-01T00:00:00Z",
+          assets: [
+            { name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" },
+            { name: "checksums.txt", browser_download_url: "https://example.com/checksums.txt" },
+          ],
+        },
+      ],
     };
-    const fetchSpy = spyOn(globalThis, "fetch").mockResolvedValue(mockResponse as Response);
+    const checksumResponse = {
+      ok: true,
+      text: async () => `${"a".repeat(64)}  open-plan-annotator-darwin-arm64.tar.gz\n`,
+    };
+    const fetchSpy = spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(mockResponse as Response)
+      .mockResolvedValueOnce(checksumResponse as Response);
 
     const result = await checkForUpdate(configDir, "pnpm");
-    expect(fetchSpy).toHaveBeenCalledTimes(1);
+    expect(fetchSpy).toHaveBeenCalledTimes(2);
     expect(result.latestVersion).toBe("99.0.0");
     expect(result.updateAvailable).toBe(true);
     expect(result.updateCommand).toBe("pnpm update open-plan-annotator");
+    expect(result.assetSha256).toBe("a".repeat(64));
+  });
+
+  test("skips prereleases when selecting latest release", async () => {
+    const releasesResponse = {
+      ok: true,
+      json: async () => [
+        {
+          tag_name: "v999.0.0-beta.1",
+          prerelease: true,
+          draft: false,
+          created_at: "2026-02-01T00:00:00Z",
+          assets: [],
+        },
+        {
+          tag_name: "v99.1.0",
+          prerelease: false,
+          draft: false,
+          created_at: "2026-01-15T00:00:00Z",
+          assets: [
+            { name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" },
+            { name: "checksums.txt", browser_download_url: "https://example.com/checksums.txt" },
+          ],
+        },
+      ],
+    };
+
+    const checksumResponse = {
+      ok: true,
+      text: async () => `${"c".repeat(64)}  open-plan-annotator-darwin-arm64.tar.gz\n`,
+    };
+
+    spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(releasesResponse as Response)
+      .mockResolvedValueOnce(checksumResponse as Response);
+
+    const result = await checkForUpdate(configDir, "npm");
+    expect(result.latestVersion).toBe("99.1.0");
+    expect(result.updateAvailable).toBe(true);
+  });
+
+  test("paginates releases until stable semver release is found", async () => {
+    const firstPageReleases = Array.from({ length: 100 }, (_, idx) => ({
+      tag_name: `v999.0.0-beta.${idx + 1}`,
+      prerelease: true,
+      draft: false,
+      created_at: `2026-02-${String((idx % 28) + 1).padStart(2, "0")}T00:00:00Z`,
+      assets: [],
+    }));
+    firstPageReleases[0] = {
+      tag_name: "nightly-2026-01-31",
+      prerelease: false,
+      draft: false,
+      created_at: "2026-01-31T00:00:00Z",
+      assets: [],
+    };
+
+    const firstPageResponse = {
+      ok: true,
+      json: async () => firstPageReleases,
+    };
+
+    const secondPageResponse = {
+      ok: true,
+      json: async () => [
+        {
+          tag_name: "v98.5.0",
+          prerelease: false,
+          draft: false,
+          created_at: "2025-12-01T00:00:00Z",
+          assets: [
+            { name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" },
+            { name: "checksums.txt", browser_download_url: "https://example.com/checksums.txt" },
+          ],
+        },
+      ],
+    };
+
+    const checksumResponse = {
+      ok: true,
+      text: async () => `${"d".repeat(64)}  open-plan-annotator-darwin-arm64.tar.gz\n`,
+    };
+
+    const fetchSpy = spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(firstPageResponse as Response)
+      .mockResolvedValueOnce(secondPageResponse as Response)
+      .mockResolvedValueOnce(checksumResponse as Response);
+
+    const result = await checkForUpdate(configDir, "npm");
+
+    expect(fetchSpy).toHaveBeenCalledTimes(3);
+    expect(fetchSpy.mock.calls[0]?.[0]).toBe(
+      "https://api.github.com/repos/ndom91/open-plan-annotator/releases?per_page=100&page=1",
+    );
+    expect(fetchSpy.mock.calls[1]?.[0]).toBe(
+      "https://api.github.com/repos/ndom91/open-plan-annotator/releases?per_page=100&page=2",
+    );
+    expect(result.latestVersion).toBe("98.5.0");
+    expect(result.updateAvailable).toBe(true);
   });
 
   test("returns updateAvailable: false when fetch fails", async () => {
@@ -191,5 +336,49 @@ describe("checkForUpdate", () => {
       const result = await checkForUpdate(configDir, pm);
       expect(result.updateCommand).toBe(`${pm} update open-plan-annotator`);
     }
+  });
+
+  test("disables self-update when checksum is unavailable", async () => {
+    const staleCache = {
+      latestVersion: "0.0.1",
+      checkedAt: Date.now() - 5 * 60 * 60 * 1000,
+      assetUrl: null,
+      assetSha256: null,
+    };
+    mkdirSync(configDir, { recursive: true });
+    writeFileSync(join(configDir, "update-check.json"), JSON.stringify(staleCache));
+
+    const releaseResponse = {
+      ok: true,
+      json: async () => [
+        {
+          tag_name: "v99.0.0",
+          prerelease: false,
+          draft: false,
+          created_at: "2026-01-01T00:00:00Z",
+          assets: [{ name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" }],
+        },
+      ],
+    };
+
+    spyOn(globalThis, "fetch").mockResolvedValue(releaseResponse as Response);
+
+    const result = await checkForUpdate(configDir, "npm");
+    expect(result.updateAvailable).toBe(true);
+    expect(result.selfUpdatePossible).toBe(false);
+    expect(result.assetUrl).toBeNull();
+    expect(result.assetSha256).toBeNull();
+  });
+});
+
+describe("sha256Hex", () => {
+  test("computes deterministic SHA-256 hash", () => {
+    const payload = new TextEncoder().encode("open-plan-annotator");
+    expect(sha256Hex(payload)).toBe("8647380718ee6938cee78c6a1df635a5f61422849c7b03125722f7037803e237");
+  });
+
+  test("throws on checksum mismatch", () => {
+    const payload = new TextEncoder().encode("payload");
+    expect(() => verifyChecksumOrThrow(payload, "f".repeat(64))).toThrow("Checksum verification failed");
   });
 });

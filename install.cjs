@@ -9,6 +9,7 @@ const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
 const https = require("https");
+const crypto = require("crypto");
 
 const VERSION = require("./package.json").version;
 const REPO = "ndom91/open-plan-annotator";
@@ -35,6 +36,10 @@ function getDownloadUrl() {
   return `https://github.com/${REPO}/releases/download/v${VERSION}/${asset}.tar.gz`;
 }
 
+function getReleaseApiUrl() {
+  return `https://api.github.com/repos/${REPO}/releases/tags/v${VERSION}`;
+}
+
 function fetch(url, redirects) {
   if (redirects === undefined) redirects = 5;
   return new Promise((resolve, reject) => {
@@ -53,6 +58,85 @@ function fetch(url, redirects) {
       })
       .on("error", reject);
   });
+}
+
+async function fetchJson(url) {
+  const buffer = await fetch(url);
+  return JSON.parse(buffer.toString("utf8"));
+}
+
+function sha256Hex(buffer) {
+  return crypto.createHash("sha256").update(buffer).digest("hex");
+}
+
+function parseChecksumManifest(manifestText) {
+  const checksums = new Map();
+
+  for (const rawLine of manifestText.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+
+    const bsdStyle = line.match(/^SHA256\s*\(([^)]+)\)\s*=\s*([a-fA-F0-9]{64})$/);
+    if (bsdStyle) {
+      checksums.set(bsdStyle[1].trim(), bsdStyle[2].toLowerCase());
+      continue;
+    }
+
+    const gnuStyle = line.match(/^([a-fA-F0-9]{64})\s+[* ]?(.+)$/);
+    if (gnuStyle) {
+      checksums.set(gnuStyle[2].trim(), gnuStyle[1].toLowerCase());
+    }
+  }
+
+  return checksums;
+}
+
+function selectChecksumAsset(assets) {
+  const checksumAssets = assets
+    .filter((asset) => {
+      const lower = asset.name.toLowerCase();
+      return (
+        (lower.includes("sha256") || lower.includes("checksum")) &&
+        (lower.endsWith(".txt") || lower.endsWith(".sha256") || lower.endsWith(".sha256sum") || lower.endsWith(".sha256sums"))
+      );
+    })
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return checksumAssets[0] || null;
+}
+
+async function resolveReleaseAssetAndChecksum() {
+  const release = await fetchJson(getReleaseApiUrl());
+  const releaseAssets = Array.isArray(release.assets) ? release.assets : [];
+  const key = getPlatformKey();
+  const assetBaseName = PLATFORM_MAP[key];
+  if (!assetBaseName) {
+    throw new Error(`Unsupported platform ${key}`);
+  }
+
+  const assetName = `${assetBaseName}.tar.gz`;
+  const asset = releaseAssets.find((entry) => entry.name === assetName);
+  if (!asset) {
+    throw new Error(`Release v${VERSION} is missing asset ${assetName}`);
+  }
+
+  const checksumAsset = selectChecksumAsset(releaseAssets);
+  if (!checksumAsset) {
+    throw new Error(`Release v${VERSION} does not contain a checksum manifest asset`);
+  }
+
+  const checksumManifest = (await fetch(checksumAsset.browser_download_url)).toString("utf8");
+  const checksums = parseChecksumManifest(checksumManifest);
+  const expectedSha256 = checksums.get(assetName);
+  if (!expectedSha256) {
+    throw new Error(`Checksum manifest does not contain ${assetName}`);
+  }
+
+  return {
+    assetName,
+    assetUrl: asset.browser_download_url,
+    expectedSha256,
+  };
 }
 
 function extractBinaryFromTarGz(buffer) {
@@ -82,24 +166,49 @@ function extractBinaryFromTarGz(buffer) {
 async function main() {
   const destDir = path.join(__dirname, "bin");
   const destPath = path.join(destDir, "open-plan-annotator-binary");
+  const tempPath = `${destPath}.tmp-${process.pid}-${Date.now()}`;
 
   // Skip if binary already exists
   if (fs.existsSync(destPath)) {
     return;
   }
 
-  const url = getDownloadUrl();
+  const fallbackUrl = getDownloadUrl();
   console.error(`Downloading open-plan-annotator for ${getPlatformKey()}...`);
 
-  const buffer = await fetch(url);
-  const binaryBuffer = extractBinaryFromTarGz(buffer);
+  try {
+    const { assetName, assetUrl, expectedSha256 } = await resolveReleaseAssetAndChecksum();
+    const archiveBuffer = await fetch(assetUrl);
+    const actualSha256 = sha256Hex(archiveBuffer);
 
-  if (!fs.existsSync(destDir)) {
-    fs.mkdirSync(destDir, { recursive: true });
+    if (actualSha256 !== expectedSha256) {
+      throw new Error(
+        `Checksum verification failed for ${assetName} (expected ${expectedSha256}, got ${actualSha256})`,
+      );
+    }
+
+    const binaryBuffer = extractBinaryFromTarGz(archiveBuffer);
+
+    if (!fs.existsSync(destDir)) {
+      fs.mkdirSync(destDir, { recursive: true });
+    }
+
+    fs.writeFileSync(tempPath, binaryBuffer, { mode: 0o755 });
+    fs.renameSync(tempPath, destPath);
+    fs.chmodSync(destPath, 0o755);
+    console.error(`Installed open-plan-annotator to ${destPath}`);
+  } catch (err) {
+    try {
+      fs.unlinkSync(tempPath);
+    } catch {
+      // Temp file may not exist
+    }
+
+    const message = err && err.message ? err.message : String(err);
+    console.error(`open-plan-annotator: install failed: ${message}`);
+    console.error(`Fallback URL for diagnostics: ${fallbackUrl}`);
+    throw err;
   }
-
-  fs.writeFileSync(destPath, binaryBuffer, { mode: 0o755 });
-  console.error(`Installed open-plan-annotator to ${destPath}`);
 }
 
 main().catch((err) => {
