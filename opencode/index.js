@@ -5,14 +5,14 @@ import { resolveImplementationHandoff } from "./config.js";
 const PLAN_REVIEW_INSTRUCTIONS = `## Plan Review Workflow
 
 For non-trivial implementation work, create a plan first and call the \`submit_plan\` tool.
-The user will review the plan in a browser and either approve it or request changes.
+The user will review the plan in a browser UI and either approve it or request changes.
 
-- If approved, proceed with implementation.
-- If changes are requested, revise the plan and call \`submit_plan\` again.
+- If the tool returns that the plan was **approved**: immediately begin writing code. Do NOT call \`submit_plan\` again — the plan phase is complete.
+- If the tool returns **revision feedback**: revise the plan based on the feedback, then call \`submit_plan\` again with the updated plan.
 
-Do not begin implementation until the plan is approved.`;
+Only call \`submit_plan\` once per plan version. After approval, your sole job is to implement what was approved.`;
 
-const IMPLEMENTATION_PROMPT = "Proceed with implementation.";
+const IMPLEMENTATION_PROMPT = "The plan has been approved by the user. Begin implementing it now — write code, create files, and make changes as described in the plan. Do not re-submit or re-review the plan.";
 
 function getErrorMessage(error) {
   if (error instanceof Error && error.message) {
@@ -148,7 +148,10 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
           });
 
           if (result.approved) {
-            const lines = ["Plan approved by the user."];
+            const lines = [
+              "Plan approved by the user.",
+              "Do NOT call `submit_plan` again. The planning phase is finished.",
+            ];
 
             if (args.summary) {
               lines.push(`Summary: ${args.summary}`);
@@ -163,7 +166,7 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
               }
             }
 
-            lines.push("Proceed with implementation.");
+            lines.push("Begin implementing the approved plan now — write code and make changes.");
             return lines.join("\n\n");
           }
 
