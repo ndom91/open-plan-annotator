@@ -42,31 +42,52 @@ function resolveSingleBlock(range: Range, block: HTMLElement): ResolvedSelection
   const text = range.toString();
   if (text.trim().length === 0) return null;
 
-  const startSeg = findSegmentElement(range.startContainer);
-  const endSeg = findSegmentElement(range.endContainer);
+  let startSeg = findSegmentElement(range.startContainer);
+  let endSeg = findSegmentElement(range.endContainer);
+
+  // Triple-click (full line select) often lands range endpoints on the block
+  // element itself rather than a text node inside a segment span. Fall back to
+  // the first/last segment in the block so the toolbar still appears.
+  if (!startSeg) {
+    startSeg = block.querySelector<HTMLElement>("[data-seg-start]");
+  }
+  if (!endSeg) {
+    const segs = block.querySelectorAll<HTMLElement>("[data-seg-end]");
+    endSeg = segs.length > 0 ? segs[segs.length - 1] : null;
+  }
   if (!startSeg || !endSeg) return null;
 
   const segStart = parseInt(startSeg.dataset.segStart ?? "0", 10);
   const segEnd = parseInt(endSeg.dataset.segEnd ?? "0", 10);
 
-  const preRange = document.createRange();
-  preRange.selectNodeContents(startSeg);
-  preRange.setEnd(range.startContainer, range.startOffset);
-  const startOffset = segStart + toSourceOffset(startSeg, preRange.toString().length);
+  let startOffset: number;
+  // If startContainer is not inside the startSeg, the selection starts at the
+  // beginning of the segment (e.g. triple-click selected from the block node).
+  if (startSeg.contains(range.startContainer)) {
+    const preRange = document.createRange();
+    preRange.selectNodeContents(startSeg);
+    preRange.setEnd(range.startContainer, range.startOffset);
+    startOffset = segStart + toSourceOffset(startSeg, preRange.toString().length);
+  } else {
+    startOffset = segStart;
+  }
 
   let endOffset: number;
-  if (startSeg === endSeg) {
+  if (startSeg === endSeg && startSeg.contains(range.endContainer)) {
     const fullPreRange = document.createRange();
     fullPreRange.selectNodeContents(startSeg);
     fullPreRange.setEnd(range.endContainer, range.endOffset);
     endOffset = segStart + toSourceOffset(startSeg, fullPreRange.toString().length);
     if (endOffset > segEnd) endOffset = segEnd;
-  } else {
+  } else if (endSeg.contains(range.endContainer)) {
     const endSegStart = parseInt(endSeg.dataset.segStart ?? "0", 10);
     const preRangeEnd = document.createRange();
     preRangeEnd.selectNodeContents(endSeg);
     preRangeEnd.setEnd(range.endContainer, range.endOffset);
     endOffset = endSegStart + toSourceOffset(endSeg, preRangeEnd.toString().length);
+  } else {
+    // endContainer is outside segments (e.g. the block element) — select to end
+    endOffset = segEnd;
   }
 
   return { blockIndex, startOffset, endOffset, text };
