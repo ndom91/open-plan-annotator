@@ -36,11 +36,6 @@ npm install -g open-plan-annotator
 
 This JS shim downloads the correct binary for your platform (macOS, Linux).
 
-> [!NOTE]
-> If using pnpm, postinstall scripts will be blocked by default. You can run the
-> 'open-plan-annotator' manually to trigger a download, or the first invocation
-> by Claude will also trigger the binary download.
-
 ### Claude Code
 
 Add the marketplace and install the plugin:
