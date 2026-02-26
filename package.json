@@ -33,6 +33,7 @@
   "scripts": {
     "postinstall": "node install.cjs",
     "test": "bun test",
+    "typecheck": "tsgo --noEmit --project ui/tsconfig.json && tsgo --noEmit --project server/tsconfig.json",
     "build:ui": "cd ui && bun run vite build",
     "build:platforms": "node scripts/build-platforms.cjs",
     "build": "bun run build:ui && node scripts/build-platforms.cjs",
@@ -50,7 +51,8 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
-    "@types/bun": "^1.3.9"
+    "@types/bun": "^1.3.9",
+    "@typescript/native-preview": "^7.0.0-dev.20260224.1"
   },
   "dependencies": {
     "@opencode-ai/plugin": "^1.2.14",

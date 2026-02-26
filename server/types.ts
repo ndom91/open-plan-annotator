@@ -35,6 +35,8 @@ export interface HookOutput {
 export interface HistoryKeySource {
   transcript_path?: unknown;
   session_id?: unknown;
+  opencode_conversation_id?: unknown;
+  opencode_session_id?: unknown;
   cwd?: unknown;
   hook_event_name?: unknown;
   tool_name?: unknown;

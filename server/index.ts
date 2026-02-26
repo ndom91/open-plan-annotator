@@ -97,10 +97,10 @@ if (isDev) {
           files.map(async (fileName) => {
             const path = `${plansDir}/${fileName}`;
             const stat = await Bun.file(path).stat();
-            return { path, mtime: stat?.mtime ?? 0 };
+            return { path, mtime: stat?.mtime?.getTime() ?? 0 };
           }),
         );
-        sorted.sort((a, b) => (b.mtime as number) - (a.mtime as number));
+        sorted.sort((a, b) => b.mtime - a.mtime);
         planContent = await Bun.file(sorted[0].path).text();
       }
     } catch {
@@ -175,10 +175,10 @@ if (!isDev) {
       files.map(async (f) => {
         const path = `${historyDir}/${f}`;
         const stat = await Bun.file(path).stat();
-        return { path, mtime: stat?.mtime ?? 0 };
+        return { path, mtime: stat?.mtime?.getTime() ?? 0 };
       }),
     );
-    sorted.sort((a, b) => (a.mtime as number) - (b.mtime as number));
+    sorted.sort((a, b) => a.mtime - b.mtime);
     for (const f of sorted) {
       planHistory.push(await Bun.file(f.path).text());
     }
