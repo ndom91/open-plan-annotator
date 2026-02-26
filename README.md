@@ -9,7 +9,7 @@ A fully local agentic coding plugin that intercepts plan mode and opens an annot
 Select text to <code>strikethrough</code>, <code>replace</code>, <code>insert</code>, or <code>comment</code> — then approve the plan or request changes.
 
 
-![](.github/assets/screenshot_1.png)
+![](.github/assets/screenshot.png)
 
 
 ## How it works
