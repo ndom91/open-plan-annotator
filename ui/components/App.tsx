@@ -14,10 +14,20 @@ import { DocumentChrome } from "./DocumentChrome.tsx";
 import { Header } from "./Header.tsx";
 import { PlanDocument } from "./PlanDocument.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
+import { UpdateBanner } from "./UpdateBanner.tsx";
 import { VersionSidebar } from "./VersionSidebar.tsx";
 
 export default function App() {
-  const { plan, planHash, version, history, autoCloseOnSubmit: initialAutoClose, isLoading, error } = usePlan();
+  const {
+    plan,
+    planHash,
+    version,
+    history,
+    autoCloseOnSubmit: initialAutoClose,
+    updateInfo,
+    isLoading,
+    error,
+  } = usePlan();
   const [autoCloseOnSubmit, setAutoCloseOnSubmit] = useState(false);
   const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } =
     useAnnotations(planHash);
@@ -197,6 +207,15 @@ export default function App() {
           settingsExpired={settingsExpired}
           autoCloseCountdown={autoCloseCountdown}
         />
+
+        {updateInfo?.updateAvailable && updateInfo.latestVersion && (
+          <UpdateBanner
+            currentVersion={updateInfo.currentVersion}
+            latestVersion={updateInfo.latestVersion}
+            selfUpdatePossible={updateInfo.selfUpdatePossible}
+            updateCommand={updateInfo.updateCommand}
+          />
+        )}
 
         <div className="flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8">
           {/* Version history sidebar */}

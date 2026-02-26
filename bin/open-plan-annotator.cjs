@@ -39,12 +39,22 @@ if (!fs.existsSync(binaryPath)) {
   }
 }
 
+// Detect package manager so the binary can suggest the right update command
+function detectPackageManager() {
+  const ua = process.env.npm_config_user_agent || "";
+  if (ua.startsWith("pnpm")) return "pnpm";
+  if (ua.startsWith("yarn")) return "yarn";
+  if (ua.startsWith("bun")) return "bun";
+  return "npm";
+}
+
 // Spawn the binary with detached so it can outlive this wrapper.
 // We pipe stdout to detect the JSON hook output, then forward it and exit
 // immediately — the binary keeps its server alive in the background.
 const child = spawn(binaryPath, process.argv.slice(2), {
   stdio: ["pipe", "pipe", "inherit"],
   detached: true,
+  env: { ...process.env, OPEN_PLAN_PKG_MANAGER: detectPackageManager() },
 });
 
 child.stdin.write(stdinBuffer);

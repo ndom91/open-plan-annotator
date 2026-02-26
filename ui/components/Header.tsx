@@ -61,7 +61,9 @@ export function Header({
           >
             <span className="text-[11px] select-none">
               {autoCloseOnSubmit ? (
-                <>Auto-closing in <span className="tabular-nums font-medium">{autoCloseCountdown}s</span></>
+                <>
+                  Auto-closing in <span className="tabular-nums font-medium">{autoCloseCountdown}s</span>
+                </>
               ) : (
                 "Auto-close next time"
               )}

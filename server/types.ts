@@ -45,6 +45,15 @@ export interface ServerDecision {
   feedback?: string;
 }
 
+export interface UpdateInfo {
+  currentVersion: string;
+  latestVersion: string | null;
+  updateAvailable: boolean;
+  selfUpdatePossible: boolean;
+  assetUrl: string | null;
+  updateCommand: string;
+}
+
 export interface ServerState {
   planContent: string;
   planVersion: number;
@@ -53,4 +62,5 @@ export interface ServerState {
   htmlContent: string;
   resolveDecision: ((decision: ServerDecision) => void) | null;
   persistPreferences: (preferences: UserPreferences) => Promise<void>;
+  updateInfo: UpdateInfo | null;
 }

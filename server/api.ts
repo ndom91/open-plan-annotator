@@ -1,3 +1,4 @@
+import { performSelfUpdate } from "./selfUpdate.ts";
 import type { Annotation, ServerState } from "./types.ts";
 
 export function createRouter(state: ServerState) {
@@ -10,6 +11,7 @@ export function createRouter(state: ServerState) {
         version: state.planVersion,
         history: state.planHistory,
         preferences: state.preferences,
+        updateInfo: state.updateInfo,
       });
     }
 
@@ -57,6 +59,26 @@ export function createRouter(state: ServerState) {
         state.resolveDecision = null;
       }
       return Response.json({ ok: true });
+    }
+
+    if (url.pathname === "/api/update-info" && req.method === "GET") {
+      return Response.json(state.updateInfo);
+    }
+
+    if (url.pathname === "/api/self-update" && req.method === "POST") {
+      if (!state.updateInfo?.selfUpdatePossible || !state.updateInfo?.assetUrl) {
+        return Response.json(
+          { error: "Self-update not available", updateCommand: state.updateInfo?.updateCommand ?? null },
+          { status: 400 },
+        );
+      }
+      try {
+        await performSelfUpdate(state.updateInfo.assetUrl);
+        return Response.json({ ok: true });
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        return Response.json({ error: msg, updateCommand: state.updateInfo.updateCommand }, { status: 500 });
+      }
     }
 
     // Serve the single-file React app for everything else

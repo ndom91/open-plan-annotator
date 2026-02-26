@@ -4,6 +4,7 @@ import { createRouter } from "./api.ts";
 import { resolveHistoryKey } from "./historyKey.ts";
 import { openBrowser } from "./launch.ts";
 import type { HookEvent, HookOutput, ServerDecision, ServerState, UserPreferences } from "./types.ts";
+import { checkForUpdate } from "./updateCheck.ts";
 
 const DEV_PLAN = `# Example Plan
 
@@ -207,6 +208,7 @@ const state: ServerState = {
   htmlContent,
   resolveDecision,
   persistPreferences,
+  updateInfo: null,
 };
 
 // 4. Start server
@@ -219,6 +221,17 @@ const server = Bun.serve({
 
 const url = `http://localhost:${server.port}`;
 process.stderr.write(`open-plan-annotator: UI available at ${url}\n`);
+
+// 4b. Non-blocking update check
+const packageManager = process.env.OPEN_PLAN_PKG_MANAGER || "npm";
+checkForUpdate(configDir, packageManager)
+  .then((info) => {
+    state.updateInfo = info;
+    if (info.updateAvailable) {
+      process.stderr.write(`open-plan-annotator: update available ${info.currentVersion} → ${info.latestVersion}\n`);
+    }
+  })
+  .catch(() => {});
 
 // 5. Open browser (skip in dev — Vite serves the UI)
 if (!isDev) openBrowser(url);
