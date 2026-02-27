@@ -27,6 +27,8 @@ Hard rules:
 4) After approval, treat follow-up user messages as execution refinements by default, not planning triggers.
 5) On conflict, prioritize the approved plan and execute immediately.
 6) Do not ask permission to proceed after approval; execute and report progress/results.
+7) When delegating to subagents, always pass current \`plan_status\` and \`explicit_replan\` values.
+8) If \`plan_status=approved\` and \`explicit_replan=false\`, subagents must execute and must not call \`submit_plan\`.
 
 Tool guard before calling \`submit_plan\`:
 - assert \`state == PLAN_DRAFT\`
