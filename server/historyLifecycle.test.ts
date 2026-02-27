@@ -22,6 +22,16 @@ interface SessionResult {
   outputBehavior: "allow" | "deny";
 }
 
+function seedUpdateCheckCache(configHome: string) {
+  const annotatorConfigDir = join(configHome, "open-plan-annotator");
+  mkdirSync(annotatorConfigDir, { recursive: true });
+  writeFileSync(
+    join(annotatorConfigDir, "update-check.json"),
+    JSON.stringify({ latestVersion: "0.0.0", checkedAt: Date.now(), assetUrl: null, assetSha256: null }),
+    "utf8",
+  );
+}
+
 async function waitForServerUrl(getStderr: () => string): Promise<string> {
   const startedAt = Date.now();
   while (Date.now() - startedAt < 8000) {
@@ -117,6 +127,7 @@ describe("stdout immediacy", () => {
     try {
       mkdirSync(fakeBin, { recursive: true });
       mkdirSync(configHome, { recursive: true });
+      seedUpdateCheckCache(configHome);
 
       for (const name of ["open", "xdg-open", "cmd"]) {
         const shimPath = join(fakeBin, name);
@@ -218,6 +229,7 @@ describe("history lifecycle", () => {
     try {
       mkdirSync(fakeBin, { recursive: true });
       mkdirSync(configHome, { recursive: true });
+      seedUpdateCheckCache(configHome);
 
       const openShim = join(fakeBin, "open");
       writeFileSync(openShim, "#!/bin/sh\nexit 0\n", "utf8");
