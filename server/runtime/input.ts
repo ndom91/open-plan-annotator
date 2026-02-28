@@ -50,6 +50,10 @@ export async function parseRuntimeInput(isDev: boolean): Promise<RuntimeInput> {
   }
 
   const stdinText = await Bun.stdin.text();
+  if (!stdinText.trim()) {
+    throw new Error("missing stdin hook event JSON");
+  }
+
   let hookEvent: HookEvent;
 
   try {

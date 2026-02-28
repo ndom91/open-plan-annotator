@@ -4,6 +4,7 @@ import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { resolveCliMode } from "../shared/cliMode.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const binaryPath = path.join(__dirname, "open-plan-annotator-binary");
@@ -11,18 +12,21 @@ const installScript = path.join(__dirname, "..", "install.mjs");
 const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")).version;
 
 const arg = process.argv[2];
+const cliMode = resolveCliMode(arg, { stdinIsTTY: process.stdin.isTTY === true });
 
-if (arg === "--version" || arg === "-v") {
+if (cliMode === "version") {
   console.log(VERSION);
   process.exit(0);
 }
 
-if (arg === "--help" || arg === "-h") {
+if (cliMode === "help") {
   console.log(`open-plan-annotator v${VERSION}
 
 Usage:
-  open-plan-annotator              Run as a Claude Code hook (reads stdin)
+  open-plan-annotator              Show this help (interactive shell)
+  open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)
   open-plan-annotator update       Update the binary to the latest version
+  open-plan-annotator upgrade      Alias for update
   open-plan-annotator --version    Print version
   open-plan-annotator --help       Show this help
 
@@ -30,12 +34,22 @@ https://github.com/ndom91/open-plan-annotator`);
   process.exit(0);
 }
 
+if (cliMode === "unknown") {
+  console.error(`open-plan-annotator: unknown command \`${arg}\``);
+  console.error("Run `open-plan-annotator --help` for usage.");
+  process.exit(1);
+}
+
 // Buffer stdin immediately so it's not lost if we need to download first.
 // Skip when stdin is a TTY (manual invocation) to avoid blocking forever.
 let stdinBuffer;
-try {
-  stdinBuffer = process.stdin.isTTY ? Buffer.alloc(0) : fs.readFileSync(0);
-} catch {
+if (cliMode === "hook") {
+  try {
+    stdinBuffer = process.stdin.isTTY ? Buffer.alloc(0) : fs.readFileSync(0);
+  } catch {
+    stdinBuffer = Buffer.alloc(0);
+  }
+} else {
   stdinBuffer = Buffer.alloc(0);
 }
 
@@ -65,8 +79,8 @@ if (!fs.existsSync(binaryPath)) {
   justInstalled = true;
 }
 
-// Handle `open-plan-annotator update` subcommand
-if (process.argv[2] === "update") {
+// Handle `open-plan-annotator update|upgrade` subcommand
+if (cliMode === "update") {
   if (justInstalled) {
     console.log("Binary installed (v" + VERSION + ")");
     process.exit(0);

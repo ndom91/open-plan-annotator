@@ -1,5 +1,6 @@
 // Embedded at compile time by `bun build --compile`
 import embeddedHtml from "../build/index.html" with { type: "text" };
+import { resolveCliMode } from "../shared/cliMode.mjs";
 import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
 import { createDecisionController, writeHookDecisionToStdout } from "./runtime/decision.ts";
@@ -11,10 +12,33 @@ import type { ServerState } from "./types.ts";
 import { checkForUpdate } from "./updateCheck.ts";
 import { VERSION } from "./version.ts";
 
-if (process.argv.includes("update")) {
+const cliMode = resolveCliMode(process.argv[2], { stdinIsTTY: process.stdin.isTTY === true });
+
+if (cliMode === "version") {
+  process.stdout.write(`${VERSION}\n`);
+  process.exit(0);
+}
+
+if (cliMode === "help") {
+  process.stdout.write(
+    `open-plan-annotator v${VERSION}\n\nUsage:\n  open-plan-annotator              Show this help (interactive shell)\n  open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)\n  open-plan-annotator update       Update the binary to the latest version\n  open-plan-annotator upgrade      Alias for update\n  open-plan-annotator --version    Print version\n  open-plan-annotator --help       Show this help\n\nhttps://github.com/ndom91/open-plan-annotator\n`,
+  );
+  process.exit(0);
+}
+
+if (cliMode === "update") {
   const { runCliUpdate } = await import("./cliUpdate.ts");
   await runCliUpdate();
   process.exit(0);
+}
+
+if (cliMode === "unknown") {
+  const command = process.argv[2];
+  process.stderr.write(
+    `open-plan-annotator: unknown command \`${command}\`. ` +
+      "Expected Claude hook JSON on stdin, or run `open-plan-annotator update`.\n",
+  );
+  process.exit(1);
 }
 
 const isDev = process.env.NODE_ENV === "development";
