@@ -1,27 +1,5 @@
 import { describe, expect, mock, test } from "bun:test";
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const { downloadVerifiedArchive, resolveReleaseAssetAndChecksum, VERSION, getReleaseApiUrl } =
-  require("./install.cjs") as {
-    downloadVerifiedArchive: (options?: {
-      fetch?: (url: string) => Promise<Buffer>;
-      resolveReleaseAssetAndChecksum?: () => Promise<{
-        assetName: string;
-        assetUrl: string;
-        expectedSha256: string;
-      }>;
-    }) => Promise<Buffer>;
-    resolveReleaseAssetAndChecksum: (options?: {
-      fetch?: (url: string) => Promise<Buffer>;
-      fetchJson?: (url: string) => Promise<{ assets?: { name: string; browser_download_url: string }[] }>;
-      releaseApiUrl?: string;
-      platformKey?: string;
-      version?: string;
-    }) => Promise<{ assetName: string; assetUrl: string; expectedSha256: string }>;
-    VERSION: string;
-    getReleaseApiUrl: () => string;
-  };
+import { downloadVerifiedArchive, getReleaseApiUrl, resolveReleaseAssetAndChecksum, VERSION } from "./install.mjs";
 
 describe("install checksum enforcement", () => {
   test("does not retry unverified download when checksum verification fails", async () => {

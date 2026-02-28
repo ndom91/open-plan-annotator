@@ -19,11 +19,11 @@
   ],
   "main": "opencode/index.js",
   "bin": {
-    "open-plan-annotator": "bin/open-plan-annotator.cjs"
+    "open-plan-annotator": "bin/open-plan-annotator.mjs"
   },
   "files": [
-    "bin/open-plan-annotator.cjs",
-    "install.cjs",
+    "bin/open-plan-annotator.mjs",
+    "install.mjs",
     ".claude-plugin/",
     "opencode/",
     "hooks/",
@@ -31,14 +31,14 @@
     "README.md"
   ],
   "scripts": {
-    "postinstall": "node install.cjs",
+    "postinstall": "node install.mjs",
     "test": "bun test",
     "typecheck": "tsgo --noEmit --project ui/tsconfig.json && tsgo --noEmit --project server/tsconfig.json",
     "build:ui": "cd ui && bun run vite build",
-    "build:platforms": "node scripts/build-platforms.cjs",
-    "build": "bun run build:ui && node scripts/build-platforms.cjs",
-    "tarball": "node scripts/tarball.cjs",
-    "release": "bun run build && node scripts/tarball.cjs",
+    "build:platforms": "node scripts/build-platforms.mjs",
+    "build": "bun run build:ui && node scripts/build-platforms.mjs",
+    "tarball": "node scripts/tarball.mjs",
+    "release": "bun run build && node scripts/tarball.mjs",
     "dev:ui": "cd ui && bun run vite --port 5173",
     "dev:server": "NODE_ENV=development bun run server/index.ts",
     "dev": "NODE_ENV=development bun run server/index.ts & cd ui && bun run vite --port 5173",

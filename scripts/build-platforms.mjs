@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-const { execFileSync } = require("child_process");
-const { existsSync, mkdirSync } = require("fs");
-const path = require("path");
+import { execFileSync } from "node:child_process";
+import { existsSync, mkdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const TARGETS = [
   { name: "darwin-arm64", target: "bun-darwin-arm64" },
@@ -11,6 +12,7 @@ const TARGETS = [
   { name: "linux-arm64", target: "bun-linux-arm64" },
 ];
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const entry = path.join(root, "server/index.ts");
 const distDir = path.join(root, "dist");

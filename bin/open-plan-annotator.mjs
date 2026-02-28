@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-const { execFileSync, spawn } = require("child_process");
-const path = require("path");
-const fs = require("fs");
+import { execFileSync, spawn } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const binaryPath = path.join(__dirname, "open-plan-annotator-binary");
-const installScript = path.join(__dirname, "..", "install.cjs");
-const VERSION = require("../package.json").version;
+const installScript = path.join(__dirname, "..", "install.mjs");
+const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")).version;
 
 const arg = process.argv[2];
 

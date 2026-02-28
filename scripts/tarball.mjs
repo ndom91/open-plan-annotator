@@ -1,9 +1,12 @@
 #!/usr/bin/env node
 
-const { execFileSync } = require("child_process");
-const { existsSync, readdirSync } = require("fs");
-const path = require("path");
+import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
+import fs, { existsSync, readdirSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.join(__dirname, "..", "dist");
 
 if (!existsSync(distDir)) {
@@ -24,10 +27,6 @@ for (const dir of dirs) {
     dir.name,
   ], { stdio: "inherit" });
 }
-
-// Generate SHA256 checksum manifest
-const crypto = require("crypto");
-const fs = require("fs");
 
 const tarballs = readdirSync(distDir).filter((f) => f.endsWith(".tar.gz"));
 const checksumLines = [];

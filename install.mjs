@@ -1,12 +1,14 @@
 #!/usr/bin/env node
 
-const fs = require("fs");
-const path = require("path");
-const zlib = require("zlib");
-const https = require("https");
-const crypto = require("crypto");
+import crypto from "node:crypto";
+import fs from "node:fs";
+import https from "node:https";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import zlib from "node:zlib";
 
-const VERSION = require("./package.json").version;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const VERSION = JSON.parse(fs.readFileSync(new URL("./package.json", import.meta.url), "utf8")).version;
 const REPO = "ndom91/open-plan-annotator";
 
 const PLATFORM_MAP = {
@@ -230,16 +232,16 @@ function runCli() {
 
   main().catch((err) => {
     console.error("Failed to install open-plan-annotator binary:", err.message);
-    console.error("You can try manually running: node", path.join(__dirname, "install.cjs"));
+    console.error("You can try manually running: node", path.join(__dirname, "install.mjs"));
     process.exit(1);
   });
 }
 
-if (require.main === module) {
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   runCli();
 }
 
-module.exports = {
+export {
   VERSION,
   PLATFORM_MAP,
   getPlatformKey,

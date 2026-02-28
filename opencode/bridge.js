@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const LOCAL_BINARY_PATH = join(PKG_ROOT, "bin", "open-plan-annotator-binary");
-const INSTALL_SCRIPT = join(PKG_ROOT, "install.cjs");
+const INSTALL_SCRIPT = join(PKG_ROOT, "install.mjs");
 
 /** Resolved path to the binary (may differ from LOCAL_BINARY_PATH if found on PATH). */
 let BINARY_PATH = LOCAL_BINARY_PATH;

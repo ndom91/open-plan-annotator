@@ -9,7 +9,7 @@ A fully local Claude Code plugin that intercepts `ExitPlanMode` hook events and 
 ```
 Claude Code path:
   Hook fires (ExitPlanMode)
-    → bin/open-plan-annotator.cjs   (Node wrapper: buffers stdin, downloads binary if needed, delegates)
+    → bin/open-plan-annotator.mjs   (Node wrapper: buffers stdin, downloads binary if needed, delegates)
       → bin/open-plan-annotator-binary  (compiled Bun binary)
         → Reads hook JSON from stdin
         → Starts HTTP server on ephemeral port
@@ -21,7 +21,7 @@ OpenCode path:
   Agent calls submit_plan tool
     → opencode/index.js             (OpenCode plugin entry, loaded via package.json "main")
       → opencode/bridge.js          (constructs fake HookEvent, spawns binary)
-        → bin/open-plan-annotator.cjs → binary (same as above)
+        → bin/open-plan-annotator.mjs → binary (same as above)
       → Parses HookOutput, returns approval/feedback to agent
 ```
 
@@ -29,8 +29,8 @@ The OpenCode plugin bridges to the same binary by constructing a Claude-format `
 
 ### Key Files
 
-- `bin/open-plan-annotator.cjs` — npm bin wrapper. Buffers stdin, auto-downloads binary on first run, delegates to binary via `execFileSync`.
-- `install.cjs` — Downloads platform-specific binary from GitHub Releases. Runs as `postinstall` or on-demand from the wrapper.
+- `bin/open-plan-annotator.mjs` — npm bin wrapper. Buffers stdin, auto-downloads binary on first run, delegates to binary via `execFileSync`.
+- `install.mjs` — Downloads platform-specific binary from GitHub Releases. Runs as `postinstall` or on-demand from the wrapper.
 - `server/index.ts` — Main entry. Parses hook event, manages plan history, starts Bun HTTP server, outputs hook response.
 - `server/api.ts` — Routes: `GET /api/plan`, `POST /api/approve`, `POST /api/deny`, `POST /api/settings`, and catch-all serving the embedded HTML.
 - `server/launch.ts` — Cross-platform `open` / `xdg-open` browser launcher.

@@ -50,10 +50,10 @@ echo "Building UI..."
 bun run build:ui
 
 echo "Cross-compiling binaries..."
-node scripts/build-platforms.cjs
+node scripts/build-platforms.mjs
 
 echo "Creating tarballs..."
-node scripts/tarball.cjs
+node scripts/tarball.mjs
 
 # --- Git tag + commit ---
 echo ""
