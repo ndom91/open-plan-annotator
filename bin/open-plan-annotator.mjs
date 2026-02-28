@@ -4,6 +4,7 @@ import { execFileSync, spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -20,22 +21,12 @@ if (cliMode === "version") {
 }
 
 if (cliMode === "help") {
-  console.log(`open-plan-annotator v${VERSION}
-
-Usage:
-  open-plan-annotator              Show this help
-  open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)
-  open-plan-annotator update       Update the binary to the latest version
-  open-plan-annotator upgrade      Alias for update
-  open-plan-annotator --version    Print version
-  open-plan-annotator --help       Show this help
-
-https://github.com/ndom91/open-plan-annotator`);
+  console.log(buildCliHelpText(VERSION));
   process.exit(0);
 }
 
 if (cliMode === "unknown") {
-  console.error(`open-plan-annotator: unknown command \`${arg}\``);
+  console.error(buildUnknownCommandPrefix(arg));
   console.error("Run `open-plan-annotator --help` for usage.");
   process.exit(1);
 }

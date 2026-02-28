@@ -1,5 +1,6 @@
 // Embedded at compile time by `bun build --compile`
 import embeddedHtml from "../build/index.html" with { type: "text" };
+import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
 import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
@@ -20,9 +21,7 @@ if (cliMode === "version") {
 }
 
 if (cliMode === "help") {
-  process.stdout.write(
-    `open-plan-annotator v${VERSION}\n\nUsage:\n  open-plan-annotator              Show this help\n  open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)\n  open-plan-annotator update       Update the binary to the latest version\n  open-plan-annotator upgrade      Alias for update\n  open-plan-annotator --version    Print version\n  open-plan-annotator --help       Show this help\n\nhttps://github.com/ndom91/open-plan-annotator\n`,
-  );
+  process.stdout.write(`${buildCliHelpText(VERSION)}\n`);
   process.exit(0);
 }
 
@@ -35,7 +34,7 @@ if (cliMode === "update") {
 if (cliMode === "unknown") {
   const command = process.argv[2];
   process.stderr.write(
-    `open-plan-annotator: unknown command \`${command}\`. ` +
+    `${buildUnknownCommandPrefix(command)}. ` +
       "Expected Claude hook JSON on stdin, or run `open-plan-annotator update`.\n",
   );
   process.exit(1);
