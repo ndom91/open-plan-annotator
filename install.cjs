@@ -1,10 +1,5 @@
 #!/usr/bin/env node
 
-// Skip postinstall during local development
-if (process.env.OPEN_PLAN_ANNOTATOR_SKIP_INSTALL || process.env.npm_config_dev) {
-  process.exit(0);
-}
-
 const fs = require("fs");
 const path = require("path");
 const zlib = require("zlib");
@@ -23,17 +18,6 @@ const PLATFORM_MAP = {
 
 function getPlatformKey() {
   return `${process.platform}-${process.arch}`;
-}
-
-function getDownloadUrl() {
-  const key = getPlatformKey();
-  const asset = PLATFORM_MAP[key];
-  if (!asset) {
-    console.error(`open-plan-annotator: unsupported platform ${key}`);
-    console.error(`Supported: ${Object.keys(PLATFORM_MAP).join(", ")}`);
-    process.exit(1);
-  }
-  return `https://github.com/${REPO}/releases/download/v${VERSION}/${asset}.tar.gz`;
 }
 
 function getReleaseApiUrl() {
@@ -105,10 +89,16 @@ function selectChecksumAsset(assets) {
   return checksumAssets[0] || null;
 }
 
-async function resolveReleaseAssetAndChecksum() {
-  const release = await fetchJson(getReleaseApiUrl());
+async function resolveReleaseAssetAndChecksum(options) {
+  const opts = options || {};
+  const fetchJsonImpl = opts.fetchJson || fetchJson;
+  const fetchBuffer = opts.fetch || fetch;
+  const releaseApiUrl = opts.releaseApiUrl || getReleaseApiUrl();
+  const version = opts.version || VERSION;
+
+  const release = await fetchJsonImpl(releaseApiUrl);
   const releaseAssets = Array.isArray(release.assets) ? release.assets : [];
-  const key = getPlatformKey();
+  const key = opts.platformKey || getPlatformKey();
   const assetBaseName = PLATFORM_MAP[key];
   if (!assetBaseName) {
     throw new Error(`Unsupported platform ${key}`);
@@ -117,15 +107,15 @@ async function resolveReleaseAssetAndChecksum() {
   const assetName = `${assetBaseName}.tar.gz`;
   const asset = releaseAssets.find((entry) => entry.name === assetName);
   if (!asset) {
-    throw new Error(`Release v${VERSION} is missing asset ${assetName}`);
+    throw new Error(`Release v${version} is missing asset ${assetName}`);
   }
 
   const checksumAsset = selectChecksumAsset(releaseAssets);
   if (!checksumAsset) {
-    throw new Error(`Release v${VERSION} does not contain a checksum manifest asset`);
+    throw new Error(`Release v${version} does not contain a checksum manifest asset`);
   }
 
-  const checksumManifest = (await fetch(checksumAsset.browser_download_url)).toString("utf8");
+  const checksumManifest = (await fetchBuffer(checksumAsset.browser_download_url)).toString("utf8");
   const checksums = parseChecksumManifest(checksumManifest);
   const expectedSha256 = checksums.get(assetName);
   if (!expectedSha256) {
@@ -137,6 +127,38 @@ async function resolveReleaseAssetAndChecksum() {
     assetUrl: asset.browser_download_url,
     expectedSha256,
   };
+}
+
+function errorMessage(err) {
+  return err && err.message ? err.message : String(err);
+}
+
+async function downloadVerifiedArchive(options) {
+  const opts = options || {};
+  const resolveRelease = opts.resolveReleaseAssetAndChecksum || resolveReleaseAssetAndChecksum;
+  const fetchBuffer = opts.fetch || fetch;
+  const checksumRequirement =
+    "open-plan-annotator requires release checksum/sha256sum availability and will not install without verification.";
+
+  let releaseInfo;
+
+  try {
+    releaseInfo = await resolveRelease();
+  } catch (err) {
+    throw new Error(`Unable to verify release checksums: ${errorMessage(err)} ${checksumRequirement}`);
+  }
+
+  const { assetName, assetUrl, expectedSha256 } = releaseInfo;
+  const archiveBuffer = await fetchBuffer(assetUrl);
+  const actualSha256 = sha256Hex(archiveBuffer);
+
+  if (actualSha256 !== expectedSha256) {
+    throw new Error(
+      `Checksum verification failed for ${assetName} (expected ${expectedSha256}, got ${actualSha256}). ${checksumRequirement}`,
+    );
+  }
+
+  return archiveBuffer;
 }
 
 function extractBinaryFromTarGz(buffer) {
@@ -173,35 +195,8 @@ async function main() {
     return;
   }
 
-  const fallbackUrl = getDownloadUrl();
   console.error(`Downloading open-plan-annotator for ${getPlatformKey()}...`);
-
-  let archiveBuffer;
-
-  // Try checksum-verified download via GitHub API first, fall back to direct URL
-  try {
-    const { assetName, assetUrl, expectedSha256 } = await resolveReleaseAssetAndChecksum();
-    archiveBuffer = await fetch(assetUrl);
-    const actualSha256 = sha256Hex(archiveBuffer);
-
-    if (actualSha256 !== expectedSha256) {
-      throw new Error(
-        `Checksum verification failed for ${assetName} (expected ${expectedSha256}, got ${actualSha256})`,
-      );
-    }
-  } catch (verifiedErr) {
-    const message = verifiedErr && verifiedErr.message ? verifiedErr.message : String(verifiedErr);
-    console.error(`open-plan-annotator: checksum-verified install failed: ${message}`);
-    console.error(`Falling back to direct download (without checksum verification)...`);
-
-    try {
-      archiveBuffer = await fetch(fallbackUrl);
-    } catch (fallbackErr) {
-      const fbMsg = fallbackErr && fallbackErr.message ? fallbackErr.message : String(fallbackErr);
-      console.error(`open-plan-annotator: fallback download also failed: ${fbMsg}`);
-      throw verifiedErr;
-    }
-  }
+  const archiveBuffer = await downloadVerifiedArchive();
 
   try {
     const binaryBuffer = extractBinaryFromTarGz(archiveBuffer);
@@ -224,8 +219,39 @@ async function main() {
   }
 }
 
-main().catch((err) => {
-  console.error("Failed to install open-plan-annotator binary:", err.message);
-  console.error("You can try manually running: node", path.join(__dirname, "install.cjs"));
-  process.exit(1);
-});
+function shouldSkipInstall() {
+  return Boolean(process.env.OPEN_PLAN_ANNOTATOR_SKIP_INSTALL || process.env.npm_config_dev);
+}
+
+function runCli() {
+  if (shouldSkipInstall()) {
+    process.exit(0);
+  }
+
+  main().catch((err) => {
+    console.error("Failed to install open-plan-annotator binary:", err.message);
+    console.error("You can try manually running: node", path.join(__dirname, "install.cjs"));
+    process.exit(1);
+  });
+}
+
+if (require.main === module) {
+  runCli();
+}
+
+module.exports = {
+  VERSION,
+  PLATFORM_MAP,
+  getPlatformKey,
+  getReleaseApiUrl,
+  fetch,
+  fetchJson,
+  sha256Hex,
+  parseChecksumManifest,
+  selectChecksumAsset,
+  resolveReleaseAssetAndChecksum,
+  extractBinaryFromTarGz,
+  downloadVerifiedArchive,
+  shouldSkipInstall,
+  main,
+};
