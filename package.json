@@ -1,6 +1,6 @@
 {
   "name": "open-plan-annotator",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
   "author": "ndom91",
