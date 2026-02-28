@@ -1,16 +1,16 @@
 import { accessSync, constants, renameSync, unlinkSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
+import {
+  getPlatformAssetArchiveName,
+  getPlatformKey,
+  parseChecksumManifest,
+  REPO,
+  selectChecksumAsset,
+} from "../shared/releaseAssets.mjs";
+import type { UpdateInfo } from "./types.ts";
 import { VERSION } from "./version.ts";
 
-export interface UpdateInfo {
-  currentVersion: string;
-  latestVersion: string | null;
-  updateAvailable: boolean;
-  selfUpdatePossible: boolean;
-  assetUrl: string | null;
-  assetSha256: string | null;
-  updateCommand: string;
-}
+export { parseChecksumManifest };
 
 interface UpdateCache {
   latestVersion: string;
@@ -29,20 +29,8 @@ interface GitHubRelease {
 
 const CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
 const CACHE_FILENAME = "update-check.json";
-const REPO = "ndom91/open-plan-annotator";
 const GITHUB_RELEASES_API = `https://api.github.com/repos/${REPO}/releases`;
 const RELEASES_PER_PAGE = 100;
-
-const PLATFORM_MAP: Record<string, string> = {
-  "darwin-arm64": "open-plan-annotator-darwin-arm64",
-  "darwin-x64": "open-plan-annotator-darwin-x64",
-  "linux-x64": "open-plan-annotator-linux-x64",
-  "linux-arm64": "open-plan-annotator-linux-arm64",
-};
-
-function getPlatformKey(): string {
-  return `${process.platform}-${process.arch}`;
-}
 
 interface ParsedSemver {
   major: number;
@@ -146,47 +134,6 @@ function canAtomicallyReplaceBinary(): boolean {
   }
 }
 
-function selectChecksumAsset(
-  assets: Array<{ name: string; browser_download_url: string }>,
-): { name: string; browser_download_url: string } | null {
-  const checksumAssets = assets
-    .filter((asset) => {
-      const lower = asset.name.toLowerCase();
-      return (
-        (lower.includes("sha256") || lower.includes("checksum")) &&
-        (lower.endsWith(".txt") ||
-          lower.endsWith(".sha256") ||
-          lower.endsWith(".sha256sum") ||
-          lower.endsWith(".sha256sums"))
-      );
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  return checksumAssets[0] ?? null;
-}
-
-export function parseChecksumManifest(manifestText: string): Map<string, string> {
-  const checksums = new Map<string, string>();
-
-  for (const rawLine of manifestText.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-
-    const bsdStyle = line.match(/^SHA256\s*\(([^)]+)\)\s*=\s*([a-fA-F0-9]{64})$/);
-    if (bsdStyle) {
-      checksums.set(bsdStyle[1].trim(), bsdStyle[2].toLowerCase());
-      continue;
-    }
-
-    const gnuStyle = line.match(/^([a-fA-F0-9]{64})\s+[* ]?(.+)$/);
-    if (gnuStyle) {
-      checksums.set(gnuStyle[2].trim(), gnuStyle[1].toLowerCase());
-    }
-  }
-
-  return checksums;
-}
-
 function selectLatestStableRelease(releases: GitHubRelease[]): GitHubRelease | null {
   const stable = releases.filter((release) => {
     if (release.draft || release.prerelease) return false;
@@ -280,12 +227,11 @@ async function fetchLatestRelease(): Promise<{ version: string; assetUrl: string
   const version = normalizeVersion(release.tag_name);
 
   const platformKey = getPlatformKey();
-  const assetName = PLATFORM_MAP[platformKey];
+  const expectedAssetName = getPlatformAssetArchiveName(platformKey);
   let assetUrl: string | null = null;
   let assetSha256: string | null = null;
 
-  if (assetName) {
-    const expectedAssetName = `${assetName}.tar.gz`;
+  if (expectedAssetName) {
     const asset = release.assets.find((a) => a.name === expectedAssetName);
     assetUrl = asset?.browser_download_url ?? null;
 

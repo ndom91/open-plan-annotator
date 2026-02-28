@@ -6,11 +6,11 @@
       "name": "open-plan-annotator",
       "dependencies": {
         "@opencode-ai/plugin": "^1.2.14",
-        "@types/node": "^25.3.0",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.4.4",
         "@types/bun": "^1.3.9",
+        "@types/node": "^25.3.0",
         "@typescript/native-preview": "^7.0.0-dev.20260224.1",
       },
     },

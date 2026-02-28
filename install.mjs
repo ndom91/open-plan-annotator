@@ -4,23 +4,19 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import https from "node:https";
 import path from "node:path";
+import {
+  PLATFORM_ASSET_BASENAME_MAP,
+  REPO,
+  getPlatformAssetArchiveName,
+  getPlatformKey,
+  parseChecksumManifest,
+  selectChecksumAsset,
+} from "./shared/releaseAssets.mjs";
 import { fileURLToPath } from "node:url";
 import zlib from "node:zlib";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = JSON.parse(fs.readFileSync(new URL("./package.json", import.meta.url), "utf8")).version;
-const REPO = "ndom91/open-plan-annotator";
-
-const PLATFORM_MAP = {
-  "darwin-arm64": "open-plan-annotator-darwin-arm64",
-  "darwin-x64": "open-plan-annotator-darwin-x64",
-  "linux-x64": "open-plan-annotator-linux-x64",
-  "linux-arm64": "open-plan-annotator-linux-arm64",
-};
-
-function getPlatformKey() {
-  return `${process.platform}-${process.arch}`;
-}
 
 function getReleaseApiUrl() {
   return `https://api.github.com/repos/${REPO}/releases/tags/v${VERSION}`;
@@ -55,42 +51,6 @@ function sha256Hex(buffer) {
   return crypto.createHash("sha256").update(buffer).digest("hex");
 }
 
-function parseChecksumManifest(manifestText) {
-  const checksums = new Map();
-
-  for (const rawLine of manifestText.split(/\r?\n/)) {
-    const line = rawLine.trim();
-    if (!line || line.startsWith("#")) continue;
-
-    const bsdStyle = line.match(/^SHA256\s*\(([^)]+)\)\s*=\s*([a-fA-F0-9]{64})$/);
-    if (bsdStyle) {
-      checksums.set(bsdStyle[1].trim(), bsdStyle[2].toLowerCase());
-      continue;
-    }
-
-    const gnuStyle = line.match(/^([a-fA-F0-9]{64})\s+[* ]?(.+)$/);
-    if (gnuStyle) {
-      checksums.set(gnuStyle[2].trim(), gnuStyle[1].toLowerCase());
-    }
-  }
-
-  return checksums;
-}
-
-function selectChecksumAsset(assets) {
-  const checksumAssets = assets
-    .filter((asset) => {
-      const lower = asset.name.toLowerCase();
-      return (
-        (lower.includes("sha256") || lower.includes("checksum")) &&
-        (lower.endsWith(".txt") || lower.endsWith(".sha256") || lower.endsWith(".sha256sum") || lower.endsWith(".sha256sums"))
-      );
-    })
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  return checksumAssets[0] || null;
-}
-
 async function resolveReleaseAssetAndChecksum(options) {
   const opts = options || {};
   const fetchJsonImpl = opts.fetchJson || fetchJson;
@@ -101,12 +61,11 @@ async function resolveReleaseAssetAndChecksum(options) {
   const release = await fetchJsonImpl(releaseApiUrl);
   const releaseAssets = Array.isArray(release.assets) ? release.assets : [];
   const key = opts.platformKey || getPlatformKey();
-  const assetBaseName = PLATFORM_MAP[key];
-  if (!assetBaseName) {
+  const assetName = getPlatformAssetArchiveName(key);
+  if (!assetName) {
     throw new Error(`Unsupported platform ${key}`);
   }
 
-  const assetName = `${assetBaseName}.tar.gz`;
   const asset = releaseAssets.find((entry) => entry.name === assetName);
   if (!asset) {
     throw new Error(`Release v${version} is missing asset ${assetName}`);
@@ -243,7 +202,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
 
 export {
   VERSION,
-  PLATFORM_MAP,
+  PLATFORM_ASSET_BASENAME_MAP as PLATFORM_MAP,
   getPlatformKey,
   getReleaseApiUrl,
   fetch,

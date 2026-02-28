@@ -117,6 +117,12 @@ bun run lint:fix    # auto-fix
 bun run format      # format
 ```
 
+## Maintainer Docs
+
+- Architecture: [`docs/architecture.md`](docs/architecture.md)
+- Operations: [`docs/operations.md`](docs/operations.md)
+- Release process: [`docs/release.md`](docs/release.md)
+
 ## License
 
 MIT

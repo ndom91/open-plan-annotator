@@ -1,5 +1,6 @@
 import { performSelfUpdate } from "./selfUpdate.ts";
-import { checkForUpdate, type UpdateInfo } from "./updateCheck.ts";
+import type { UpdateInfo } from "./types.ts";
+import { checkForUpdate } from "./updateCheck.ts";
 import { VERSION } from "./version.ts";
 
 export async function runCliUpdate(): Promise<void> {

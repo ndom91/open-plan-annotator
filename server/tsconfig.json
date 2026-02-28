@@ -10,7 +10,8 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "allowImportingTsExtensions": true,
+    "allowJs": true,
     "types": ["bun"]
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "../shared/**/*.d.ts", "../shared/**/*.mjs"]
 }

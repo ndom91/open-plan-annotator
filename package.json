@@ -24,6 +24,7 @@
   "files": [
     "bin/open-plan-annotator.mjs",
     "install.mjs",
+    "shared/",
     ".claude-plugin/",
     "opencode/",
     "hooks/",
@@ -39,6 +40,7 @@
     "build": "bun run build:ui && node scripts/build-platforms.mjs",
     "tarball": "node scripts/tarball.mjs",
     "release": "bun run build && node scripts/tarball.mjs",
+    "pack:check": "node scripts/check-package-files.mjs",
     "dev:ui": "cd ui && bun run vite --port 5173",
     "dev:server": "NODE_ENV=development bun run server/index.ts",
     "dev": "NODE_ENV=development bun run server/index.ts & cd ui && bun run vite --port 5173",
@@ -46,16 +48,16 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "do-release": "./scripts/release.sh",
-    "prepack": "mv CLAUDE.md CLAUDE.dev.md.bak && cp CLAUDE.plugin.md CLAUDE.md",
-    "postpack": "mv CLAUDE.dev.md.bak CLAUDE.md"
+    "prepack": "node scripts/claude-pack-docs.mjs prepack",
+    "postpack": "node scripts/claude-pack-docs.mjs postpack"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.4",
+    "@types/node": "^25.3.0",
     "@types/bun": "^1.3.9",
     "@typescript/native-preview": "^7.0.0-dev.20260224.1"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "^1.2.14",
-    "@types/node": "^25.3.0"
+    "@opencode-ai/plugin": "^1.2.14"
   }
 }

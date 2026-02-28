@@ -32,6 +32,9 @@ echo "Bumping $CURRENT → $NEW_VERSION"
 echo ""
 
 # --- Update version in package.json, plugin.json, and marketplace.json ---
+# NOTE: We intentionally use npm for version/publish because this package is
+# published to the npm registry and these commands provide canonical npm
+# lifecycle + semver behavior for release metadata.
 npm version "$NEW_VERSION" --no-git-tag-version
 node -e "
   const fs = require('fs');
@@ -41,6 +44,9 @@ node -e "
   fs.writeFileSync('.claude-plugin/plugin.json', JSON.stringify(plugin, null, 2) + '\n');
 
   const market = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
+  if (market.metadata && typeof market.metadata === 'object') {
+    market.metadata.version = '$NEW_VERSION';
+  }
   for (const p of market.plugins) { p.version = '$NEW_VERSION'; }
   fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(market, null, 2) + '\n');
 "
