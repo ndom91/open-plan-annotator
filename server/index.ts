@@ -21,7 +21,7 @@ if (cliMode === "version") {
 
 if (cliMode === "help") {
   process.stdout.write(
-    `open-plan-annotator v${VERSION}\n\nUsage:\n  open-plan-annotator              Show this help (interactive shell)\n  open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)\n  open-plan-annotator update       Update the binary to the latest version\n  open-plan-annotator upgrade      Alias for update\n  open-plan-annotator --version    Print version\n  open-plan-annotator --help       Show this help\n\nhttps://github.com/ndom91/open-plan-annotator\n`,
+    `open-plan-annotator v${VERSION}\n\nUsage:\n  open-plan-annotator              Show this help\n  open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)\n  open-plan-annotator update       Update the binary to the latest version\n  open-plan-annotator upgrade      Alias for update\n  open-plan-annotator --version    Print version\n  open-plan-annotator --help       Show this help\n\nhttps://github.com/ndom91/open-plan-annotator\n`,
   );
   process.exit(0);
 }

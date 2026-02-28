@@ -23,7 +23,7 @@ if (cliMode === "help") {
   console.log(`open-plan-annotator v${VERSION}
 
 Usage:
-  open-plan-annotator              Show this help (interactive shell)
+  open-plan-annotator              Show this help
   open-plan-annotator < event.json Run as a Claude Code hook (reads stdin)
   open-plan-annotator update       Update the binary to the latest version
   open-plan-annotator upgrade      Alias for update
