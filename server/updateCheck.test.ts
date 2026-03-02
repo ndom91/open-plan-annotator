@@ -2,8 +2,11 @@ import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { getPlatformAssetArchiveName } from "../shared/releaseAssets.mjs";
 import { extractBinaryFromTar, sha256Hex, verifyChecksumOrThrow } from "./selfUpdate.ts";
 import { checkForUpdate, isNewerVersion, parseChecksumManifest } from "./updateCheck.ts";
+
+const PLATFORM_ARCHIVE = getPlatformAssetArchiveName()!;
 
 // ---------------------------------------------------------------------------
 // isNewerVersion
@@ -179,7 +182,7 @@ describe("checkForUpdate", () => {
           draft: false,
           created_at: "2026-01-01T00:00:00Z",
           assets: [
-            { name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" },
+            { name: PLATFORM_ARCHIVE, browser_download_url: "https://example.com/dl" },
             { name: "checksums.txt", browser_download_url: "https://example.com/checksums.txt" },
           ],
         },
@@ -187,7 +190,7 @@ describe("checkForUpdate", () => {
     };
     const checksumResponse = {
       ok: true,
-      text: async () => `${"a".repeat(64)}  open-plan-annotator-darwin-arm64.tar.gz\n`,
+      text: async () => `${"a".repeat(64)}  ${PLATFORM_ARCHIVE}\n`,
     };
     const fetchSpy = spyOn(globalThis, "fetch")
       .mockResolvedValueOnce(mockResponse as Response)
@@ -218,7 +221,7 @@ describe("checkForUpdate", () => {
           draft: false,
           created_at: "2026-01-15T00:00:00Z",
           assets: [
-            { name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" },
+            { name: PLATFORM_ARCHIVE, browser_download_url: "https://example.com/dl" },
             { name: "checksums.txt", browser_download_url: "https://example.com/checksums.txt" },
           ],
         },
@@ -227,7 +230,7 @@ describe("checkForUpdate", () => {
 
     const checksumResponse = {
       ok: true,
-      text: async () => `${"c".repeat(64)}  open-plan-annotator-darwin-arm64.tar.gz\n`,
+      text: async () => `${"c".repeat(64)}  ${PLATFORM_ARCHIVE}\n`,
     };
 
     spyOn(globalThis, "fetch")
@@ -269,7 +272,7 @@ describe("checkForUpdate", () => {
           draft: false,
           created_at: "2025-12-01T00:00:00Z",
           assets: [
-            { name: "open-plan-annotator-darwin-arm64.tar.gz", browser_download_url: "https://example.com/dl" },
+            { name: PLATFORM_ARCHIVE, browser_download_url: "https://example.com/dl" },
             { name: "checksums.txt", browser_download_url: "https://example.com/checksums.txt" },
           ],
         },
@@ -278,7 +281,7 @@ describe("checkForUpdate", () => {
 
     const checksumResponse = {
       ok: true,
-      text: async () => `${"d".repeat(64)}  open-plan-annotator-darwin-arm64.tar.gz\n`,
+      text: async () => `${"d".repeat(64)}  ${PLATFORM_ARCHIVE}\n`,
     };
 
     const fetchSpy = spyOn(globalThis, "fetch")

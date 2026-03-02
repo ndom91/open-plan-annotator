@@ -1,4 +1,4 @@
-import { describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { spawn } from "node:child_process";
 import {
   chmodSync,
@@ -13,6 +13,32 @@ import {
 import { tmpdir } from "node:os";
 import { delimiter, join } from "node:path";
 import { resolveHistoryKey } from "./historyKey.ts";
+
+// The server imports build/index.html at startup. Ensure a stub exists so the
+// tests can spawn the server even when the UI hasn't been built (e.g. in CI).
+const buildDir = join(import.meta.dir, "..", "build");
+const buildHtml = join(buildDir, "index.html");
+let createdStubHtml = false;
+
+beforeAll(() => {
+  if (!existsSync(buildHtml)) {
+    mkdirSync(buildDir, { recursive: true });
+    writeFileSync(buildHtml, "<html><body>stub</body></html>", "utf8");
+    createdStubHtml = true;
+  }
+});
+
+afterAll(() => {
+  if (createdStubHtml) {
+    try {
+      rmSync(buildHtml);
+      // Only remove dir if we created it and it's now empty
+      if (readdirSync(buildDir).length === 0) rmSync(buildDir);
+    } catch {
+      // best-effort cleanup
+    }
+  }
+});
 
 type SessionDecision = "approve" | "deny";
 
