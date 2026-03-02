@@ -22,6 +22,13 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Install
 
+> [!NOTE]
+> The first run might take up to 30s to pop open the UI. If your agentic coding
+> tool installed it via pnpm, they block post-install scripts by default so
+> Claude / OpenCode will trigger the download of the correct binary for your
+> platform upon first use, i.e. when first transitioning out of plan mode.
+> All subsequent runs will be instant.
+
 ### Claude Code
 
 From within Claude Code, add the marketplace and install the plugin:
@@ -72,10 +79,6 @@ If you want to run the binary standalone or build from source:
 ```sh
 npm install -g open-plan-annotator
 ```
-
-> [!NOTE]
-> The first run might take a few seconds if you use pnpm, as it blocks postinstall scripts.
-> Claude / OpenCode will trigger the download upon first use then.
 
 #### From Source
 
