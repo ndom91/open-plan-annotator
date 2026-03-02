@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  quality:
+  lint-test:
     runs-on: ubuntu-latest
     env:
       OPEN_PLAN_ANNOTATOR_SKIP_INSTALL: "1"
