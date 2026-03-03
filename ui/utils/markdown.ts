@@ -33,7 +33,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
     }
 
     // Fenced code block
-    const codeMatch = line.match(/^```(\w*)$/);
+    const codeMatch = line.match(/^```([\w.+#-]*)\s*$/);
     if (codeMatch) {
       const lang = codeMatch[1];
       const codeLines: string[] = [];
