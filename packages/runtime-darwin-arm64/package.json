@@ -1,6 +1,6 @@
 {
   "name": "@open-plan-annotator/runtime-darwin-arm64",
-  "version": "1.0.19",
+  "version": "1.0.20",
   "type": "module",
   "private": false,
   "description": "Darwin arm64 runtime for open-plan-annotator",
