@@ -1,6 +1,6 @@
 {
   "name": "open-plan-annotator",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
   "author": "ndom91",
@@ -17,13 +17,15 @@
     "annotation",
     "code-review"
   ],
+  "workspaces": [
+    "packages/*"
+  ],
   "main": "opencode/index.js",
   "bin": {
     "open-plan-annotator": "bin/open-plan-annotator.mjs"
   },
   "files": [
     "bin/open-plan-annotator.mjs",
-    "install.mjs",
     "shared/",
     ".claude-plugin/",
     "opencode/",
@@ -32,14 +34,12 @@
     "README.md"
   ],
   "scripts": {
-    "postinstall": "node install.mjs",
     "test": "bun test",
     "typecheck": "tsgo --noEmit --project ui/tsconfig.json && tsgo --noEmit --project server/tsconfig.json",
     "build:ui": "cd ui && bun run vite build",
     "build:platforms": "node scripts/build-platforms.mjs",
     "build": "bun run build:ui && node scripts/build-platforms.mjs",
-    "tarball": "node scripts/tarball.mjs",
-    "release": "bun run build && node scripts/tarball.mjs",
+    "release": "bun run build",
     "pack:check": "node scripts/check-package-files.mjs",
     "dev:ui": "cd ui && bun run vite --port 5173",
     "dev:server": "NODE_ENV=development bun run server/index.ts",
@@ -59,5 +59,11 @@
   },
   "dependencies": {
     "@opencode-ai/plugin": "^1.2.14"
+  },
+  "optionalDependencies": {
+    "@open-plan-annotator/runtime-darwin-arm64": "1.0.18",
+    "@open-plan-annotator/runtime-darwin-x64": "1.0.18",
+    "@open-plan-annotator/runtime-linux-arm64": "1.0.18",
+    "@open-plan-annotator/runtime-linux-x64": "1.0.18"
   }
 }

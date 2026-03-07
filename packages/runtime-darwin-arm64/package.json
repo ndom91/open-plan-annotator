@@ -1,0 +1,25 @@
+{
+  "name": "@open-plan-annotator/runtime-darwin-arm64",
+  "version": "1.0.18",
+  "type": "module",
+  "private": false,
+  "description": "Darwin arm64 runtime for open-plan-annotator",
+  "license": "MIT",
+  "os": [
+    "darwin"
+  ],
+  "cpu": [
+    "arm64"
+  ],
+  "files": [
+    "bin/",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ndom91/open-plan-annotator.git"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

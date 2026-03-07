@@ -5,14 +5,19 @@
   },
   "metadata": {
     "description": "Interactive plan annotation plugin for Claude Code",
-    "version": "1.0.17"
+    "version": "1.0.18"
   },
   "plugins": [
     {
       "name": "open-plan-annotator",
-      "source": "./",
+      "source": {
+        "npm": {
+          "package": "open-plan-annotator",
+          "version": "1.0.18"
+        }
+      },
       "description": "Interactive plan annotation UI: review, strikethrough, and comment on Claude's plans before approving. Fully local, no external services.",
-      "version": "1.0.17",
+      "version": "1.0.18",
       "author": {
         "name": "ndom91"
       },
