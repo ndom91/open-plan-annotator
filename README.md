@@ -33,10 +33,11 @@ From within Claude Code, add the marketplace and install the plugin:
 
 ```
 /plugin marketplace add ndom91/open-plan-annotator
+/plugin marketplace update ndom91-open-plan-annotator
 /plugin install open-plan-annotator@ndom91-open-plan-annotator
 ```
 
-This installs the npm-backed plugin and registers the `ExitPlanMode` hook that launches the annotation UI.
+This installs the npm-backed plugin and registers the `ExitPlanMode` hook that launches the annotation UI. In Claude Code, third-party marketplaces have auto-update disabled by default, so also enable auto-update for the `ndom91-open-plan-annotator` marketplace in the Marketplace UI.
 
 ### OpenCode
 
@@ -44,7 +45,7 @@ Add `open-plan-annotator` to the `plugin` array in your OpenCode config (`openco
 
 ```json
 {
-  "plugin": ["open-plan-annotator"]
+  "plugin": ["open-plan-annotator@latest"]
 }
 ```
 
@@ -56,6 +57,9 @@ OpenCode will install the package and load it automatically. The plugin:
 - Optionally hands off to an implementation agent after approval
 
 To update, refresh the plugin through OpenCode and restart the app so it reloads the latest package-managed runtime.
+
+> [!NOTE]
+> The update mechanism changed significantly in `1.0.20+`: OpenCode now loads the npm package plus a platform runtime package instead of using the old in-place binary updater. If OpenCode appears to be stuck on an older plugin build, clear the cached `open-plan-annotator` entries under `~/.cache/opencode/node_modules/` and restart OpenCode.
 
 #### Implementation Handoff
 
