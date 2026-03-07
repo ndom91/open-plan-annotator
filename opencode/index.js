@@ -162,7 +162,7 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
     tool: {
       submit_plan: tool({
         description:
-          "Submit a markdown plan for interactive user review. Returns a structured result with plan_status, next_state, approved, and feedback fields.",
+          "Submit a markdown plan for interactive user review. Returns a structured result with plan_status, next_state, feedback, and guidance fields.",
 
         args: {
           plan: tool.schema.string().describe("The complete implementation plan in markdown format"),
@@ -176,11 +176,12 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
             cwd: ctx.directory,
           });
 
+          const feedback = result.approved ? "" : (result.feedback ?? "Plan changes requested.");
+
           const basePayload = {
             plan_status: result.approved ? "approved" : "rejected",
             next_state: result.approved ? "EXECUTION" : "PLAN_DRAFT",
-            approved: result.approved,
-            feedback: result.approved ? null : (result.feedback ?? "Plan changes requested."),
+            feedback,
           };
 
           if (result.approved) {
@@ -216,7 +217,7 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
               "",
               "## User feedback",
               "",
-              basePayload.feedback,
+              feedback,
               "",
               "Revise the plan using this feedback, then submit the revised draft once via `submit_plan`.",
             ].join("\n"),

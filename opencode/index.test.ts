@@ -32,8 +32,8 @@ describe("submit_plan return schema contract", () => {
 
     expect(result.plan_status).toBe("approved");
     expect(result.next_state).toBe("EXECUTION");
-    expect(result.approved).toBe(true);
-    expect(result.feedback).toBeNull();
+    expect(result.feedback).toBe("");
+    expect(result.guidance).toContain("Plan approved by the user.");
   });
 
   test("rejected decision maps to plan redraft payload with bridge feedback", async () => {
@@ -50,7 +50,27 @@ describe("submit_plan return schema contract", () => {
 
     expect(result.plan_status).toBe("rejected");
     expect(result.next_state).toBe("PLAN_DRAFT");
-    expect(result.approved).toBe(false);
     expect(result.feedback).toBe(bridgeFeedback);
+    expect(result.guidance).toContain("## User feedback");
+  });
+
+  test("all top-level submit_plan fields are strings for display safety", async () => {
+    mock.module("./bridge.js", () => ({
+      runPlanReview: async () => ({ approved: true }),
+    }));
+
+    const { OpenPlanAnnotatorPlugin } = await import(`./index.js?display-safe-${Date.now()}`);
+    const plugin = await OpenPlanAnnotatorPlugin(createPluginContext());
+
+    const result = await plugin.tool.submit_plan.execute(
+      { plan: "# Plan", summary: "Short summary" },
+      { sessionID: "session-3" },
+    );
+
+    for (const value of Object.values(result)) {
+      expect(typeof value).toBe("string");
+    }
+
+    expect(result).not.toHaveProperty("approved");
   });
 });
