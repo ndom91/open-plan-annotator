@@ -1,6 +1,6 @@
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
-import type { Block } from "../utils/markdown.ts";
+import type { Block, ListItem } from "../utils/markdown.ts";
 
 interface BlockProps {
   block: Block;
@@ -124,19 +124,10 @@ function renderSegments(segments: Segment[], useInline = true) {
   });
 }
 
-function computeListItemRanges(content: string, items: string[]): { start: number; end: number }[] {
-  const ranges: { start: number; end: number }[] = [];
-  let searchFrom = 0;
-
-  for (const item of items) {
-    const idx = content.indexOf(item, searchFrom);
-    if (idx >= 0) {
-      ranges.push({ start: idx, end: idx + item.length });
-      searchFrom = idx + item.length;
-    }
-  }
-
-  return ranges;
+function listClassName(marker: ListItem["marker"], nested = false): string {
+  return marker === "ordered"
+    ? `${nested ? "mt-2" : "my-3"} list-decimal space-y-1 pl-6`
+    : `${nested ? "mt-2" : "my-3"} list-disc space-y-1 pl-6`;
 }
 
 function splitItemSegments(content: string, itemStart: number, itemEnd: number, annotations: Annotation[]): Segment[] {
@@ -176,6 +167,48 @@ function splitItemSegments(content: string, itemStart: number, itemEnd: number, 
   }
 
   return segments;
+}
+
+function renderListGroups(
+  items: ListItem[],
+  content: string,
+  annotations: Annotation[],
+  nested = false,
+): React.JSX.Element[] {
+  const groups: Array<{ marker: ListItem["marker"]; items: ListItem[] }> = [];
+
+  for (const item of items) {
+    const currentGroup = groups[groups.length - 1];
+    if (currentGroup && currentGroup.marker === item.marker) {
+      currentGroup.items.push(item);
+      continue;
+    }
+
+    groups.push({ marker: item.marker, items: [item] });
+  }
+
+  return groups.map((group, groupIndex) => {
+    const ListTag = group.marker === "ordered" ? "ol" : "ul";
+    const listProps = group.marker === "ordered" ? { start: group.items[0]?.order } : {};
+
+    return (
+      <ListTag key={`${group.marker}-${groupIndex}`} className={listClassName(group.marker, nested)} {...listProps}>
+        {group.items.map((item, itemIndex) => {
+          const itemSegments = splitItemSegments(content, item.start, item.end, annotations);
+
+          return (
+            <li
+              key={`${group.marker}-${groupIndex}-${itemIndex}`}
+              className="text-[15px] text-ink-secondary leading-relaxed"
+            >
+              {renderSegments(itemSegments)}
+              {item.children.length > 0 && renderListGroups(item.children, content, annotations, true)}
+            </li>
+          );
+        })}
+      </ListTag>
+    );
+  });
 }
 
 export function BlockComponent({ block, annotations }: BlockProps) {
@@ -222,30 +255,10 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       );
 
     case "list": {
-      const itemRanges = computeListItemRanges(block.content, block.items ?? []);
       return (
-        <ul data-block-index={block.index} className="my-3 space-y-1">
-          {block.items?.map((item, i) => {
-            const range = itemRanges[i];
-            const itemSegments = range
-              ? splitItemSegments(block.content, range.start, range.end, blockAnnotations)
-              : [
-                  {
-                    text: item,
-                    originalStart: 0,
-                    originalEnd: item.length,
-                  } as Segment,
-                ];
-            return (
-              <li
-                key={i}
-                className="text-[15px] text-ink-secondary leading-relaxed pl-5 relative before:content-[''] before:absolute before:left-1.5 before:top-[0.6em] before:w-1 before:h-1 before:rounded-full before:bg-ink-tertiary"
-              >
-                {renderSegments(itemSegments)}
-              </li>
-            );
-          })}
-        </ul>
+        <div data-block-index={block.index}>
+          {renderListGroups(block.listItems ?? [], block.content, blockAnnotations)}
+        </div>
       );
     }
 

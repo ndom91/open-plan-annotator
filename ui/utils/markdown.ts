@@ -1,5 +1,16 @@
 export type BlockType = "heading" | "paragraph" | "code" | "list" | "blockquote" | "hr" | "table";
 
+export type ListMarker = "ordered" | "unordered";
+
+export interface ListItem {
+  text: string;
+  start: number;
+  end: number;
+  marker: ListMarker;
+  order?: number;
+  children: ListItem[];
+}
+
 export interface TableCell {
   text: string;
   align?: "left" | "center" | "right";
@@ -12,9 +23,70 @@ export interface Block {
   content: string;
   level?: number;
   lang?: string;
-  items?: string[];
+  listItems?: ListItem[];
   headerRow?: TableCell[];
   bodyRows?: TableCell[][];
+}
+
+interface ListLineMatch {
+  indent: number;
+  marker: ListMarker;
+  order?: number;
+  text: string;
+  textStart: number;
+}
+
+function matchListLine(line: string): ListLineMatch | null {
+  const match = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
+  if (!match) return null;
+
+  return {
+    indent: match[1].length,
+    marker: /^\d+\.$/.test(match[2]) ? "ordered" : "unordered",
+    order: /^\d+\.$/.test(match[2]) ? Number.parseInt(match[2], 10) : undefined,
+    text: match[3],
+    textStart: match[1].length + match[2].length + 1,
+  };
+}
+
+function parseListItems(listLines: string[]): ListItem[] {
+  const root: ListItem[] = [];
+  const stack: Array<{ indent: number; children: ListItem[] }> = [{ indent: -1, children: root }];
+  let lastItem: ListItem | null = null;
+  let offset = 0;
+
+  for (const line of listLines) {
+    const match = matchListLine(line);
+
+    if (match) {
+      while (stack.length > 1 && match.indent <= stack[stack.length - 1].indent) {
+        stack.pop();
+      }
+
+      const item: ListItem = {
+        text: match.text,
+        start: offset + match.textStart,
+        end: offset + line.length,
+        marker: match.marker,
+        order: match.order,
+        children: [],
+      };
+
+      stack[stack.length - 1].children.push(item);
+      stack.push({ indent: match.indent, children: item.children });
+      lastItem = item;
+    } else if (lastItem) {
+      const continuation = line.trim();
+      if (continuation !== "") {
+        lastItem.text += `\n${continuation}`;
+        lastItem.end = offset + line.length;
+      }
+    }
+
+    offset += line.length + 1;
+  }
+
+  return root;
 }
 
 export function parseMarkdownToBlocks(markdown: string): Block[] {
@@ -83,20 +155,20 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
     }
 
     // List (collect consecutive list item lines, including continuation lines)
-    if (/^[-*+]\s/.test(line) || /^\d+\.\s/.test(line)) {
+    if (matchListLine(line)) {
       const listLines: string[] = [];
       while (i < lines.length) {
         const l = lines[i];
-        if (/^[-*+]\s/.test(l) || /^\d+\.\s/.test(l)) {
+        if (matchListLine(l)) {
           listLines.push(l);
           i++;
-        } else if (l.startsWith("  ") && listLines.length > 0) {
+        } else if (/^\s+/.test(l) && listLines.length > 0) {
           // Continuation line
-          listLines[listLines.length - 1] += `\n${l}`;
+          listLines.push(l);
           i++;
         } else if (l.trim() === "") {
           // Empty line might separate list items — peek ahead
-          if (i + 1 < lines.length && (/^[-*+]\s/.test(lines[i + 1]) || /^\d+\.\s/.test(lines[i + 1]))) {
+          if (i + 1 < lines.length && matchListLine(lines[i + 1])) {
             i++;
           } else {
             break;
@@ -106,8 +178,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
         }
       }
       const raw = listLines.join("\n");
-      const items = listLines.map((l) => l.replace(/^[-*+]\s+/, "").replace(/^\d+\.\s+/, ""));
-      blocks.push({ index: index++, type: "list", raw, content: raw, items });
+      blocks.push({ index: index++, type: "list", raw, content: raw, listItems: parseListItems(listLines) });
       continue;
     }
 
@@ -165,8 +236,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
       !lines[i].match(/^#{1,6}\s/) &&
       !lines[i].startsWith("```") &&
       !lines[i].startsWith(">") &&
-      !/^[-*+]\s/.test(lines[i]) &&
-      !/^\d+\.\s/.test(lines[i]) &&
+      !matchListLine(lines[i]) &&
       !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])
     ) {
       paraLines.push(lines[i]);
