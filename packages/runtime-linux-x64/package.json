@@ -1,6 +1,6 @@
 {
   "name": "@open-plan-annotator/runtime-linux-x64",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "type": "module",
   "private": false,
   "description": "Linux x64 runtime for open-plan-annotator",
