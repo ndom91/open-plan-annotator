@@ -2,15 +2,15 @@
 
 ## What This Is
 
-A fully local Claude Code plugin that intercepts `ExitPlanMode` hook events and opens a browser UI for reviewing and annotating plans before code is written. Ships as a native binary (compiled via `bun build --compile`) that embeds the React UI. Also works as an OpenCode plugin via the `@opencode-ai/plugin` SDK.
+A fully local Claude Code plugin that intercepts `ExitPlanMode` hook events and opens a browser UI for reviewing and annotating plans before code is written. Ships as a package-managed platform runtime binary (compiled via `bun build --compile`) that embeds the React UI. Also works as an OpenCode plugin via the `@opencode-ai/plugin` SDK.
 
 ## Architecture
 
 ```
 Claude Code path:
   Hook fires (ExitPlanMode)
-    → bin/open-plan-annotator.mjs   (Node wrapper: buffers stdin, downloads binary if needed, delegates)
-      → bin/open-plan-annotator-binary  (compiled Bun binary)
+    → bin/open-plan-annotator.mjs   (Node wrapper: buffers stdin, resolves runtime package, delegates)
+      → @open-plan-annotator/runtime-*/bin/open-plan-annotator  (compiled Bun binary)
         → Reads hook JSON from stdin
         → Starts HTTP server on ephemeral port
         → Opens browser to the UI
@@ -29,8 +29,8 @@ The OpenCode plugin bridges to the same binary by constructing a Claude-format `
 
 ### Key Files
 
-- `bin/open-plan-annotator.mjs` — npm bin wrapper. Buffers stdin, auto-downloads binary on first run, delegates to binary via `execFileSync`.
-- `install.mjs` — Downloads platform-specific binary from GitHub Releases. Runs as `postinstall` or on-demand from the wrapper.
+- `bin/open-plan-annotator.mjs` — npm bin wrapper. Buffers stdin, resolves the installed platform runtime package, delegates to the binary, and exposes `doctor`.
+- `shared/runtimeResolver.mjs` — Maps platform/arch to the correct runtime package and resolves its binary path.
 - `server/index.ts` — Main entry. Parses hook event, manages plan history, starts Bun HTTP server, outputs hook response.
 - `server/api.ts` — Routes: `GET /api/plan`, `POST /api/approve`, `POST /api/deny`, `POST /api/settings`, and catch-all serving the embedded HTML.
 - `server/launch.ts` — Cross-platform `open` / `xdg-open` browser launcher.
@@ -46,7 +46,7 @@ The OpenCode plugin bridges to the same binary by constructing a Claude-format `
 
 - **stdout is reserved for Claude Code.** The JSON hook response is the ONLY thing that may be written to stdout. All logs, progress, and diagnostics MUST go to stderr (`console.error`, `process.stderr.write`).
 - **`CLAUDE.plugin.md` is user-facing.** It tells Claude to use plan mode. Keep developer-only content in this file (`CLAUDE.md`), not in `CLAUDE.plugin.md`.
-- **The binary is not committed.** `bin/open-plan-annotator-binary` is in `.gitignore` and downloaded at install time.
+- **The binaries are not committed.** Runtime package binaries under `packages/runtime-*/bin/` are generated during build and ignored by git.
 - **The OpenCode plugin uses plain JS (not TypeScript).** The `opencode/` directory ships as-is in the npm package — no build step. Keep it as `.js` files with JSDoc types.
 - **Never use 'as any'** Always use the correct type.
 - **We use bun** not pnpm, npm or yarn in this project.
@@ -66,9 +66,9 @@ In dev mode, `server/index.ts` uses a hardcoded `DEV_PLAN` and skips stdin parsi
 ## Build & Release
 
 ```sh
-bun run build          # Build UI + cross-compile binaries to dist/
-bun run release        # Build + create tarballs
-./scripts/release.sh   # Full release: bump version, build, git tag, GitHub Release, npm publish
+bun run build          # Build UI + cross-compile binaries into packages/runtime-*/bin/
+bun run release        # Alias for build
+./scripts/release.sh   # Full release: bump versions, build, git tag, and publish runtime + main npm packages
 ```
 
 Cross-compilation targets: `darwin-arm64`, `darwin-x64`, `linux-x64`, `linux-arm64`.

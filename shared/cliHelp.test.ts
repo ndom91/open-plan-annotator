@@ -8,7 +8,8 @@ describe("buildCliHelpText", () => {
 Usage:
   open-plan-annotator              Show this help
   open-plan-annotator < event.json Run as a Claude Code hook (debug)
-  open-plan-annotator update       Update the binary to the latest version
+  open-plan-annotator doctor       Show resolved runtime details
+  open-plan-annotator update       Show package-managed update guidance
   open-plan-annotator upgrade      Alias for update
   open-plan-annotator --version    Print version
   open-plan-annotator --help       Show this help

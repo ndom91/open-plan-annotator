@@ -7,5 +7,5 @@ package-lock.json
 .DS_Store
 ui/node_modules/
 
-# Downloaded binary (placed by postinstall, not committed)
-bin/open-plan-annotator-binary
+# Built runtime binaries (generated during build, not committed)
+packages/runtime-*/bin/open-plan-annotator

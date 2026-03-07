@@ -9,14 +9,13 @@ export interface UpdateInfo {
   currentVersion: string;
   latestVersion: string | null;
   updateAvailable: boolean;
-  selfUpdatePossible: boolean;
-  assetSha256: string | null;
-  updateCommand: string;
+  updateInstructions: string;
 }
 
 interface PlanData {
   plan: string;
   version: number;
+  appVersion: string | null;
   history: string[];
   preferences: PlanPreferences;
   updateInfo: UpdateInfo | null;
@@ -101,6 +100,7 @@ export function usePlan() {
     plan: data?.plan ?? null,
     planHash,
     version: data?.version ?? 1,
+    appVersion: data?.appVersion ?? updateInfo?.currentVersion ?? null,
     history: data?.history ?? [],
     autoCloseOnSubmit: data?.preferences?.autoCloseOnSubmit ?? false,
     updateInfo,

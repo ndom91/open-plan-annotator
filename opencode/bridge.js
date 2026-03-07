@@ -1,15 +1,12 @@
-import { execFileSync, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import { existsSync, statSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import { detectPackageManager } from "../shared/packageManager.mjs";
+import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
 
 const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
-const LOCAL_BINARY_PATH = join(PKG_ROOT, "bin", "open-plan-annotator-binary");
-const INSTALL_SCRIPT = join(PKG_ROOT, "install.mjs");
-
-/** Resolved path to the binary (may differ from LOCAL_BINARY_PATH if found on PATH). */
-let BINARY_PATH = LOCAL_BINARY_PATH;
 
 /**
  * @typedef {{
@@ -103,83 +100,10 @@ function validateHookOutput(value) {
 }
 
 /**
- * Check if `open-plan-annotator` is available on PATH.
- * The CLI wrapper handles binary discovery/download and stdin/stdout
- * forwarding, so we can spawn it directly as a fallback when the local
- * binary isn't available (e.g. OpenCode loads the plugin from its own
- * node_modules but the binary only exists in a global pnpm install).
- * @returns {string | undefined}
- */
-function findWrapperOnPath() {
-  const cmd = process.platform === "win32" ? "where" : "which";
-  try {
-    const result = execFileSync(cmd, ["open-plan-annotator"], {
-      encoding: "utf-8",
-      stdio: ["ignore", "pipe", "ignore"],
-    }).trim().split("\n")[0];
-    return result || undefined;
-  } catch {
-    return undefined;
-  }
-}
-
-function detectPackageManager() {
-  const ua = process.env.npm_config_user_agent || "";
-  if (ua.startsWith("pnpm")) return "pnpm";
-  if (ua.startsWith("yarn")) return "yarn";
-  if (ua.startsWith("bun")) return "bun";
-  return "npm";
-}
-
-/** Ensure the compiled binary exists, downloading if necessary. */
-function ensureBinary() {
-  if (existsSync(LOCAL_BINARY_PATH)) {
-    BINARY_PATH = LOCAL_BINARY_PATH;
-    return;
-  }
-
-  // Try to find node on PATH for running the install script
-  try {
-    execFileSync(process.execPath, [INSTALL_SCRIPT], {
-      cwd: PKG_ROOT,
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-  } catch {
-    // Retry with "node" explicitly in case process.execPath is bun
-    try {
-      execFileSync("node", [INSTALL_SCRIPT], {
-        cwd: PKG_ROOT,
-        stdio: ["ignore", "pipe", "pipe"],
-      });
-    } catch {
-      // ignore — we'll check below
-    }
-  }
-
-  if (existsSync(LOCAL_BINARY_PATH)) {
-    BINARY_PATH = LOCAL_BINARY_PATH;
-    return;
-  }
-
-  // Fallback: use the CLI wrapper from PATH (e.g. global pnpm install).
-  // The wrapper handles binary discovery/download and stdio forwarding.
-  const wrapperPath = findWrapperOnPath();
-  if (wrapperPath) {
-    BINARY_PATH = wrapperPath;
-    return;
-  }
-
-  throw new Error(
-    `open-plan-annotator: binary not found at ${LOCAL_BINARY_PATH}. ` +
-      `Try running: node ${INSTALL_SCRIPT}`,
-  );
-}
-
-/**
  * @param {{ plan: string, sessionId?: string, cwd?: string }} options
  */
 export async function runPlanReview(options) {
-  ensureBinary();
+  const runtime = resolveRuntimeBinary({ parentUrl: import.meta.url });
 
   const payload = buildHookPayload(options);
 
@@ -197,12 +121,14 @@ export async function runPlanReview(options) {
 
     // Spawn detached so the binary can outlive this call — it keeps its
     // HTTP server alive for ~10s after emitting the JSON hook response.
-    const child = spawn(BINARY_PATH, [], {
+    const child = spawn(runtime.binaryPath, [], {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
       env: {
         ...process.env,
-        OPEN_PLAN_PKG_MANAGER: process.env.OPEN_PLAN_PKG_MANAGER || detectPackageManager(),
+        OPEN_PLAN_HOST: "opencode",
+        OPEN_PLAN_PKG_MANAGER:
+          process.env.OPEN_PLAN_PKG_MANAGER || detectPackageManager({ installPath: fileURLToPath(import.meta.url) }),
       },
       detached: true,
     });

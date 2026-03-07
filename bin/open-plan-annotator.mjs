@@ -1,15 +1,16 @@
 #!/usr/bin/env node
 
-import { execFileSync, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
+import { detectPackageManager } from "../shared/packageManager.mjs";
+import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
+import { buildUpdateInstructions } from "../shared/updateHints.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const binaryPath = path.join(__dirname, "open-plan-annotator-binary");
-const installScript = path.join(__dirname, "..", "install.mjs");
 const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")).version;
 
 const arg = process.argv[2];
@@ -22,6 +23,11 @@ if (cliMode === "version") {
 
 if (cliMode === "help") {
   console.log(buildCliHelpText(VERSION));
+  process.exit(0);
+}
+
+if (cliMode === "doctor") {
+  printDoctor();
   process.exit(0);
 }
 
@@ -44,65 +50,27 @@ if (cliMode === "hook") {
   stdinBuffer = Buffer.alloc(0);
 }
 
-let justInstalled = false;
-if (!fs.existsSync(binaryPath)) {
-  // Auto-download the binary (handles pnpm blocking postinstall)
-  console.error("open-plan-annotator: binary not found, downloading...");
-  try {
-    execFileSync(process.execPath, [installScript], {
-      stdio: ["ignore", 2, "inherit"],
-    });
-  } catch (e) {
-    console.error(
-      "\nopen-plan-annotator: failed to download binary.\n" +
-      "Try running manually: node " + installScript + "\n"
-    );
-    process.exit(1);
-  }
-
-  if (!fs.existsSync(binaryPath)) {
-    console.error(
-      "open-plan-annotator: binary still not found after install.\n" +
-      "Try running manually: node " + installScript + "\n"
-    );
-    process.exit(1);
-  }
-  justInstalled = true;
-}
-
-// Handle `open-plan-annotator update|upgrade` subcommand
 if (cliMode === "update") {
-  if (justInstalled) {
-    console.log("Binary installed (v" + VERSION + ")");
-    process.exit(0);
-  }
-  try {
-    execFileSync(binaryPath, ["update"], {
-      stdio: "inherit",
-      env: { ...process.env, OPEN_PLAN_PKG_MANAGER: detectPackageManager() },
-    });
-  } catch (e) {
-    process.exit(e.status || 1);
-  }
+  console.log(buildUpdateInstructions({ host: process.env.OPEN_PLAN_HOST, packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) }));
   process.exit(0);
 }
 
-// Detect package manager so the binary can suggest the right update command
-function detectPackageManager() {
-  const ua = process.env.npm_config_user_agent || "";
-  if (ua.startsWith("pnpm")) return "pnpm";
-  if (ua.startsWith("yarn")) return "yarn";
-  if (ua.startsWith("bun")) return "bun";
-  return "npm";
+let runtime;
+try {
+  runtime = resolveRuntimeBinary({ parentUrl: import.meta.url });
+} catch (error) {
+  console.error(`open-plan-annotator: ${error instanceof Error ? error.message : String(error)}`);
+  process.exit(1);
 }
 
-// Spawn the binary with detached so it can outlive this wrapper.
-// We pipe stdout to detect the JSON hook output, then forward it and exit
-// immediately — the binary keeps its server alive in the background.
-const child = spawn(binaryPath, process.argv.slice(2), {
+const child = spawn(runtime.binaryPath, process.argv.slice(2), {
   stdio: ["pipe", "pipe", "inherit"],
   detached: true,
-  env: { ...process.env, OPEN_PLAN_PKG_MANAGER: detectPackageManager() },
+  env: {
+    ...process.env,
+    OPEN_PLAN_HOST: process.env.OPEN_PLAN_HOST || "claude-code",
+    OPEN_PLAN_PKG_MANAGER: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }),
+  },
 });
 
 child.stdin.write(stdinBuffer);
@@ -149,3 +117,26 @@ child.on("error", (err) => {
   console.error("open-plan-annotator: failed to spawn binary:", err.message);
   process.exit(1);
 });
+
+function printDoctor() {
+  const platformKey = `${process.platform}-${process.arch}`;
+
+  try {
+    const runtime = resolveRuntimeBinary({ parentUrl: import.meta.url });
+    console.log([
+      `open-plan-annotator v${VERSION}`,
+      `platform: ${platformKey}`,
+      `runtime package: ${runtime.packageName}`,
+      `runtime path: ${runtime.binaryPath}`,
+      `update: ${buildUpdateInstructions({ host: process.env.OPEN_PLAN_HOST, packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) })}`,
+    ].join("\n"));
+  } catch (error) {
+    console.log([
+      `open-plan-annotator v${VERSION}`,
+      `platform: ${platformKey}`,
+      `runtime: missing`,
+      `error: ${error instanceof Error ? error.message : String(error)}`,
+      `update: ${buildUpdateInstructions({ host: process.env.OPEN_PLAN_HOST, packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) })}`,
+    ].join("\n"));
+  }
+}

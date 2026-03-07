@@ -1,36 +1,15 @@
-import { accessSync, constants, renameSync, unlinkSync, writeFileSync } from "node:fs";
-import { basename, dirname, join } from "node:path";
-import {
-  getPlatformAssetArchiveName,
-  getPlatformKey,
-  parseChecksumManifest,
-  REPO,
-  selectChecksumAsset,
-} from "../shared/releaseAssets.mjs";
+import { buildUpdateInstructions } from "../shared/updateHints.mjs";
 import type { UpdateInfo } from "./types.ts";
 import { VERSION } from "./version.ts";
-
-export { parseChecksumManifest };
 
 interface UpdateCache {
   latestVersion: string;
   checkedAt: number;
-  assetUrl: string | null;
-  assetSha256: string | null;
 }
 
-interface GitHubRelease {
-  tag_name: string;
-  prerelease: boolean;
-  draft: boolean;
-  created_at?: string;
-  assets: Array<{ name: string; browser_download_url: string }>;
-}
-
-const CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4 hours
+const CACHE_TTL_MS = 4 * 60 * 60 * 1000;
 const CACHE_FILENAME = "update-check.json";
-const GITHUB_RELEASES_API = `https://api.github.com/repos/${REPO}/releases`;
-const RELEASES_PER_PAGE = 100;
+const NPM_LATEST_URL = "https://registry.npmjs.org/open-plan-annotator/latest";
 
 interface ParsedSemver {
   major: number;
@@ -98,7 +77,6 @@ function compareSemver(a: string, b: string): number {
   return 0;
 }
 
-/** Returns true if `latest` is newer than `current` (full semver comparison). */
 export function isNewerVersion(current: string, latest: string): boolean {
   const parsedCurrent = parseSemver(current);
   const parsedLatest = parseSemver(latest);
@@ -106,65 +84,12 @@ export function isNewerVersion(current: string, latest: string): boolean {
   return compareSemver(latest, current) > 0;
 }
 
-function canAtomicallyReplaceBinary(): boolean {
-  const binaryPath = process.execPath;
-  const binaryDir = dirname(binaryPath);
-  const stamp = `${process.pid}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
-  const probeA = join(binaryDir, `.${basename(binaryPath)}.replace-probe-${stamp}`);
-  const probeB = `${probeA}.renamed`;
-
-  try {
-    accessSync(binaryDir, constants.W_OK);
-    writeFileSync(probeA, "", { mode: 0o600, flag: "wx" });
-    renameSync(probeA, probeB);
-    unlinkSync(probeB);
-    return true;
-  } catch {
-    try {
-      unlinkSync(probeA);
-    } catch {
-      // Probe may not have been created
-    }
-    try {
-      unlinkSync(probeB);
-    } catch {
-      // Probe may not have been renamed
-    }
-    return false;
-  }
-}
-
-function selectLatestStableRelease(releases: GitHubRelease[]): GitHubRelease | null {
-  const stable = releases.filter((release) => {
-    if (release.draft || release.prerelease) return false;
-    return parseSemver(release.tag_name) !== null;
-  });
-
-  if (stable.length === 0) return null;
-
-  stable.sort((a, b) => {
-    const semverDiff = compareSemver(b.tag_name, a.tag_name);
-    if (semverDiff !== 0) return semverDiff;
-
-    const createdA = a.created_at ?? "";
-    const createdB = b.created_at ?? "";
-    if (createdA !== createdB) return createdB.localeCompare(createdA);
-
-    return a.tag_name.localeCompare(b.tag_name);
-  });
-
-  return stable[0];
-}
-
-function buildNoUpdateResult(packageManager: string): UpdateInfo {
+function buildNoUpdateResult(packageManager: string, host?: string): UpdateInfo {
   return {
     currentVersion: VERSION,
     latestVersion: null,
     updateAvailable: false,
-    selfUpdatePossible: false,
-    assetUrl: null,
-    assetSha256: null,
-    updateCommand: `${packageManager} update open-plan-annotator`,
+    updateInstructions: buildUpdateInstructions({ packageManager, host }),
   };
 }
 
@@ -172,22 +97,13 @@ async function readCache(configDir: string): Promise<UpdateCache | null> {
   try {
     const raw = await Bun.file(`${configDir}/${CACHE_FILENAME}`).text();
     const parsed = JSON.parse(raw) as UpdateCache;
-    if (
-      typeof parsed.latestVersion === "string" &&
-      typeof parsed.checkedAt === "number" &&
-      (typeof parsed.assetUrl === "string" || parsed.assetUrl === null) &&
-      (typeof parsed.assetSha256 === "string" || parsed.assetSha256 === null || parsed.assetSha256 === undefined)
-    ) {
-      return {
-        latestVersion: parsed.latestVersion,
-        checkedAt: parsed.checkedAt,
-        assetUrl: parsed.assetUrl,
-        assetSha256: parsed.assetSha256 ?? null,
-      };
+    if (typeof parsed.latestVersion === "string" && typeof parsed.checkedAt === "number") {
+      return parsed;
     }
   } catch {
-    // Missing or malformed cache
+    // Missing or malformed cache.
   }
+
   return null;
 }
 
@@ -201,97 +117,48 @@ async function writeCache(configDir: string, cache: UpdateCache): Promise<void> 
   }
 }
 
-async function fetchLatestRelease(): Promise<{ version: string; assetUrl: string | null; assetSha256: string | null }> {
-  let page = 1;
-  let release: GitHubRelease | null = null;
+async function fetchLatestVersion(): Promise<string> {
+  const response = await fetch(NPM_LATEST_URL, {
+    headers: { "User-Agent": "open-plan-annotator-update-check", Accept: "application/json" },
+    signal: AbortSignal.timeout(10_000),
+  });
 
-  while (!release) {
-    const res = await fetch(`${GITHUB_RELEASES_API}?per_page=${RELEASES_PER_PAGE}&page=${page}`, {
-      headers: { "User-Agent": "open-plan-annotator-update", Accept: "application/vnd.github+json" },
-      signal: AbortSignal.timeout(10_000),
-    });
-    if (!res.ok) throw new Error(`GitHub API responded with ${res.status}`);
-
-    const releases = (await res.json()) as GitHubRelease[];
-    if (releases.length === 0) break;
-
-    release = selectLatestStableRelease(releases);
-    if (release) break;
-
-    if (releases.length < RELEASES_PER_PAGE) break;
-    page += 1;
+  if (!response.ok) {
+    throw new Error(`npm registry responded with ${response.status}`);
   }
 
-  if (!release) throw new Error("No stable releases found");
-
-  const version = normalizeVersion(release.tag_name);
-
-  const platformKey = getPlatformKey();
-  const expectedAssetName = getPlatformAssetArchiveName(platformKey);
-  let assetUrl: string | null = null;
-  let assetSha256: string | null = null;
-
-  if (expectedAssetName) {
-    const asset = release.assets.find((a) => a.name === expectedAssetName);
-    assetUrl = asset?.browser_download_url ?? null;
-
-    if (asset) {
-      const checksumAsset = selectChecksumAsset(release.assets);
-      if (checksumAsset) {
-        const checksumRes = await fetch(checksumAsset.browser_download_url, {
-          headers: { "User-Agent": "open-plan-annotator-update", Accept: "text/plain" },
-          signal: AbortSignal.timeout(10_000),
-        });
-        if (checksumRes.ok) {
-          const checksums = parseChecksumManifest(await checksumRes.text());
-          assetSha256 = checksums.get(expectedAssetName) ?? null;
-        }
-      }
-    }
+  const payload = (await response.json()) as { version?: unknown };
+  if (typeof payload.version !== "string") {
+    throw new Error("npm registry response did not include a version string");
   }
 
-  return { version, assetUrl, assetSha256 };
+  return normalizeVersion(payload.version);
 }
 
 export async function checkForUpdate(
   configDir: string,
   packageManager: string,
-  options?: { skipCache?: boolean },
+  options?: { skipCache?: boolean; host?: string },
 ): Promise<UpdateInfo> {
   try {
     const cache = options?.skipCache ? null : await readCache(configDir);
     const now = Date.now();
 
     let latestVersion: string;
-    let assetUrl: string | null;
-    let assetSha256: string | null;
-
     if (cache && now - cache.checkedAt < CACHE_TTL_MS) {
       latestVersion = cache.latestVersion;
-      assetUrl = cache.assetUrl;
-      assetSha256 = cache.assetSha256 ?? null;
     } else {
-      const release = await fetchLatestRelease();
-      latestVersion = release.version;
-      assetUrl = release.assetUrl;
-      assetSha256 = release.assetSha256;
-      await writeCache(configDir, { latestVersion, checkedAt: now, assetUrl, assetSha256 }).catch(() => {});
+      latestVersion = await fetchLatestVersion();
+      await writeCache(configDir, { latestVersion, checkedAt: now }).catch(() => {});
     }
-
-    const updateAvailable = isNewerVersion(VERSION, latestVersion);
-    const selfUpdatePossible =
-      updateAvailable && assetUrl !== null && assetSha256 !== null && canAtomicallyReplaceBinary();
 
     return {
       currentVersion: VERSION,
       latestVersion,
-      updateAvailable,
-      selfUpdatePossible,
-      assetUrl: selfUpdatePossible ? assetUrl : null,
-      assetSha256: selfUpdatePossible ? assetSha256 : null,
-      updateCommand: `${packageManager} update open-plan-annotator`,
+      updateAvailable: isNewerVersion(VERSION, latestVersion),
+      updateInstructions: buildUpdateInstructions({ packageManager, host: options?.host }),
     };
   } catch {
-    return buildNoUpdateResult(packageManager);
+    return buildNoUpdateResult(packageManager, options?.host);
   }
 }

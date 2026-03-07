@@ -22,6 +22,7 @@ export default function App() {
     plan,
     planHash,
     version,
+    appVersion,
     history,
     autoCloseOnSubmit: initialAutoClose,
     updateInfo,
@@ -198,6 +199,7 @@ export default function App() {
         <Header
           annotations={annotations}
           version={version}
+          appVersion={appVersion}
           approve={handleApprove}
           deny={handleDeny}
           isPending={isPending}
@@ -212,8 +214,7 @@ export default function App() {
           <UpdateBanner
             currentVersion={updateInfo.currentVersion}
             latestVersion={updateInfo.latestVersion}
-            selfUpdatePossible={updateInfo.selfUpdatePossible}
-            updateCommand={updateInfo.updateCommand}
+            updateInstructions={updateInfo.updateInstructions}
           />
         )}
 

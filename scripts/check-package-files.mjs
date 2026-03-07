@@ -4,9 +4,9 @@ import { execFileSync } from "node:child_process";
 
 const requiredPaths = [
   "bin/open-plan-annotator.mjs",
-  "install.mjs",
-  "shared/releaseAssets.mjs",
-  "shared/releaseAssets.d.ts",
+  "shared/runtimeResolver.mjs",
+  "shared/cliHelp.mjs",
+  "shared/cliMode.mjs",
 ];
 
 function fail(message) {

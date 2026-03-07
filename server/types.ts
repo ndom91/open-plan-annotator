@@ -51,10 +51,7 @@ export interface UpdateInfo {
   currentVersion: string;
   latestVersion: string | null;
   updateAvailable: boolean;
-  selfUpdatePossible: boolean;
-  assetUrl: string | null;
-  assetSha256: string | null;
-  updateCommand: string;
+  updateInstructions: string;
 }
 
 export interface ServerState {

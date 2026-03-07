@@ -2,6 +2,7 @@
 import embeddedHtml from "../build/index.html" with { type: "text" };
 import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
+import { buildUpdateInstructions } from "../shared/updateHints.mjs";
 import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
 import { createDecisionController, writeHookDecisionToStdout } from "./runtime/decision.ts";
@@ -25,9 +26,15 @@ if (cliMode === "help") {
   process.exit(0);
 }
 
+if (cliMode === "doctor") {
+  process.stdout.write(`open-plan-annotator runtime v${VERSION}\npath: ${process.execPath}\n`);
+  process.exit(0);
+}
+
 if (cliMode === "update") {
-  const { runCliUpdate } = await import("./cliUpdate.ts");
-  await runCliUpdate();
+  process.stdout.write(
+    `${buildUpdateInstructions({ packageManager: process.env.OPEN_PLAN_PKG_MANAGER || "npm", host: process.env.OPEN_PLAN_HOST })}\n`,
+  );
   process.exit(0);
 }
 
@@ -35,7 +42,7 @@ if (cliMode === "unknown") {
   const command = process.argv[2];
   process.stderr.write(
     `${buildUnknownCommandPrefix(command)}. ` +
-      "Expected Claude hook JSON on stdin, or run `open-plan-annotator update`.\n",
+      "Expected Claude hook JSON on stdin, or run `open-plan-annotator --help`.\n",
   );
   process.exit(1);
 }
@@ -77,7 +84,8 @@ const url = `http://localhost:${server.port}`;
 process.stderr.write(`open-plan-annotator: UI available at ${url}\n`);
 
 const packageManager = process.env.OPEN_PLAN_PKG_MANAGER || "npm";
-checkForUpdate(configDir, packageManager)
+const host = process.env.OPEN_PLAN_HOST;
+checkForUpdate(configDir, packageManager, { host })
   .then((info) => {
     state.updateInfo = info;
     if (info.updateAvailable) {
@@ -91,10 +99,7 @@ checkForUpdate(configDir, packageManager)
       currentVersion: VERSION,
       latestVersion: null,
       updateAvailable: false,
-      selfUpdatePossible: false,
-      assetUrl: null,
-      assetSha256: null,
-      updateCommand: `${packageManager} update open-plan-annotator`,
+      updateInstructions: buildUpdateInstructions({ packageManager, host }),
     };
   });
 

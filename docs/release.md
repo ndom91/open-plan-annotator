@@ -6,7 +6,7 @@
 bun run release
 ```
 
-This builds the UI, cross-compiles binaries, and creates tarballs + checksums in `dist/`.
+This builds the UI and cross-compiles binaries into the platform runtime packages under `packages/runtime-*`.
 
 ## Full release script
 
@@ -17,9 +17,9 @@ bun run do-release
 `scripts/release.sh` will:
 
 - Prompt for semver bump.
-- Update versions in `package.json`, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`.
-- Build artifacts and checksums.
-- Create git commit + tag, push, create GitHub release, and publish npm package.
+- Update versions in `package.json`, the runtime package manifests, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`.
+- Build the UI and all platform runtime binaries.
+- Create git commit + tag, push, publish all runtime packages, and then publish the main npm package.
 
 ## Why the release script uses npm
 

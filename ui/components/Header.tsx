@@ -4,6 +4,7 @@ import { useTheme } from "./ThemeProvider.tsx";
 interface HeaderProps {
   annotations: Annotation[];
   version: number;
+  appVersion: string | null;
   approve: () => void;
   deny: () => void;
   isPending: boolean;
@@ -17,6 +18,7 @@ interface HeaderProps {
 export function Header({
   annotations,
   version,
+  appVersion,
   approve,
   deny,
   isPending,
@@ -97,7 +99,12 @@ export function Header({
                 <path d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2-.5a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5H4Zm1.75 2a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Zm0 3a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-ink tracking-tight">Plan Review</span>
+            <span className="text-sm font-semibold text-ink tracking-tight">
+              Plan Review
+              {appVersion ? (
+                <span className="ml-1.5 text-[11px] font-mono font-medium text-ink-tertiary">v{appVersion}</span>
+              ) : null}
+            </span>
           </div>
           {version > 1 && (
             <span className="text-[11px] text-ink-tertiary font-mono tabular-nums px-1.5 py-0.5 rounded bg-ink/5 ring-1 ring-ink/8">

@@ -53,7 +53,7 @@ function seedUpdateCheckCache(configHome: string) {
   mkdirSync(annotatorConfigDir, { recursive: true });
   writeFileSync(
     join(annotatorConfigDir, "update-check.json"),
-    JSON.stringify({ latestVersion: "0.0.0", checkedAt: Date.now(), assetUrl: null, assetSha256: null }),
+    JSON.stringify({ latestVersion: "0.0.0", checkedAt: Date.now() }),
     "utf8",
   );
 }

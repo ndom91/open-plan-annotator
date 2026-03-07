@@ -19,8 +19,8 @@ function createPluginContext() {
   };
 }
 
-describe("submit_plan return schema contract", () => {
-  test("approved decision maps to approved execution payload", async () => {
+describe("submit_plan tool output", () => {
+  test("returns plain text execution instructions after approval", async () => {
     mock.module("./bridge.js", () => ({
       runPlanReview: async () => ({ approved: true }),
     }));
@@ -30,17 +30,15 @@ describe("submit_plan return schema contract", () => {
 
     const result = await plugin.tool.submit_plan.execute({ plan: "# Plan" }, { sessionID: "session-1" });
 
-    expect(result.plan_status).toBe("approved");
-    expect(result.next_state).toBe("EXECUTION");
-    expect(result.feedback).toBe("");
-    expect(result.guidance).toContain("Plan approved by the user.");
+    expect(typeof result).toBe("string");
+    expect(result).toContain("plan_status=approved");
+    expect(result).toContain("next_state=EXECUTION");
+    expect(result).toContain("Do not call `submit_plan` again");
   });
 
-  test("rejected decision maps to plan redraft payload with bridge feedback", async () => {
-    const bridgeFeedback = "Need to add rollback steps.";
-
+  test("returns plain text revision instructions after rejection", async () => {
     mock.module("./bridge.js", () => ({
-      runPlanReview: async () => ({ approved: false, feedback: bridgeFeedback }),
+      runPlanReview: async () => ({ approved: false, feedback: "Need rollback steps." }),
     }));
 
     const { OpenPlanAnnotatorPlugin } = await import(`./index.js?rejected-${Date.now()}`);
@@ -48,29 +46,9 @@ describe("submit_plan return schema contract", () => {
 
     const result = await plugin.tool.submit_plan.execute({ plan: "# Plan" }, { sessionID: "session-2" });
 
-    expect(result.plan_status).toBe("rejected");
-    expect(result.next_state).toBe("PLAN_DRAFT");
-    expect(result.feedback).toBe(bridgeFeedback);
-    expect(result.guidance).toContain("## User feedback");
-  });
-
-  test("all top-level submit_plan fields are strings for display safety", async () => {
-    mock.module("./bridge.js", () => ({
-      runPlanReview: async () => ({ approved: true }),
-    }));
-
-    const { OpenPlanAnnotatorPlugin } = await import(`./index.js?display-safe-${Date.now()}`);
-    const plugin = await OpenPlanAnnotatorPlugin(createPluginContext());
-
-    const result = await plugin.tool.submit_plan.execute(
-      { plan: "# Plan", summary: "Short summary" },
-      { sessionID: "session-3" },
-    );
-
-    for (const value of Object.values(result)) {
-      expect(typeof value).toBe("string");
-    }
-
-    expect(result).not.toHaveProperty("approved");
+    expect(typeof result).toBe("string");
+    expect(result).toContain("plan_status=rejected");
+    expect(result).toContain("next_state=PLAN_DRAFT");
+    expect(result).toContain("Need rollback steps.");
   });
 });

@@ -23,11 +23,9 @@ Everything runs locally. Nothing leaves your machine.
 ## Install
 
 > [!NOTE]
-> The first run might take up to 30s to pop open the UI. If your agentic coding
-> tool installed it via pnpm, they block post-install scripts by default so
-> Claude / OpenCode will trigger the download of the correct binary for your
-> platform upon first use, i.e. when first transitioning out of plan mode.
-> All subsequent runs will be instant.
+> `open-plan-annotator` now ships as one package-managed install. The npm package
+> contains the plugin glue and resolves a platform runtime package locally. There
+> is no first-run binary download and no in-app self-update path.
 
 ### Claude Code
 
@@ -38,7 +36,7 @@ From within Claude Code, add the marketplace and install the plugin:
 /plugin install open-plan-annotator@ndom91-open-plan-annotator
 ```
 
-This registers the `ExitPlanMode` hook that launches the annotation UI.
+This installs the npm-backed plugin and registers the `ExitPlanMode` hook that launches the annotation UI.
 
 ### OpenCode
 
@@ -57,6 +55,8 @@ OpenCode will install the package and load it automatically. The plugin:
 - Returns structured feedback to the agent on approval or rejection
 - Optionally hands off to an implementation agent after approval
 
+To update, refresh the plugin through OpenCode and restart the app so it reloads the latest package-managed runtime.
+
 #### Implementation Handoff
 
 By default, after a plan is approved the plugin sends "Proceed with implementation." to a `build` agent. To customize or disable this, create `open-plan-annotator.json` in your project's `.opencode/` directory or globally in `~/.config/opencode/`:
@@ -74,7 +74,7 @@ Set `enabled` to `false` to disable auto-handoff. Project config overrides globa
 
 ### Manual Install
 
-If you want to run the binary standalone or build from source:
+If you want to run the CLI standalone or install the package globally:
 
 ```sh
 npm install -g open-plan-annotator
@@ -93,6 +93,18 @@ Then load it directly in Claude Code:
 
 ```sh
 claude --plugin-dir ./open-plan-annotator
+```
+
+## Updates
+
+- OpenCode: update the installed npm plugin through OpenCode, then restart OpenCode.
+- Claude Code: update the marketplace/plugin install, then restart Claude Code.
+- Standalone/global install: update the npm package (`npm`, `pnpm`, or `bun`), then rerun `open-plan-annotator`.
+
+The built-in `doctor` command reports the resolved runtime package and runtime path:
+
+```sh
+open-plan-annotator doctor
 ```
 
 ## Keyboard Shortcuts

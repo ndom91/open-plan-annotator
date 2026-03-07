@@ -162,7 +162,7 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
     tool: {
       submit_plan: tool({
         description:
-          "Submit a markdown plan for interactive user review. Returns a structured result with plan_status, next_state, feedback, and guidance fields.",
+          "Submit a markdown plan for interactive user review. Returns plain-text execution or revision instructions for the agent.",
 
         args: {
           plan: tool.schema.string().describe("The complete implementation plan in markdown format"),
@@ -178,17 +178,8 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
 
           const feedback = result.approved ? "" : (result.feedback ?? "Plan changes requested.");
 
-          const basePayload = {
-            plan_status: result.approved ? "approved" : "rejected",
-            next_state: result.approved ? "EXECUTION" : "PLAN_DRAFT",
-            feedback,
-          };
-
           if (result.approved) {
-            const lines = [
-              "Plan approved by the user.",
-              "Do NOT call `submit_plan` again. The planning phase is finished.",
-            ];
+            const lines = ["Plan review status: plan_status=approved.", "State transition: next_state=EXECUTION."];
 
             if (args.summary) {
               lines.push(`Summary: ${args.summary}`);
@@ -203,25 +194,23 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
               }
             }
 
-            lines.push("Begin implementing the approved plan now — write code and make changes.");
-            return {
-              ...basePayload,
-              guidance: lines.join("\n\n"),
-            };
+            lines.push("Replan intent: explicit_replan=false unless the user explicitly asks to revise the plan.");
+            lines.push("Execute the approved plan directly now — write code, create files, and make changes.");
+            lines.push("Do not call `submit_plan` again unless the user explicitly requests re-planning.");
+
+            return lines.join("\n\n");
           }
 
-          return {
-            ...basePayload,
-            guidance: [
-              "Plan needs revision.",
-              "",
-              "## User feedback",
-              "",
-              feedback,
-              "",
-              "Revise the plan using this feedback, then submit the revised draft once via `submit_plan`.",
-            ].join("\n"),
-          };
+          return [
+            "Plan review status: plan_status=rejected.",
+            "State transition: next_state=PLAN_DRAFT.",
+            "",
+            "## User feedback",
+            "",
+            feedback,
+            "",
+            "Revise the plan using this feedback, then submit the revised draft once via `submit_plan`.",
+          ].join("\n");
         },
       }),
     },

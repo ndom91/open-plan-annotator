@@ -18,6 +18,10 @@ describe("resolveCliMode", () => {
     expect(resolveCliMode("upgrade")).toBe("update");
   });
 
+  test("recognizes doctor subcommand", () => {
+    expect(resolveCliMode("doctor")).toBe("doctor");
+  });
+
   test("recognizes help and version flags", () => {
     expect(resolveCliMode("--help")).toBe("help");
     expect(resolveCliMode("-h")).toBe("help");

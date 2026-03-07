@@ -1,4 +1,3 @@
-import { performSelfUpdate, SelfUpdateInProgressError } from "./selfUpdate.ts";
 import type { Annotation, ServerState } from "./types.ts";
 
 export function createRouter(state: ServerState) {
@@ -9,6 +8,7 @@ export function createRouter(state: ServerState) {
       return Response.json({
         plan: state.planContent,
         version: state.planVersion,
+        appVersion: state.updateInfo?.currentVersion ?? null,
         history: state.planHistory,
         preferences: state.preferences,
         updateInfo: state.updateInfo,
@@ -63,25 +63,6 @@ export function createRouter(state: ServerState) {
 
     if (url.pathname === "/api/update-info" && req.method === "GET") {
       return Response.json(state.updateInfo);
-    }
-
-    if (url.pathname === "/api/self-update" && req.method === "POST") {
-      if (!state.updateInfo?.selfUpdatePossible || !state.updateInfo?.assetUrl || !state.updateInfo.assetSha256) {
-        return Response.json(
-          { error: "Self-update not available", updateCommand: state.updateInfo?.updateCommand ?? null },
-          { status: 400 },
-        );
-      }
-      try {
-        await performSelfUpdate(state.updateInfo.assetUrl, state.updateInfo.assetSha256);
-        return Response.json({ ok: true });
-      } catch (err: unknown) {
-        if (err instanceof SelfUpdateInProgressError) {
-          return Response.json({ error: err.message }, { status: 409 });
-        }
-        const msg = err instanceof Error ? err.message : String(err);
-        return Response.json({ error: msg, updateCommand: state.updateInfo.updateCommand }, { status: 500 });
-      }
     }
 
     // Serve the single-file React app for everything else
