@@ -1,16 +1,13 @@
 ![](.github/assets/header.jpg)
 
-# open-plan-annotator
-
-[![npm version](https://img.shields.io/npm/v/open-plan-annotator?style=flat-square)](https://www.npmjs.com/package/open-plan-annotator)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg?style=flat-square)](https://opensource.org/licenses/MIT)
-[![Platform](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-pink?style=flat-square)]()
+[![npm version](https://img.shields.io/npm/v/open-plan-annotator?style=for-the-badge&labelColor=black&color=black)](https://www.npmjs.com/package/open-plan-annotator)
+[![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg?style=for-the-badge&labelColor=black&color=black)](https://opensource.org/licenses/MIT)
+[![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20macOS-pink?style=for-the-badge&labelColor=black&color=black)]()
 
 A fully local agentic coding plugin that intercepts plan mode and opens an annotation UI in your browser. Mark up the plan, send structured feedback to the agent, and receive a revised version — iterate as many times as you need until you're ready to approve.
 
 Select text to <code>strikethrough</code>, <code>replace</code>, <code>insert</code>, or <code>comment</code> — then approve the plan or request changes
 
-![](.github/assets/screenshot.png)
 
 ## How It Works
 
@@ -21,6 +18,8 @@ Select text to <code>strikethrough</code>, <code>replace</code>, <code>insert</c
 5. The agent revises the plan and the cycle repeats until you're satisfied
 
 Everything runs locally. Nothing leaves your machine.
+
+![](.github/assets/screenshot.png)
 
 ## Install
 
@@ -35,7 +34,6 @@ From within Claude Code, add the marketplace and install the plugin:
 
 ```
 /plugin marketplace add ndom91/open-plan-annotator
-/plugin marketplace update ndom91-open-plan-annotator
 /plugin install open-plan-annotator@ndom91-open-plan-annotator
 ```
 
@@ -83,6 +81,7 @@ Set `enabled` to `false` to disable auto-handoff. Project config overrides globa
 If you want to run the CLI standalone or install the package globally:
 
 ```sh
+pnpm add -g open-plan-annotator
 npm install -g open-plan-annotator
 ```
 
