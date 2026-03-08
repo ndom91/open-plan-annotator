@@ -1,4 +1,4 @@
-![](.github/assets/header.jpg)
+![](.github/assets/header2.jpg)
 
 [![npm version](https://img.shields.io/npm/v/open-plan-annotator?style=for-the-badge&labelColor=black&color=black)](https://www.npmjs.com/package/open-plan-annotator)
 [![License: MIT](https://img.shields.io/badge/license-MIT-orange.svg?style=for-the-badge&labelColor=black&color=black)](https://opensource.org/licenses/MIT)

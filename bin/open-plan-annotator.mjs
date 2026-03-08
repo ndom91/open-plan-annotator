@@ -52,7 +52,10 @@ if (cliMode === "hook") {
 
 if (cliMode === "update") {
   console.log(
-    await buildUpdateMessage({ packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) }),
+    await buildUpdateMessage({
+      currentVersion: VERSION,
+      packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }),
+    }),
   );
   process.exit(0);
 }

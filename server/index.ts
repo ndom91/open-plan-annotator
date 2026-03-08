@@ -34,7 +34,11 @@ if (cliMode === "doctor") {
 
 if (cliMode === "update") {
   process.stdout.write(
-    `${await buildUpdateMessage({ packageManager: process.env.OPEN_PLAN_PKG_MANAGER || "npm", host: process.env.OPEN_PLAN_HOST })}\n`,
+    `${await buildUpdateMessage({
+      currentVersion: VERSION,
+      packageManager: process.env.OPEN_PLAN_PKG_MANAGER || "npm",
+      host: process.env.OPEN_PLAN_HOST,
+    })}\n`,
   );
   process.exit(0);
 }
