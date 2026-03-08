@@ -3,6 +3,7 @@ import embeddedHtml from "../build/index.html" with { type: "text" };
 import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
 import { buildUpdateInstructions } from "../shared/updateHints.mjs";
+import { fetchLatestVersion } from "../shared/versionInfo.mjs";
 import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
 import { createDecisionController, writeHookDecisionToStdout } from "./runtime/decision.ts";
@@ -32,9 +33,7 @@ if (cliMode === "doctor") {
 }
 
 if (cliMode === "update") {
-  process.stdout.write(
-    `${buildUpdateInstructions({ packageManager: process.env.OPEN_PLAN_PKG_MANAGER || "npm", host: process.env.OPEN_PLAN_HOST })}\n`,
-  );
+  process.stdout.write(`${await buildRuntimeUpdateMessage()}\n`);
   process.exit(0);
 }
 
@@ -45,6 +44,18 @@ if (cliMode === "unknown") {
       "Expected Claude hook JSON on stdin, or run `open-plan-annotator --help`.\n",
   );
   process.exit(1);
+}
+
+async function buildRuntimeUpdateMessage(): Promise<string> {
+  const packageManager = process.env.OPEN_PLAN_PKG_MANAGER || "npm";
+  const host = process.env.OPEN_PLAN_HOST;
+
+  try {
+    const latestVersion = await fetchLatestVersion();
+    return buildUpdateInstructions({ packageManager, host, version: latestVersion });
+  } catch {
+    return buildUpdateInstructions({ packageManager, host });
+  }
 }
 
 const isDev = process.env.NODE_ENV === "development";

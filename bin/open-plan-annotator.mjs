@@ -9,6 +9,7 @@ import { resolveCliMode } from "../shared/cliMode.mjs";
 import { detectPackageManager } from "../shared/packageManager.mjs";
 import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
 import { buildUpdateInstructions } from "../shared/updateHints.mjs";
+import { fetchLatestVersion, isNewerVersion } from "../shared/versionInfo.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")).version;
@@ -27,7 +28,7 @@ if (cliMode === "help") {
 }
 
 if (cliMode === "doctor") {
-  printDoctor();
+  await printDoctor();
   process.exit(0);
 }
 
@@ -51,7 +52,7 @@ if (cliMode === "hook") {
 }
 
 if (cliMode === "update") {
-  console.log(buildUpdateInstructions({ host: process.env.OPEN_PLAN_HOST, packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) }));
+  console.log(await buildUpdateMessage(VERSION, detectPackageManager({ installPath: fileURLToPath(import.meta.url) })));
   process.exit(0);
 }
 
@@ -118,8 +119,10 @@ child.on("error", (err) => {
   process.exit(1);
 });
 
-function printDoctor() {
+async function printDoctor() {
   const platformKey = `${process.platform}-${process.arch}`;
+  const packageManager = detectPackageManager({ installPath: fileURLToPath(import.meta.url) });
+  const latestVersionLine = `update: ${await buildUpdateMessage(VERSION, packageManager)}`;
 
   try {
     const runtime = resolveRuntimeBinary({ parentUrl: import.meta.url });
@@ -128,7 +131,7 @@ function printDoctor() {
       `platform: ${platformKey}`,
       `runtime package: ${runtime.packageName}`,
       `runtime path: ${runtime.binaryPath}`,
-      `update: ${buildUpdateInstructions({ host: process.env.OPEN_PLAN_HOST, packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) })}`,
+      latestVersionLine,
     ].join("\n"));
   } catch (error) {
     console.log([
@@ -136,7 +139,27 @@ function printDoctor() {
       `platform: ${platformKey}`,
       `runtime: missing`,
       `error: ${error instanceof Error ? error.message : String(error)}`,
-      `update: ${buildUpdateInstructions({ host: process.env.OPEN_PLAN_HOST, packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) })}`,
+      latestVersionLine,
     ].join("\n"));
+  }
+}
+
+async function buildUpdateMessage(currentVersion, packageManager) {
+  try {
+    const latestVersion = await fetchLatestVersion();
+    if (isNewerVersion(currentVersion, latestVersion)) {
+      return `latest v${latestVersion}; ${buildUpdateInstructions({
+        host: process.env.OPEN_PLAN_HOST,
+        packageManager,
+        version: latestVersion,
+      })}`;
+    }
+
+    return `latest v${latestVersion}; already up to date`;
+  } catch {
+    return `latest unknown; ${buildUpdateInstructions({
+      host: process.env.OPEN_PLAN_HOST,
+      packageManager,
+    })}`;
   }
 }

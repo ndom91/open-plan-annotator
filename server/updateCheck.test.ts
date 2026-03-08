@@ -2,21 +2,7 @@ import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { checkForUpdate, isNewerVersion } from "./updateCheck.ts";
-
-describe("isNewerVersion", () => {
-  test("detects newer patch", () => {
-    expect(isNewerVersion("1.0.0", "1.0.1")).toBe(true);
-  });
-
-  test("returns false for equal versions", () => {
-    expect(isNewerVersion("1.0.0", "1.0.0")).toBe(false);
-  });
-
-  test("treats stable version as newer than prerelease", () => {
-    expect(isNewerVersion("1.0.0-beta.2", "1.0.0")).toBe(true);
-  });
-});
+import { checkForUpdate } from "./updateCheck.ts";
 
 describe("checkForUpdate", () => {
   let configDir: string;

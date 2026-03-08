@@ -31,6 +31,7 @@
     "shared/packageManager.mjs",
     "shared/runtimeResolver.mjs",
     "shared/updateHints.mjs",
+    "shared/versionInfo.mjs",
     ".claude-plugin/",
     "opencode/bridge.js",
     "opencode/config.js",
