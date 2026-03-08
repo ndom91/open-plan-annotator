@@ -1,6 +1,6 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-import { copyFileSync, existsSync, renameSync } from "node:fs";
+import { copyFileSync, existsSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -10,6 +10,8 @@ const rootDir = path.resolve(__dirname, "..");
 const claudePath = path.join(rootDir, "CLAUDE.md");
 const pluginPath = path.join(rootDir, "CLAUDE.plugin.md");
 const backupPath = path.join(rootDir, "CLAUDE.dev.md.bak");
+const packageJsonPath = path.join(rootDir, "package.json");
+const packageJsonBackupPath = path.join(rootDir, "package.json.pack.bak");
 
 function fail(message) {
   console.error(`claude-pack-docs: ${message}`);
@@ -29,14 +31,29 @@ function runPrepack() {
   }
 
   copyFileSync(pluginPath, claudePath);
+
+  if (!existsSync(packageJsonBackupPath)) {
+    copyFileSync(packageJsonPath, packageJsonBackupPath);
+  }
+
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf8"));
+  delete packageJson.packageManager;
+  writeFileSync(packageJsonPath, `${JSON.stringify(packageJson, null, 2)}\n`);
 }
 
 function runPostpack() {
   if (!existsSync(backupPath)) {
+    if (existsSync(packageJsonBackupPath)) {
+      renameSync(packageJsonBackupPath, packageJsonPath);
+    }
     return;
   }
 
   renameSync(backupPath, claudePath);
+
+  if (existsSync(packageJsonBackupPath)) {
+    renameSync(packageJsonBackupPath, packageJsonPath);
+  }
 }
 
 const command = process.argv[2];
@@ -46,5 +63,5 @@ if (command === "prepack") {
 } else if (command === "postpack") {
   runPostpack();
 } else {
-  fail("usage: node scripts/claude-pack-docs.mjs <prepack|postpack>");
+  fail("usage: bun scripts/claude-pack-docs.mjs <prepack|postpack>");
 }
