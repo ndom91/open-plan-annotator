@@ -8,8 +8,7 @@ import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.m
 import { resolveCliMode } from "../shared/cliMode.mjs";
 import { detectPackageManager } from "../shared/packageManager.mjs";
 import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
-import { buildUpdateInstructions } from "../shared/updateHints.mjs";
-import { fetchLatestVersion, isNewerVersion } from "../shared/versionInfo.mjs";
+import { buildUpdateMessage } from "../shared/updateMessage.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const VERSION = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "package.json"), "utf8")).version;
@@ -52,7 +51,9 @@ if (cliMode === "hook") {
 }
 
 if (cliMode === "update") {
-  console.log(await buildUpdateMessage(VERSION, detectPackageManager({ installPath: fileURLToPath(import.meta.url) })));
+  console.log(
+    await buildUpdateMessage({ packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }) }),
+  );
   process.exit(0);
 }
 
@@ -122,7 +123,7 @@ child.on("error", (err) => {
 async function printDoctor() {
   const platformKey = `${process.platform}-${process.arch}`;
   const packageManager = detectPackageManager({ installPath: fileURLToPath(import.meta.url) });
-  const latestVersionLine = `update: ${await buildUpdateMessage(VERSION, packageManager)}`;
+  const latestVersionLine = `update: ${await buildUpdateMessage({ currentVersion: VERSION, packageManager })}`;
 
   try {
     const runtime = resolveRuntimeBinary({ parentUrl: import.meta.url });
@@ -141,25 +142,5 @@ async function printDoctor() {
       `error: ${error instanceof Error ? error.message : String(error)}`,
       latestVersionLine,
     ].join("\n"));
-  }
-}
-
-async function buildUpdateMessage(currentVersion, packageManager) {
-  try {
-    const latestVersion = await fetchLatestVersion();
-    if (isNewerVersion(currentVersion, latestVersion)) {
-      return `latest v${latestVersion}; ${buildUpdateInstructions({
-        host: process.env.OPEN_PLAN_HOST,
-        packageManager,
-        version: latestVersion,
-      })}`;
-    }
-
-    return `latest v${latestVersion}; already up to date`;
-  } catch {
-    return `latest unknown; ${buildUpdateInstructions({
-      host: process.env.OPEN_PLAN_HOST,
-      packageManager,
-    })}`;
   }
 }

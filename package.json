@@ -29,6 +29,7 @@
     "shared/cliHelp.mjs",
     "shared/cliMode.mjs",
     "shared/packageManager.mjs",
+    "shared/updateMessage.mjs",
     "shared/runtimeResolver.mjs",
     "shared/updateHints.mjs",
     "shared/versionInfo.mjs",
