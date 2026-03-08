@@ -1,6 +1,6 @@
 {
   "name": "@open-plan-annotator/runtime-darwin-x64",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "type": "module",
   "private": false,
   "description": "Darwin x64 runtime for open-plan-annotator",
