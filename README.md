@@ -1,3 +1,5 @@
+![](.github/assets/header.jpg)
+
 # open-plan-annotator
 
 [![npm version](https://img.shields.io/npm/v/open-plan-annotator?style=flat-square)](https://www.npmjs.com/package/open-plan-annotator)
