@@ -19,13 +19,14 @@ bun run do-release
 - Prompt for semver bump.
 - Update versions in `package.json`, the runtime package manifests, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`.
 - Build the UI and all platform runtime binaries.
-- Create git commit + tag, push, publish all runtime packages, and then publish the main npm package.
+- Create git commit + tag, push, publish all runtime packages with Bun, and then publish the main npm package with Bun.
 
-## Why the release script uses npm
+## Release tooling
 
-This repo uses Bun for local development workflows (`install`, `build`, `test`), but `scripts/release.sh` intentionally uses npm for:
+This repo now uses Bun for the release workflow too:
 
-- `npm version` to apply npm-standard semver version updates tied to package metadata.
-- `npm publish` because the package is published to the npm registry and we rely on npm's publish lifecycle/packaging behavior.
+- `bun pm pkg` updates the root manifest and each runtime package manifest.
+- `bun publish` publishes each runtime package and the main package to the npm registry.
+- `bun` runs the release helper scripts directly, so the release path stays aligned with the rest of the repo.
 
-Using npm here avoids ambiguity in the final package + publish path while keeping Bun as the default developer runtime.
+We still keep the final git commit and tag as explicit `git` commands in `scripts/release.sh`. `bun pm version` auto-commits and tags immediately, which does not fit this repo's multi-file release flow where several manifests and plugin metadata files need to be updated together before the release commit is created.

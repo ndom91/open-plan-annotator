@@ -4,8 +4,15 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+RUNTIME_PACKAGES=(
+  "packages/runtime-darwin-arm64"
+  "packages/runtime-darwin-x64"
+  "packages/runtime-linux-arm64"
+  "packages/runtime-linux-x64"
+)
+
 # --- Read current version ---
-CURRENT=$(node -p "require('./package.json').version")
+CURRENT=$(bun pm pkg get version | tr -d '"')
 IFS='.' read -r MAJOR MINOR PATCH <<<"$CURRENT"
 
 echo "Current version: $CURRENT"
@@ -32,57 +39,25 @@ echo "Bumping $CURRENT → $NEW_VERSION"
 echo ""
 
 # --- Update versions ---
-# NOTE: We intentionally use npm for version/publish because this package is
-# published to the npm registry and these commands provide canonical npm
-# lifecycle + semver behavior for release metadata.
-npm version "$NEW_VERSION" --no-git-tag-version
-node -e "
-  const fs = require('fs');
-  const rootPackagePath = 'package.json';
-  const runtimePackages = [
-    'packages/runtime-darwin-arm64/package.json',
-    'packages/runtime-darwin-x64/package.json',
-    'packages/runtime-linux-arm64/package.json',
-    'packages/runtime-linux-x64/package.json',
-  ];
+bun pm pkg set \
+  "version=$NEW_VERSION" \
+  "optionalDependencies.@open-plan-annotator/runtime-darwin-arm64=$NEW_VERSION" \
+  "optionalDependencies.@open-plan-annotator/runtime-darwin-x64=$NEW_VERSION" \
+  "optionalDependencies.@open-plan-annotator/runtime-linux-arm64=$NEW_VERSION" \
+  "optionalDependencies.@open-plan-annotator/runtime-linux-x64=$NEW_VERSION"
 
-  const rootPackage = JSON.parse(fs.readFileSync(rootPackagePath, 'utf8'));
-  for (const name of Object.keys(rootPackage.optionalDependencies || {})) {
-    if (name.startsWith('@open-plan-annotator/runtime-')) {
-      rootPackage.optionalDependencies[name] = '$NEW_VERSION';
-    }
-  }
-  fs.writeFileSync(rootPackagePath, JSON.stringify(rootPackage, null, 2) + '\n');
+for package_dir in "${RUNTIME_PACKAGES[@]}"; do
+  bun pm pkg set "version=$NEW_VERSION" --cwd "$package_dir"
+done
 
-  const plugin = JSON.parse(fs.readFileSync('.claude-plugin/plugin.json', 'utf8'));
-  plugin.version = '$NEW_VERSION';
-  fs.writeFileSync('.claude-plugin/plugin.json', JSON.stringify(plugin, null, 2) + '\n');
-
-  const market = JSON.parse(fs.readFileSync('.claude-plugin/marketplace.json', 'utf8'));
-  if (market.metadata && typeof market.metadata === 'object') {
-    market.metadata.version = '$NEW_VERSION';
-  }
-  for (const p of market.plugins) {
-    p.version = '$NEW_VERSION';
-    if (p.source && p.source.npm && typeof p.source.npm === 'object') {
-      p.source.npm.version = '$NEW_VERSION';
-    }
-  }
-  fs.writeFileSync('.claude-plugin/marketplace.json', JSON.stringify(market, null, 2) + '\n');
-
-  for (const packagePath of runtimePackages) {
-    const pkg = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
-    pkg.version = '$NEW_VERSION';
-    fs.writeFileSync(packagePath, JSON.stringify(pkg, null, 2) + '\n');
-  }
-"
+bun scripts/update-release-metadata.mjs "$NEW_VERSION"
 
 # --- Build ---
 echo "Building UI..."
 bun run build:ui
 
 echo "Cross-compiling binaries..."
-node scripts/build-platforms.mjs
+bun scripts/build-platforms.mjs
 
 # --- Git tag + commit ---
 echo ""
@@ -94,15 +69,14 @@ git tag -m "v$NEW_VERSION" "v$NEW_VERSION"
 echo ""
 git push --follow-tags
 
-# --- npm publish ---
+# --- Publish ---
 echo "Publishing runtime packages to npm..."
-npm publish --workspace packages/runtime-darwin-arm64 --access public
-npm publish --workspace packages/runtime-darwin-x64 --access public
-npm publish --workspace packages/runtime-linux-arm64 --access public
-npm publish --workspace packages/runtime-linux-x64 --access public
+for package_dir in "${RUNTIME_PACKAGES[@]}"; do
+  bun publish --cwd "$package_dir" --access public
+done
 
 echo "Publishing main package to npm..."
-npm publish
+bun publish
 
 echo ""
 echo "Done! Released v$NEW_VERSION"

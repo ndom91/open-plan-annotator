@@ -26,9 +26,15 @@
   },
   "files": [
     "bin/open-plan-annotator.mjs",
-    "shared/",
+    "shared/cliHelp.mjs",
+    "shared/cliMode.mjs",
+    "shared/packageManager.mjs",
+    "shared/runtimeResolver.mjs",
+    "shared/updateHints.mjs",
     ".claude-plugin/",
-    "opencode/",
+    "opencode/bridge.js",
+    "opencode/config.js",
+    "opencode/index.js",
     "hooks/",
     "CLAUDE.md",
     "README.md"
