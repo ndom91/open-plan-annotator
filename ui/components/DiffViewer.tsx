@@ -13,8 +13,8 @@ export function DiffViewer({ oldText, newText, oldVersion, newVersion, visible }
 
   return (
     <div
-      className="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
-      style={{ gridTemplateRows: visible ? "1fr" : "0fr", opacity: visible ? 1 : 0 }}
+      className="grid transition-[grid-template-rows] duration-300 ease-out"
+      style={{ gridTemplateRows: visible ? "1fr" : "0fr" }}
     >
       <div className="overflow-hidden">
         <div className="bg-inset border-b border-rule-subtle">
