@@ -274,11 +274,14 @@ export function BlockComponent({ block, annotations }: BlockProps) {
             {block.headerRow && (
               <thead>
                 <tr className="border-b border-rule bg-inset">
-                  {block.headerRow.map((cell, ci) => (
-                    <th key={ci} className={`px-4 py-2 font-semibold text-ink ${alignClass(cell.align)}`}>
-                      {renderInlineMarkdown(cell.text)}
-                    </th>
-                  ))}
+                  {block.headerRow.map((cell, ci) => {
+                    const cellSegments = splitItemSegments(block.content, cell.start, cell.end, blockAnnotations);
+                    return (
+                      <th key={ci} className={`px-4 py-2 font-semibold text-ink ${alignClass(cell.align)}`}>
+                        {renderSegments(cellSegments)}
+                      </th>
+                    );
+                  })}
                 </tr>
               </thead>
             )}
@@ -286,11 +289,14 @@ export function BlockComponent({ block, annotations }: BlockProps) {
               <tbody>
                 {block.bodyRows.map((row, ri) => (
                   <tr key={ri} className="border-b border-rule last:border-b-0">
-                    {row.map((cell, ci) => (
-                      <td key={ci} className={`px-4 py-2 ${alignClass(cell.align)}`}>
-                        {renderInlineMarkdown(cell.text)}
-                      </td>
-                    ))}
+                    {row.map((cell, ci) => {
+                      const cellSegments = splitItemSegments(block.content, cell.start, cell.end, blockAnnotations);
+                      return (
+                        <td key={ci} className={`px-4 py-2 ${alignClass(cell.align)}`}>
+                          {renderSegments(cellSegments)}
+                        </td>
+                      );
+                    })}
                   </tr>
                 ))}
               </tbody>

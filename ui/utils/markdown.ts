@@ -14,6 +14,8 @@ export interface ListItem {
 export interface TableCell {
   text: string;
   align?: "left" | "center" | "right";
+  start: number;
+  end: number;
 }
 
 export interface Block {
@@ -208,15 +210,61 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
           });
 
         const alignments = parseAlignments(tableLines[1]);
-        const headerCells = parseCells(tableLines[0]);
-        const headerRow: TableCell[] = headerCells.map((text, ci) => ({
-          text,
+
+        // Compute row offsets within the joined content string
+        const rowOffsets: number[] = [];
+        let offset = 0;
+        for (let ri = 0; ri < tableLines.length; ri++) {
+          rowOffsets.push(offset);
+          offset += tableLines[ri].length + 1; // +1 for \n
+        }
+
+        const parseCellsWithOffsets = (
+          row: string,
+          rowOffset: number,
+        ): Array<{ text: string; start: number; end: number }> => {
+          const results: Array<{ text: string; start: number; end: number }> = [];
+          // Walk through pipe-delimited cells
+          let cursor = row.indexOf("|");
+          if (cursor === -1) return results;
+          cursor++; // move past leading pipe
+          while (cursor < row.length) {
+            const nextPipe = row.indexOf("|", cursor);
+            if (nextPipe === -1) break;
+            const rawCell = row.substring(cursor, nextPipe);
+            const trimmed = rawCell.trim();
+            if (trimmed.length > 0) {
+              const trimStart = rawCell.indexOf(trimmed);
+              results.push({
+                text: trimmed,
+                start: rowOffset + cursor + trimStart,
+                end: rowOffset + cursor + trimStart + trimmed.length,
+              });
+            } else {
+              // Empty cell — point at the space between pipes
+              results.push({ text: "", start: rowOffset + cursor, end: rowOffset + cursor });
+            }
+            cursor = nextPipe + 1;
+          }
+          return results;
+        };
+
+        const headerCellData = parseCellsWithOffsets(tableLines[0], rowOffsets[0]);
+        const headerRow: TableCell[] = headerCellData.map((cell, ci) => ({
+          text: cell.text,
           align: alignments[ci],
+          start: cell.start,
+          end: cell.end,
         }));
 
-        const bodyRows: TableCell[][] = tableLines.slice(2).map((row) => {
-          const cells = parseCells(row);
-          return cells.map((text, ci) => ({ text, align: alignments[ci] }));
+        const bodyRows: TableCell[][] = tableLines.slice(2).map((row, ri) => {
+          const cellData = parseCellsWithOffsets(row, rowOffsets[ri + 2]);
+          return cellData.map((cell, ci) => ({
+            text: cell.text,
+            align: alignments[ci],
+            start: cell.start,
+            end: cell.end,
+          }));
         });
 
         const raw = tableLines.join("\n");

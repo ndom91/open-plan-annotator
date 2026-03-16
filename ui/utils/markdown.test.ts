@@ -49,4 +49,26 @@ describe("parseMarkdownToBlocks", () => {
     expect(blocks[0]?.listItems?.[0]?.text).toBe("Parent item\ncontinuation line");
     expect(blocks[0]?.listItems?.[1]?.text).toBe("Sibling item");
   });
+
+  test("table cells have correct source offsets", () => {
+    const markdown = "| Name | Value |\n| --- | --- |\n| foo | bar |";
+    const blocks = parseMarkdownToBlocks(markdown);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.type).toBe("table");
+
+    const header = blocks[0]?.headerRow;
+    expect(header).toHaveLength(2);
+    expect(header?.[0]?.text).toBe("Name");
+    expect(markdown.slice(header?.[0]?.start, header?.[0]?.end)).toBe("Name");
+    expect(header?.[1]?.text).toBe("Value");
+    expect(markdown.slice(header?.[1]?.start, header?.[1]?.end)).toBe("Value");
+
+    const body = blocks[0]?.bodyRows;
+    expect(body).toHaveLength(1);
+    expect(body?.[0]?.[0]?.text).toBe("foo");
+    expect(markdown.slice(body?.[0]?.[0]?.start, body?.[0]?.[0]?.end)).toBe("foo");
+    expect(body?.[0]?.[1]?.text).toBe("bar");
+    expect(markdown.slice(body?.[0]?.[1]?.start, body?.[0]?.[1]?.end)).toBe("bar");
+  });
 });
