@@ -26,7 +26,54 @@ Build **REST endpoints** for CRUD operations using the \`express\` framework on 
 - POST \`/api/users\` -- create a **new** user (see [validation docs](https://example.com/docs) for _schema rules_)
 - DELETE \`/api/users/:id\` -- **permanently** delete a user, \`invalidate\` their _active sessions_, and notify via [webhooks](https://example.com/hooks)
 
-### Step 3: Add authentication
+### Step 3: Add the user service
+
+Implement a \`UserService\` class to encapsulate business logic and keep the route handlers thin.
+
+\`\`\`typescript
+import { db } from "../db/schema";
+
+interface CreateUserInput {
+  email: string;
+  name: string;
+  password: string;
+}
+
+export class UserService {
+  async create(input: CreateUserInput): Promise<User> {
+    const existing = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, input.email),
+    });
+    if (existing) {
+      throw new ConflictError(\`User with email \${input.email} already exists\`);
+    }
+
+    const hashedPassword = await Bun.password.hash(input.password, { algorithm: "bcrypt", cost: 12 }); // Use cost factor 12 for production-grade security; lower values are faster but less resistant to brute-force attacks
+    const [user] = await db
+      .insert(users)
+      .values({ ...input, password: hashedPassword })
+      .returning();
+
+    return user;
+  }
+
+  async findById(id: number): Promise<User | null> {
+    return db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.id, id),
+    });
+  }
+
+  async list(cursor?: number, limit = 20): Promise<User[]> {
+    return db.query.users.findMany({
+      where: cursor ? (users, { gt }) => gt(users.id, cursor) : undefined,
+      limit,
+      orderBy: (users, { asc }) => asc(users.id),
+    });
+  }
+}
+\`\`\`
+
+### Step 4: Add authentication
 
 Use **JWT tokens** for _stateless_ authentication with \`RS256\` signing. Store refresh tokens in **Redis** using \`SETEX\` with a _configurable_ TTL. See [RFC 7519](https://tools.ietf.org/html/rfc7519) for the **full spec** and _implementation notes_.
 
