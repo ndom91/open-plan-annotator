@@ -22,9 +22,9 @@ export function DocumentChrome({
       <div className="flex items-center gap-3">
         {/* Window control dots */}
         <div className="flex items-center gap-1.5">
-          <div className="w-2.25 h-2.25 rounded-full bg-ink/10" />
-          <div className="w-2.25 h-2.25 rounded-full bg-ink/10" />
-          <div className="w-2.25 h-2.25 rounded-full bg-ink/10" />
+          <div className="w-3 h-3 rounded-full bg-ink/10" />
+          <div className="w-3 h-3 rounded-full bg-ink/10" />
+          <div className="w-3 h-3 rounded-full bg-ink/10" />
         </div>
 
         {isViewingHistory ? (
