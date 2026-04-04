@@ -11,6 +11,7 @@
     "clsx": "^2.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "shiki": "^4.0.2",
     "tailwind-merge": "^3.5.0"
   },
   "devDependencies": {

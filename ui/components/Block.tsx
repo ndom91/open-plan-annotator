@@ -1,6 +1,7 @@
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
 import type { Block, ListItem } from "../utils/markdown.ts";
+import { HighlightedCode } from "./HighlightedCode.tsx";
 
 interface BlockProps {
   block: Block;
@@ -248,9 +249,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
               </span>
             </div>
           )}
-          <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-ink-secondary">
-            <code>{renderSegments(segments, false)}</code>
-          </pre>
+          <HighlightedCode code={block.content} lang={block.lang} />
         </div>
       );
 

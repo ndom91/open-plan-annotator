@@ -80,11 +80,11 @@ html {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.4 0 0 / 0.2);
+  background: oklch(0.5 0 0 / 0.35);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.4 0 0 / 0.4);
+  background: oklch(0.55 0 0 / 0.55);
 }
 
 /* Subtle noise texture for desk surface */

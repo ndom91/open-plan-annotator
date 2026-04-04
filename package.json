@@ -18,7 +18,8 @@
     "code-review"
   ],
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "ui"
   ],
   "main": "opencode/index.js",
   "bin": {
