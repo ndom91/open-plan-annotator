@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { type BundledLanguage, createHighlighter, type Highlighter } from "shiki/bundle/web";
+import { useTheme } from "./ThemeProvider.tsx";
 
 let highlighterPromise: Promise<Highlighter> | null = null;
 
 function getHighlighter(): Promise<Highlighter> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighter({
-      themes: ["github-dark-default"],
+      themes: ["github-dark-default", "github-light-default"],
       langs: [],
     });
   }
@@ -20,6 +21,8 @@ interface HighlightedCodeProps {
 
 export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
   const [html, setHtml] = useState<string | null>(null);
+  const { dark } = useTheme();
+  const theme = dark ? "github-dark-default" : "github-light-default";
 
   useEffect(() => {
     let cancelled = false;
@@ -47,7 +50,7 @@ export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
 
       const result = highlighter.codeToHtml(code, {
         lang: lang as BundledLanguage,
-        theme: "github-dark-default",
+        theme,
       });
       setHtml(result);
     })();
@@ -55,7 +58,7 @@ export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
     return () => {
       cancelled = true;
     };
-  }, [code, lang]);
+  }, [code, lang, theme]);
 
   if (!html) {
     return (
