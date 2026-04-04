@@ -66,7 +66,9 @@ export async function checkForUpdate(
       updateAvailable: isNewerVersion(VERSION, latestVersion),
       updateInstructions: buildUpdateInstructions({ packageManager, host: options?.host, version: latestVersion }),
     };
-  } catch {
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    process.stderr.write(`open-plan-annotator: update check error: ${message}\n`);
     return buildNoUpdateResult(packageManager, options?.host);
   }
 }

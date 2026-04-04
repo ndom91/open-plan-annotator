@@ -67,16 +67,24 @@ export function isNewerVersion(current, latest) {
 }
 
 export async function fetchLatestVersion(packageName = "open-plan-annotator") {
-  const response = await fetch(`${NPM_REGISTRY_BASE_URL}/${encodeURIComponent(packageName)}/latest`, {
-    headers: { "User-Agent": "open-plan-annotator-update-check", Accept: "application/json" },
-    signal: AbortSignal.timeout(10_000),
-  });
+  const url = `${NPM_REGISTRY_BASE_URL}/${encodeURIComponent(packageName)}/latest`;
 
-  if (!response.ok) {
-    throw new Error(`npm registry responded with ${response.status}`);
+  // Shell out to curl instead of using fetch/node:https — both hang inside
+  // compiled bun binaries due to a DNS resolution bug.
+  const { execFileSync } = await import("node:child_process");
+
+  try {
+    execFileSync("curl", ["--version"], { stdio: "ignore", timeout: 2_000 });
+  } catch {
+    throw new Error("curl not available, skipping update check");
   }
 
-  const payload = await response.json();
+  const body = execFileSync("curl", ["-sf", "-H", "Accept: application/json", "-H", "User-Agent: open-plan-annotator-update-check", url], {
+    timeout: 10_000,
+    encoding: "utf8",
+  });
+
+  const payload = JSON.parse(body);
   if (!payload || typeof payload !== "object" || typeof payload.version !== "string") {
     throw new Error("npm registry response did not include a version string");
   }
