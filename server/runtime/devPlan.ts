@@ -1,4 +1,4 @@
-export const DEV_PLAN = `# Example Plan
+export const DEV_PLAN = `# Add user management API with JWT authentication
 
 ## Context
 

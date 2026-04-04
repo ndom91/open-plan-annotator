@@ -53,6 +53,11 @@ export default function App() {
 
   const blocks = useMemo(() => (displayedPlan ? parseMarkdownToBlocks(displayedPlan) : []), [displayedPlan]);
 
+  useEffect(() => {
+    const heading = blocks.find((b) => b.type === "heading" && b.level === 1);
+    document.title = heading ? `${heading.content} — Plan Review` : "Plan Review";
+  }, [blocks]);
+
   // Ref-based getter for keyboard shortcuts (avoids stale closures)
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
