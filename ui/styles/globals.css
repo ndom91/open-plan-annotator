@@ -15,14 +15,14 @@
   /* Functional */
   --color-redline: oklch(0.65 0.2 25);
   --color-redline-bg: oklch(0.30 0.06 25);
-  --color-margin-note: oklch(0.75 0.15 85);
-  --color-margin-note-bg: oklch(0.32 0.06 85);
-  --color-approve: oklch(0.55 0.18 155);
-  --color-approve-hover: oklch(0.60 0.18 155);
+  --color-margin-note: oklch(0.76 0.17 78);
+  --color-margin-note-bg: oklch(0.33 0.07 78);
+  --color-approve: oklch(0.67 0.20 145);
+  --color-approve-hover: oklch(0.60 0.20 145);
 
   /* Accent */
-  --color-accent: oklch(0.65 0.10 310);
-  --color-accent-subtle: oklch(0.40 0.05 310);
+  --color-accent: oklch(0.70 0.19 52);
+  --color-accent-subtle: oklch(0.42 0.09 52);
 
   /* Structure */
   --color-rule: oklch(0.30 0.005 260);
@@ -41,12 +41,12 @@
   --color-ink-tertiary: oklch(0.58 0.01 260);
   --color-redline: oklch(0.52 0.2 25);
   --color-redline-bg: oklch(0.93 0.04 25);
-  --color-margin-note: oklch(0.55 0.16 75);
-  --color-margin-note-bg: oklch(0.95 0.04 75);
-  --color-approve: oklch(0.57 0.12 155);
-  --color-approve-hover: oklch(0.47 0.12 155);
-  --color-accent: oklch(0.65 0.16 310);
-  --color-accent-subtle: oklch(0.90 0.05 310);
+  --color-margin-note: oklch(0.58 0.17 72);
+  --color-margin-note-bg: oklch(0.95 0.05 72);
+  --color-approve: oklch(0.58 0.15 145);
+  --color-approve-hover: oklch(0.50 0.15 145);
+  --color-accent: oklch(0.66 0.19 52);
+  --color-accent-subtle: oklch(0.92 0.06 52);
   --color-rule: oklch(0.88 0.005 260);
   --color-rule-subtle: oklch(0.92 0.005 260);
 }
@@ -62,6 +62,53 @@ html {
 
 ::selection {
   background: oklch(from var(--color-accent) l c h / 0.35);
+}
+
+.annotation-mark {
+  position: relative;
+  display: inline;
+  border-radius: 3px;
+  padding: 0 2px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.annotation-index {
+  position: relative;
+  top: -0.6em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.15rem;
+  height: 1.15rem;
+  margin-left: 0.15rem;
+  border-radius: 999px;
+  background: var(--color-paper-edge);
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink-tertiary);
+  font-size: 0.625rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: baseline;
+  box-shadow: 0 1px 2px oklch(0 0 0 / 0.18);
+}
+
+.shortcut-key {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.35rem;
+  border-radius: 0.25rem;
+  background: oklch(from var(--color-ink) l c h / 0.08);
+  color: var(--color-ink-secondary);
+  box-shadow: inset 0 -1px 0 oklch(0 0 0 / 0.12), inset 0 1px 0 oklch(1 0 0 / 0.04);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 1;
 }
 
 /* Smooth scrolling */

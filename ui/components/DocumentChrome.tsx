@@ -18,7 +18,7 @@ export function DocumentChrome({
   hasPreviousVersion,
 }: DocumentChromeProps) {
   return (
-    <div className="min-h-11 flex items-center justify-between px-4 py-2 bg-paper-edge/50 border-b border-rule-subtle">
+    <div className="min-h-11 flex items-center justify-between px-4 py-2 bg-paper-edge/60 border-b border-rule-subtle">
       <div className="flex items-center gap-3">
         {/* Window control dots */}
         <div className="flex items-center gap-1.5">
@@ -53,7 +53,9 @@ export function DocumentChrome({
             onClick={onToggleDiff}
             className={cn(
               "flex border-ink-tertiary/25 border items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium cursor-pointer transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50",
-              showDiff ? "bg-ink/10 text-ink ring-1 ring-ink/10" : "text-ink-secondary hover:text-ink hover:bg-ink/5",
+              showDiff
+                ? "bg-accent/12 text-accent ring-1 ring-accent/20"
+                : "text-ink-secondary hover:text-ink hover:bg-ink/5",
             )}
             title="Show changes from previous version"
           >

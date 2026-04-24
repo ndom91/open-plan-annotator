@@ -13,6 +13,7 @@ import { DiffViewer } from "./DiffViewer.tsx";
 import { DocumentChrome } from "./DocumentChrome.tsx";
 import { Header } from "./Header.tsx";
 import { PlanDocument } from "./PlanDocument.tsx";
+import { ShortcutBar } from "./ShortcutBar.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
 import { UpdateBanner } from "./UpdateBanner.tsx";
 import { VersionSidebar } from "./VersionSidebar.tsx";
@@ -45,6 +46,7 @@ export default function App() {
   const activeVersion = selectedVersion ?? version;
   const isViewingHistory = activeVersion !== version;
   const totalVersions = history.length + 1;
+  const hasPreviousVersion = history.length > 0;
 
   const displayedPlan = useMemo(() => {
     if (!isViewingHistory) return plan;
@@ -103,11 +105,18 @@ export default function App() {
     if (!isPending && !decided && annotations.length > 0) deny(annotations);
   }, [deny, isPending, decided, annotations]);
 
+  const handleToggleDiff = useCallback(() => {
+    if (!hasPreviousVersion || isViewingHistory) return;
+    setShowDiff((v) => !v);
+  }, [hasPreviousVersion, isViewingHistory]);
+
   useKeyboardShortcuts({
     getSelection: getResolvedSelection,
     onAction: handleToolbarAction,
     onApprove: handleApprove,
     onDeny: handleDeny,
+    onToggleDiff: handleToggleDiff,
+    canToggleDiff: hasPreviousVersion && !isViewingHistory,
     hasAnnotations: annotations.length > 0,
     decided,
   });
@@ -189,7 +198,6 @@ export default function App() {
     );
   }
 
-  const hasPreviousVersion = history.length > 0;
   const popoverText = popover ? popover.selections.map((s) => s.text).join("\n") : "";
 
   return (
@@ -223,7 +231,7 @@ export default function App() {
           />
         )}
 
-        <div className="flex items-start justify-center px-4 py-8 sm:px-6 lg:px-8">
+        <div className="flex items-start justify-center px-4 py-8 pb-24 sm:px-6 lg:px-8">
           {/* Version history sidebar */}
           {totalVersions > 1 && (
             <aside className="w-56 shrink-0 pl-2 mr-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
@@ -248,7 +256,7 @@ export default function App() {
                 activeVersion={activeVersion}
                 onReturnToCurrent={() => setSelectedVersion(null)}
                 showDiff={showDiff}
-                onToggleDiff={() => setShowDiff((v) => !v)}
+                onToggleDiff={handleToggleDiff}
                 hasPreviousVersion={hasPreviousVersion}
               />
               {/* Diff view — between chrome and content */}
@@ -267,13 +275,13 @@ export default function App() {
             </main>
           </div>
 
-          {/* Annotation sidebar — only reserve space when there are annotations */}
+          {/* Annotation sidebar */}
           <aside className="max-w-72 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
-            {!isViewingHistory && annotations.length > 0 && (
-              <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />
-            )}
+            {!isViewingHistory && <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />}
           </aside>
         </div>
+
+        {!isViewingHistory && !decided && <ShortcutBar />}
 
         {/* Floating toolbar on selection — only on current version */}
         {!isViewingHistory && selection.isActive && selection.resolved && selection.rect && !popover && !decided && (

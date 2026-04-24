@@ -86,8 +86,8 @@ export function Header({
   return (
     <header className="sticky top-0 z-40">
       <div className="flex items-center justify-between px-8 py-3 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-6 items-center gap-2.5">
             <div className="w-6 h-6 rounded-sm bg-accent/15 flex items-center justify-center ring-1 ring-accent/20">
               <svg
                 aria-hidden="true"
@@ -102,21 +102,23 @@ export function Header({
             <span className="text-sm font-semibold text-ink tracking-tight">
               Plan Review
               {appVersion ? (
-                <span className="ml-1.5 text-[11px] font-mono font-medium text-ink-tertiary">v{appVersion}</span>
+                <span className="ml-2 inline-flex h-6 items-center rounded-md bg-ink/5 px-2 font-mono text-[11px] font-medium text-ink-tertiary ring-1 ring-ink/8">
+                  v{appVersion}
+                </span>
               ) : null}
             </span>
           </div>
           {version > 1 && (
-            <span className="text-[11px] text-ink-tertiary font-mono tabular-nums px-1.5 py-0.5 rounded bg-ink/5 ring-1 ring-ink/8">
+            <span className="inline-flex h-6 items-center rounded-md bg-ink/5 px-2 font-mono text-[11px] text-ink-tertiary tabular-nums ring-1 ring-ink/8">
               v{version}
             </span>
           )}
           {annotations.length > 0 && (
             <span
               title={`${annotations.length} Annotations`}
-              className="text-[11px] text-margin-note bg-margin-note-bg/80 px-2.5 py-0.5 rounded-sm font-semibold tabular-nums ring-1 ring-margin-note/20 shadow-[0_0_8px_oklch(0.75_0.15_85/0.15)]"
+              className="inline-flex h-6 items-center rounded-md bg-accent/14 px-2.5 text-[11px] font-semibold text-accent tabular-nums ring-1 ring-accent/25 shadow-[0_0_12px_oklch(0.70_0.19_52/0.18)]"
             >
-              {annotations.length}
+              {annotations.length} annotations
             </span>
           )}
         </div>
@@ -161,30 +163,24 @@ export function Header({
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-redline ring-1 ring-redline/20 hover:bg-redline-bg/60 hover:ring-redline/30 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-ink-secondary ring-1 ring-rule hover:bg-ink/5 hover:text-ink cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
-            Send Annotations
+            Request changes
             <kbd className="flex items-center gap-0.5 text-md font-mono">
-              <span className="flex items-center justify-center size-[20px] rounded bg-redline/15 text-redline/60 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.08)]">
-                ⌘
-              </span>
-              <span className="flex items-center justify-center size-[20px] rounded bg-redline/15 text-redline/60 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.08)]">
-                ⇧
-              </span>
-              <span className="flex items-center justify-center size-[20px] rounded bg-redline/15 text-redline/60 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.08)]">
-                ↵
-              </span>
+              <span className="shortcut-key">⌘</span>
+              <span className="shortcut-key">⇧</span>
+              <span className="shortcut-key">↵</span>
             </kbd>
           </button>
           <button
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_12px_oklch(0.65_0.18_155/0.3)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all duration-200 shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_16px_oklch(0.67_0.20_145/0.32)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all duration-200 shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.14)] focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
-            Accept Plan
+            Approve
             <kbd className="flex items-center gap-0.5 text-md font-mono">
               <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
                 ⌘

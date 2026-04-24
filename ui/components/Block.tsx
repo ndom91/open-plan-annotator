@@ -48,7 +48,13 @@ function splitIntoSegments(text: string, annotations: Annotation[]): Segment[] {
   return segments;
 }
 
-function renderSegments(segments: Segment[], useInline = true) {
+function renderAnnotationIndex(annotation: Annotation, annotations: Annotation[]) {
+  const index = annotations.findIndex((ann) => ann.id === annotation.id) + 1;
+  if (index <= 0) return null;
+  return <sup className="annotation-index">{index}</sup>;
+}
+
+function renderSegments(segments: Segment[], annotations: Annotation[], useInline = true) {
   return segments.map((seg, i) => {
     const content = useInline ? renderInlineMarkdown(seg.text) : seg.text;
     // Expose markdown source for inline segments so offsetResolver can map rendered→source offsets
@@ -69,26 +75,28 @@ function renderSegments(segments: Segment[], useInline = true) {
           data-seg-start={seg.originalStart}
           data-seg-end={seg.originalEnd}
           {...segSourceAttr}
-          className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px"
+          className="annotation-mark bg-redline-bg/55 text-redline line-through decoration-redline/80 decoration-2"
           title="Marked for removal"
         >
           {content}
+          {renderAnnotationIndex(seg.annotation, annotations)}
         </span>
       );
     }
     if (seg.annotation.type === "replacement") {
       return (
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
-          <span className="line-through decoration-redline/70 text-redline bg-redline-bg/50 rounded-sm px-px">
+          <span className="annotation-mark bg-redline-bg/45 text-redline line-through decoration-redline/75 decoration-2">
             {content}
           </span>
           <span
-            className="text-approve bg-approve/10 rounded-sm px-px ml-1 not-italic no-underline"
+            className="annotation-mark text-approve bg-approve/12 border-b-2 border-approve/60 ml-1 not-italic no-underline"
             data-replacement="true"
             style={{ textDecoration: "none" }}
           >
             {seg.annotation.replacement}
           </span>
+          {renderAnnotationIndex(seg.annotation, annotations)}
         </span>
       );
     }
@@ -96,9 +104,13 @@ function renderSegments(segments: Segment[], useInline = true) {
       return (
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
           {content}
-          <span className="text-approve bg-approve/10  rounded-sm px-1 ml-1" data-replacement="true">
+          <span
+            className="annotation-mark text-approve bg-approve/12 border-b-2 border-approve/60 ml-1"
+            data-replacement="true"
+          >
             +{seg.annotation.replacement}
           </span>
+          {renderAnnotationIndex(seg.annotation, annotations)}
         </span>
       );
     }
@@ -109,11 +121,12 @@ function renderSegments(segments: Segment[], useInline = true) {
         data-seg-start={seg.originalStart}
         data-seg-end={seg.originalEnd}
         {...segSourceAttr}
-        className="group/comment relative bg-margin-note-bg/60 border-b-2 border-margin-note/50 rounded-xs px-px cursor-help"
+        className="group/comment annotation-mark relative bg-margin-note-bg/70 border-b-2 border-margin-note/70 cursor-help"
         role="note"
         aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
       >
         {content}
+        {renderAnnotationIndex(seg.annotation, annotations)}
         {seg.annotation.comment && (
           <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper-edge border border-rule shadow-[0_2px_4px_oklch(0_0_0/0.2),0_8px_24px_oklch(0_0_0/0.25),0_16px_48px_oklch(0_0_0/0.15)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
             <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
@@ -173,7 +186,8 @@ function splitItemSegments(content: string, itemStart: number, itemEnd: number, 
 function renderListGroups(
   items: ListItem[],
   content: string,
-  annotations: Annotation[],
+  itemAnnotations: Annotation[],
+  allAnnotations: Annotation[],
   nested = false,
 ): React.JSX.Element[] {
   const groups: Array<{ marker: ListItem["marker"]; items: ListItem[] }> = [];
@@ -195,15 +209,16 @@ function renderListGroups(
     return (
       <ListTag key={`${group.marker}-${groupIndex}`} className={listClassName(group.marker, nested)} {...listProps}>
         {group.items.map((item, itemIndex) => {
-          const itemSegments = splitItemSegments(content, item.start, item.end, annotations);
+          const itemSegments = splitItemSegments(content, item.start, item.end, itemAnnotations);
 
           return (
             <li
               key={`${group.marker}-${groupIndex}-${itemIndex}`}
               className="text-[15px] text-ink-secondary leading-relaxed"
             >
-              {renderSegments(itemSegments)}
-              {item.children.length > 0 && renderListGroups(item.children, content, annotations, true)}
+              {renderSegments(itemSegments, allAnnotations)}
+              {item.children.length > 0 &&
+                renderListGroups(item.children, content, itemAnnotations, allAnnotations, true)}
             </li>
           );
         })}
@@ -221,7 +236,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);
       const sizeClasses: Record<number, string> = {
         1: "text-3xl font-bold tracking-[-0.03em] mt-0 mb-8 text-ink scroll-mt-20",
-        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pl-4 border-l-[3px] border-accent/50 scroll-mt-20",
+        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pl-4 border-l-[3px] border-accent scroll-mt-20",
         3: "text-base font-semibold tracking-tight mt-8 mb-2 text-ink scroll-mt-20",
         4: "text-sm font-semibold mt-6 mb-2 text-ink scroll-mt-20",
         5: "text-sm font-medium mt-5 mb-1.5 text-ink-secondary scroll-mt-20",
@@ -231,7 +246,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
       return (
         <Tag data-block-index={block.index} className={classes}>
-          {renderSegments(segments)}
+          {renderSegments(segments, annotations)}
         </Tag>
       );
     }
@@ -256,7 +271,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
     case "list": {
       return (
         <div data-block-index={block.index}>
-          {renderListGroups(block.listItems ?? [], block.content, blockAnnotations)}
+          {renderListGroups(block.listItems ?? [], block.content, blockAnnotations, annotations)}
         </div>
       );
     }
@@ -277,7 +292,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
                     const cellSegments = splitItemSegments(block.content, cell.start, cell.end, blockAnnotations);
                     return (
                       <th key={ci} className={`px-4 py-2 font-semibold text-ink ${alignClass(cell.align)}`}>
-                        {renderSegments(cellSegments)}
+                        {renderSegments(cellSegments, annotations)}
                       </th>
                     );
                   })}
@@ -292,7 +307,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
                       const cellSegments = splitItemSegments(block.content, cell.start, cell.end, blockAnnotations);
                       return (
                         <td key={ci} className={`px-4 py-2 ${alignClass(cell.align)}`}>
-                          {renderSegments(cellSegments)}
+                          {renderSegments(cellSegments, annotations)}
                         </td>
                       );
                     })}
@@ -312,16 +327,16 @@ export function BlockComponent({ block, annotations }: BlockProps) {
       return (
         <blockquote
           data-block-index={block.index}
-          className="my-5 pl-4 border-l-[3px] border-accent/40 bg-accent/3 rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
+          className="my-5 pl-4 border-l-[3px] border-accent/60 bg-accent/5 rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
         >
-          {renderSegments(segments)}
+          {renderSegments(segments, annotations)}
         </blockquote>
       );
 
     default:
       return (
         <p data-block-index={block.index} className="text-[15px] text-ink-secondary leading-[1.7] my-3">
-          {renderSegments(segments)}
+          {renderSegments(segments, annotations)}
         </p>
       );
   }
