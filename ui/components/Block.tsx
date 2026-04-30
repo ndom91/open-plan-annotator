@@ -255,7 +255,7 @@ export function BlockComponent({ block, annotations }: BlockProps) {
         >
           {block.lang && (
             <div className="px-4 py-2 border-b border-rule-subtle bg-linear-to-b from-paper/50 to-transparent flex items-center">
-              <span className="text-[11px] font-mono text-ink-tertiary tracking-wide bg-ink/5 px-2 py-0.5 rounded-full ring-1 ring-ink/8">
+              <span className="text-[12px] font-mono text-ink-secondary tracking-wide bg-ink/8 px-2 py-0.5 rounded-full ring-1 ring-ink/12">
                 {block.lang}
               </span>
             </div>
