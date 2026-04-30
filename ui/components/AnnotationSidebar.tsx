@@ -19,7 +19,7 @@ const typeConfig: Record<Annotation["type"], { label: string; pillClass: string;
 
 export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarProps) {
   return (
-    <div>
+    <div className="pb-4">
       <div className="flex items-center justify-between mb-4 pl-1">
         <h3 className="text-[11px] font-semibold text-ink-tertiary uppercase tracking-[0.24em]">Annotations</h3>
         <span className="text-[10px] font-mono font-semibold text-ink-tertiary bg-ink/8 px-1.5 py-0.5 rounded-sm">
