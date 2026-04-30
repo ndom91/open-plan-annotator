@@ -249,7 +249,7 @@ export default function App() {
             <main
               id="main-content"
               tabIndex={-1}
-              className="bg-paper border border-rule-subtle rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.08),0_4px_12px_oklch(0_0_0/0.05),0_12px_32px_oklch(0_0_0/0.04)] overflow-hidden"
+              className="bg-paper border border-rule rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.08),0_8px_20px_oklch(0_0_0/0.08),0_24px_48px_oklch(0_0_0/0.06)] overflow-hidden"
             >
               <DocumentChrome
                 isViewingHistory={isViewingHistory}
