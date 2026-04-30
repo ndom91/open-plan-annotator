@@ -1,11 +1,17 @@
+import { createContext, useContext } from "react";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
 import type { Block, ListItem } from "../utils/markdown.ts";
 import { HighlightedCode } from "./HighlightedCode.tsx";
 
+const RemoveAnnotationContext = createContext<((id: string) => void) | undefined>(undefined);
+
+export const RemoveAnnotationProvider = RemoveAnnotationContext.Provider;
+
 interface BlockProps {
   block: Block;
   annotations: Annotation[];
+  onRemoveAnnotation?: (id: string) => void;
 }
 
 interface Segment {
@@ -48,10 +54,41 @@ function splitIntoSegments(text: string, annotations: Annotation[]): Segment[] {
   return segments;
 }
 
-function renderAnnotationIndex(annotation: Annotation, annotations: Annotation[]) {
+function AnnotationIndex({ annotation, annotations }: { annotation: Annotation; annotations: Annotation[] }) {
   const index = annotations.findIndex((ann) => ann.id === annotation.id) + 1;
+  const onRemove = useContext(RemoveAnnotationContext);
   if (index <= 0) return null;
-  return <sup className="annotation-index">{index}</sup>;
+  if (!onRemove) {
+    return <sup className="annotation-index">{index}</sup>;
+  }
+  return (
+    <button
+      type="button"
+      onMouseDown={(e) => e.stopPropagation()}
+      onClick={(e) => {
+        e.stopPropagation();
+        onRemove(annotation.id);
+      }}
+      className="annotation-index annotation-index-button"
+      title="Remove annotation"
+      aria-label={`Remove annotation ${index}`}
+    >
+      <span className="annotation-index-num">{index}</span>
+      <svg
+        aria-hidden="true"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 18 18"
+        fill="currentColor"
+        className="annotation-index-x"
+      >
+        <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+      </svg>
+    </button>
+  );
+}
+
+function renderAnnotationIndex(annotation: Annotation, annotations: Annotation[]) {
+  return <AnnotationIndex annotation={annotation} annotations={annotations} />;
 }
 
 function renderSegments(segments: Segment[], annotations: Annotation[], useInline = true) {
@@ -223,10 +260,14 @@ function renderListGroups(
   });
 }
 
-export function BlockComponent({ block, annotations }: BlockProps) {
+export function BlockComponent({ block, annotations, onRemoveAnnotation }: BlockProps) {
   const blockAnnotations = annotations.filter((a) => a.blockIndex === block.index);
   const segments = splitIntoSegments(block.content, blockAnnotations);
+  const inner = renderBlock(block, segments, blockAnnotations, annotations);
+  return <RemoveAnnotationProvider value={onRemoveAnnotation}>{inner}</RemoveAnnotationProvider>;
+}
 
+function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annotation[], annotations: Annotation[]) {
   switch (block.type) {
     case "heading": {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);

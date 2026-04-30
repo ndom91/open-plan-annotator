@@ -107,6 +107,43 @@ html {
   box-shadow: 0 1px 2px oklch(0 0 0 / 0.18);
 }
 
+.annotation-index-button {
+  cursor: pointer;
+  padding: 0;
+  width: 1.25rem;
+  min-width: 1.25rem;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.annotation-index-button .annotation-index-num,
+.annotation-index-button .annotation-index-x {
+  grid-area: 1 / 1;
+  transition: opacity 0.15s ease;
+}
+
+.annotation-index-button .annotation-index-x {
+  width: 0.85rem;
+  height: 0.85rem;
+  opacity: 0;
+  transform: translateX(1px);
+}
+
+.annotation-index-button:hover {
+  background: var(--color-redline-bg);
+  border-color: oklch(from var(--color-redline) l c h / 0.6);
+  color: var(--color-redline);
+}
+
+.annotation-index-button:hover .annotation-index-num {
+  opacity: 0;
+}
+
+.annotation-index-button:hover .annotation-index-x {
+  opacity: 1;
+}
+
 .shortcut-key {
   display: inline-grid;
   place-items: center;

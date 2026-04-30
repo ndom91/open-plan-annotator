@@ -270,7 +270,11 @@ export default function App() {
                 />
               )}
               <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
-                <PlanDocument blocks={blocks} annotations={isViewingHistory ? [] : annotations} />
+                <PlanDocument
+                  blocks={blocks}
+                  annotations={isViewingHistory ? [] : annotations}
+                  onRemoveAnnotation={isViewingHistory ? undefined : removeAnnotation}
+                />
               </div>
             </main>
           </div>
