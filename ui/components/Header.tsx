@@ -33,7 +33,7 @@ export function Header({
   if (decided) {
     return (
       <header className="sticky top-0 z-40">
-        <div className="flex items-center justify-center gap-4 px-8 py-4 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
+        <div className="flex items-center justify-center gap-4 px-8 py-4 bg-desk/85 backdrop-blur-xl border-b border-rule shadow-[0_2px_4px_oklch(0_0_0/0.04),0_4px_12px_oklch(0_0_0/0.04),inset_0_-1px_0_oklch(1_0_0/0.04)]">
           <div className="flex items-center gap-2.5 text-ink-tertiary">
             <div className="w-5 h-5 rounded-full bg-approve/15 flex items-center justify-center">
               <svg
@@ -85,7 +85,7 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-40">
-      <div className="flex items-center justify-between px-8 py-3 bg-desk/70 backdrop-blur-xl border-b border-rule-subtle shadow-[inset_0_-1px_0_oklch(1_0_0/0.04)]">
+      <div className="flex items-center justify-between px-8 py-3 bg-desk/85 backdrop-blur-xl border-b border-rule shadow-[0_2px_4px_oklch(0_0_0/0.04),0_4px_12px_oklch(0_0_0/0.04),inset_0_-1px_0_oklch(1_0_0/0.04)]">
         <div className="flex items-center gap-2.5">
           <div className="flex h-6 items-center gap-2.5">
             <div className="w-6 h-6 rounded-sm bg-accent/15 flex items-center justify-center ring-1 ring-accent/20">
@@ -108,15 +108,10 @@ export function Header({
               ) : null}
             </span>
           </div>
-          {version > 1 && (
-            <span className="inline-flex h-6 items-center rounded-md bg-ink/5 px-2 font-mono text-[11px] text-ink-tertiary tabular-nums ring-1 ring-ink/8">
-              v{version}
-            </span>
-          )}
           {annotations.length > 0 && (
             <span
               title={`${annotations.length} Annotations`}
-              className="inline-flex h-6 items-center rounded-md bg-accent/14 px-2.5 text-[11px] font-semibold text-accent tabular-nums ring-1 ring-accent/25 shadow-[0_0_12px_oklch(0.70_0.19_52/0.18)]"
+              className="inline-flex h-6 items-center rounded-md bg-accent/14 px-2.5 text-[11px] font-semibold text-accent tabular-nums ring-1 ring-accent/25"
             >
               {annotations.length} annotations
             </span>

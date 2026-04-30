@@ -23,6 +23,7 @@
   /* Accent */
   --color-accent: oklch(0.78 0.09 330);
   --color-accent-subtle: oklch(0.42 0.06 330);
+  --color-link: oklch(0.78 0.09 330);
 
   /* Structure */
   --color-rule: oklch(0.30 0.005 260);
@@ -47,6 +48,7 @@
   --color-approve-hover: oklch(0.50 0.15 145);
   --color-accent: oklch(0.65 0.11 330);
   --color-accent-subtle: oklch(0.93 0.04 330);
+  --color-link: oklch(0.50 0.20 330);
   --color-rule: oklch(0.88 0.005 260);
   --color-rule-subtle: oklch(0.92 0.005 260);
 }
