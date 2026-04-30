@@ -39,6 +39,7 @@
     "opencode/config.js",
     "opencode/index.js",
     "hooks/",
+    "commands/",
     "CLAUDE.md",
     "README.md"
   ],
