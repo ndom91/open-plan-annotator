@@ -159,7 +159,7 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
         >
           {content}
           {seg.annotation.comment && (
-            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper-edge border border-rule shadow-[0_2px_4px_oklch(0_0_0/0.2),0_8px_24px_oklch(0_0_0/0.25),0_16px_48px_oklch(0_0_0/0.15)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
+            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-inset border border-rule shadow-[0_2px_4px_oklch(0_0_0/0.08),0_8px_20px_oklch(0_0_0/0.10),0_20px_40px_oklch(0_0_0/0.10)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
               <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
               {seg.annotation.comment}
             </span>
