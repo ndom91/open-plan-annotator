@@ -70,15 +70,13 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
 
     if (seg.annotation.type === "deletion") {
       return (
-        <span
-          key={i}
-          data-seg-start={seg.originalStart}
-          data-seg-end={seg.originalEnd}
-          {...segSourceAttr}
-          className="annotation-mark bg-redline-bg/55 text-redline line-through decoration-redline/80 decoration-2"
-          title="Marked for removal"
-        >
-          {content}
+        <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
+          <span
+            className="annotation-mark bg-redline-bg/55 text-redline line-through decoration-redline/80 decoration-2"
+            title="Marked for removal"
+          >
+            {content}
+          </span>
           {renderAnnotationIndex(seg.annotation, annotations)}
         </span>
       );
@@ -116,23 +114,21 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
     }
     // comment
     return (
-      <span
-        key={i}
-        data-seg-start={seg.originalStart}
-        data-seg-end={seg.originalEnd}
-        {...segSourceAttr}
-        className="group/comment annotation-mark relative bg-margin-note-bg/70 border-b-2 border-margin-note/70 cursor-help"
-        role="note"
-        aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
-      >
-        {content}
+      <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
+        <span
+          className="group/comment annotation-mark relative bg-margin-note-bg/70 border-b-2 border-margin-note/70 cursor-help"
+          role="note"
+          aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
+        >
+          {content}
+          {seg.annotation.comment && (
+            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper-edge border border-rule shadow-[0_2px_4px_oklch(0_0_0/0.2),0_8px_24px_oklch(0_0_0/0.25),0_16px_48px_oklch(0_0_0/0.15)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
+              <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
+              {seg.annotation.comment}
+            </span>
+          )}
+        </span>
         {renderAnnotationIndex(seg.annotation, annotations)}
-        {seg.annotation.comment && (
-          <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-paper-edge border border-rule shadow-[0_2px_4px_oklch(0_0_0/0.2),0_8px_24px_oklch(0_0_0/0.25),0_16px_48px_oklch(0_0_0/0.15)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
-            <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
-            {seg.annotation.comment}
-          </span>
-        )}
       </span>
     );
   });

@@ -95,7 +95,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
           onDismiss();
         }}
         className={cn(btn, "text-approve hover:bg-approve/10")}
-        title="Insert after (i)"
+        title="Insert after (n)"
       >
         <svg
           aria-hidden="true"

@@ -4,7 +4,7 @@ export function ShortcutBar() {
       <span className="text-ink-secondary">Select any text to annotate</span>
       <Shortcut label="delete" keys={["D"]} />
       <Shortcut label="replace" keys={["R"]} />
-      <Shortcut label="insert" keys={["I"]} />
+      <Shortcut label="insert" keys={["N"]} />
       <Shortcut label="comment" keys={["C"]} />
     </div>
   );

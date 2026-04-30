@@ -65,7 +65,7 @@ export function useKeyboardShortcuts({
       } else if (e.key.toLowerCase() === "r" && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         onAction("replacement", sels);
-      } else if (e.key.toLowerCase() === "i" && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      } else if (e.key.toLowerCase() === "n" && !e.metaKey && !e.ctrlKey && !e.altKey) {
         e.preventDefault();
         onAction("insertion", sels);
       }

@@ -14,27 +14,27 @@
         "@typescript/native-preview": "^7.0.0-dev.20260224.1",
       },
       "optionalDependencies": {
-        "@open-plan-annotator/runtime-darwin-arm64": "1.2.1",
-        "@open-plan-annotator/runtime-darwin-x64": "1.2.1",
-        "@open-plan-annotator/runtime-linux-arm64": "1.2.1",
-        "@open-plan-annotator/runtime-linux-x64": "1.2.1",
+        "@open-plan-annotator/runtime-darwin-arm64": "1.4.0",
+        "@open-plan-annotator/runtime-darwin-x64": "1.4.0",
+        "@open-plan-annotator/runtime-linux-arm64": "1.4.0",
+        "@open-plan-annotator/runtime-linux-x64": "1.4.0",
       },
     },
     "packages/runtime-darwin-arm64": {
       "name": "@open-plan-annotator/runtime-darwin-arm64",
-      "version": "1.2.1",
+      "version": "1.4.0",
     },
     "packages/runtime-darwin-x64": {
       "name": "@open-plan-annotator/runtime-darwin-x64",
-      "version": "1.2.1",
+      "version": "1.4.0",
     },
     "packages/runtime-linux-arm64": {
       "name": "@open-plan-annotator/runtime-linux-arm64",
-      "version": "1.2.1",
+      "version": "1.4.0",
     },
     "packages/runtime-linux-x64": {
       "name": "@open-plan-annotator/runtime-linux-x64",
-      "version": "1.2.1",
+      "version": "1.4.0",
     },
     "ui": {
       "name": "@open-plan-annotator/ui",
@@ -56,6 +56,9 @@
         "vite-plugin-singlefile": "^2.0.0",
       },
     },
+  },
+  "overrides": {
+    "uuid": "^14.0.0",
   },
   "packages": {
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],

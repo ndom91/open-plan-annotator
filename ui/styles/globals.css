@@ -21,8 +21,8 @@
   --color-approve-hover: oklch(0.60 0.20 145);
 
   /* Accent */
-  --color-accent: oklch(0.70 0.19 52);
-  --color-accent-subtle: oklch(0.42 0.09 52);
+  --color-accent: oklch(0.78 0.09 330);
+  --color-accent-subtle: oklch(0.42 0.06 330);
 
   /* Structure */
   --color-rule: oklch(0.30 0.005 260);
@@ -45,8 +45,8 @@
   --color-margin-note-bg: oklch(0.95 0.05 72);
   --color-approve: oklch(0.58 0.15 145);
   --color-approve-hover: oklch(0.50 0.15 145);
-  --color-accent: oklch(0.66 0.19 52);
-  --color-accent-subtle: oklch(0.92 0.06 52);
+  --color-accent: oklch(0.65 0.11 330);
+  --color-accent-subtle: oklch(0.93 0.04 330);
   --color-rule: oklch(0.88 0.005 260);
   --color-rule-subtle: oklch(0.92 0.005 260);
 }
@@ -58,10 +58,20 @@ html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: -0.011em;
+  accent-color: var(--color-accent);
 }
 
 ::selection {
   background: oklch(from var(--color-accent) l c h / 0.35);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
 }
 
 .annotation-mark {

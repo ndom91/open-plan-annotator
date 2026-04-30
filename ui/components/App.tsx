@@ -276,7 +276,7 @@ export default function App() {
           </div>
 
           {/* Annotation sidebar */}
-          <aside className="max-w-72 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+          <aside className="w-60 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
             {!isViewingHistory && <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />}
           </aside>
         </div>
