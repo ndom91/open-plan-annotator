@@ -10,6 +10,9 @@ RUNTIME_PACKAGES=(
   "packages/runtime-linux-arm64"
   "packages/runtime-linux-x64"
 )
+PI_PACKAGES=(
+  "packages/pi-extension"
+)
 
 # --- Read current version ---
 CURRENT=$(bun pm pkg get version | tr -d '"')
@@ -50,6 +53,10 @@ for package_dir in "${RUNTIME_PACKAGES[@]}"; do
   bun pm pkg set "version=$NEW_VERSION" --cwd "$package_dir"
 done
 
+for package_dir in "${PI_PACKAGES[@]}"; do
+  bun pm pkg set "version=$NEW_VERSION" "dependencies.open-plan-annotator=$NEW_VERSION" --cwd "$package_dir"
+done
+
 bun scripts/update-release-metadata.mjs "$NEW_VERSION"
 
 # --- Build ---
@@ -61,7 +68,7 @@ bun scripts/build-platforms.mjs
 
 # --- Git tag + commit ---
 echo ""
-git add package.json .claude-plugin/plugin.json .claude-plugin/marketplace.json packages/runtime-*/package.json
+git add package.json .claude-plugin/plugin.json .claude-plugin/marketplace.json packages/runtime-*/package.json packages/pi-extension/package.json
 git commit -m "v$NEW_VERSION"
 git tag -m "v$NEW_VERSION" "v$NEW_VERSION"
 
@@ -77,6 +84,11 @@ done
 
 echo "Publishing main package to npm..."
 bun publish
+
+echo "Publishing Pi extension package to npm..."
+for package_dir in "${PI_PACKAGES[@]}"; do
+  bun publish --cwd "$package_dir" --access public
+done
 
 echo ""
 echo "Done! Released v$NEW_VERSION"

@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, mock, spyOn, test } from "bun:test";
+import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -13,7 +13,6 @@ describe("checkForUpdate", () => {
 
   afterEach(() => {
     rmSync(configDir, { recursive: true, force: true });
-    mock.restore();
   });
 
   test("returns cached result when cache is fresh", async () => {
@@ -23,13 +22,16 @@ describe("checkForUpdate", () => {
       JSON.stringify({ latestVersion: "99.0.0", checkedAt: Date.now() }),
     );
 
-    const fetchSpy = spyOn(globalThis, "fetch");
-    const result = await checkForUpdate(configDir, "npm", { host: "claude-code" });
+    const result = await checkForUpdate(configDir, "npm", {
+      host: "claude-code",
+      fetchLatestVersion: async () => {
+        throw new Error("should not fetch while cache is fresh");
+      },
+    });
 
     expect(result.latestVersion).toBe("99.0.0");
     expect(result.updateAvailable).toBe(true);
     expect(result.updateInstructions).toContain("Claude Code");
-    expect(fetchSpy).not.toHaveBeenCalled();
   });
 
   test("fetches latest version from npm when cache is stale", async () => {
@@ -39,12 +41,10 @@ describe("checkForUpdate", () => {
       JSON.stringify({ latestVersion: "0.0.1", checkedAt: Date.now() - 5 * 60 * 60 * 1000 }),
     );
 
-    spyOn(globalThis, "fetch").mockResolvedValue({
-      ok: true,
-      json: async () => ({ version: "99.0.0" }),
-    } as Response);
-
-    const result = await checkForUpdate(configDir, "pnpm", { host: "opencode" });
+    const result = await checkForUpdate(configDir, "pnpm", {
+      host: "opencode",
+      fetchLatestVersion: async () => "99.0.0",
+    });
 
     expect(result.latestVersion).toBe("99.0.0");
     expect(result.updateAvailable).toBe(true);
@@ -52,9 +52,11 @@ describe("checkForUpdate", () => {
   });
 
   test("falls back to no-update result when registry lookup fails", async () => {
-    spyOn(globalThis, "fetch").mockRejectedValue(new Error("network down"));
-
-    const result = await checkForUpdate(configDir, "bun");
+    const result = await checkForUpdate(configDir, "bun", {
+      fetchLatestVersion: async () => {
+        throw new Error("network down");
+      },
+    });
 
     expect(result.updateAvailable).toBe(false);
     expect(result.latestVersion).toBeNull();

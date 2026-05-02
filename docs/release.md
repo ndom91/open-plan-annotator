@@ -17,9 +17,9 @@ bun run do-release
 `scripts/release.sh` will:
 
 - Prompt for semver bump.
-- Update versions in `package.json`, the runtime package manifests, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`.
+- Update versions in `package.json`, `packages/pi-extension/package.json`, the runtime package manifests, `.claude-plugin/plugin.json`, and `.claude-plugin/marketplace.json`.
 - Build the UI and all platform runtime binaries.
-- Create git commit + tag, push, publish all runtime packages with Bun, and then publish the main npm package with Bun.
+- Create git commit + tag, push, publish all runtime packages with Bun, then publish the main npm package, and finally publish the Pi extension package with Bun.
 
 ## Release tooling
 

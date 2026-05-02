@@ -1,5 +1,5 @@
 import { buildUpdateInstructions } from "../shared/updateHints.mjs";
-import { fetchLatestVersion, isNewerVersion } from "../shared/versionInfo.mjs";
+import { fetchLatestVersion as fetchLatestPackageVersion, isNewerVersion } from "../shared/versionInfo.mjs";
 import type { UpdateInfo } from "./types.ts";
 import { VERSION } from "./version.ts";
 
@@ -43,10 +43,16 @@ async function writeCache(configDir: string, cache: UpdateCache): Promise<void> 
   }
 }
 
+interface CheckForUpdateOptions {
+  skipCache?: boolean;
+  host?: string;
+  fetchLatestVersion?: () => Promise<string>;
+}
+
 export async function checkForUpdate(
   configDir: string,
   packageManager: string,
-  options?: { skipCache?: boolean; host?: string },
+  options?: CheckForUpdateOptions,
 ): Promise<UpdateInfo> {
   try {
     const cache = options?.skipCache ? null : await readCache(configDir);
@@ -56,7 +62,8 @@ export async function checkForUpdate(
     if (cache && now - cache.checkedAt < CACHE_TTL_MS) {
       latestVersion = cache.latestVersion;
     } else {
-      latestVersion = await fetchLatestVersion();
+      const fetchVersion = options?.fetchLatestVersion ?? fetchLatestPackageVersion;
+      latestVersion = await fetchVersion();
       await writeCache(configDir, { latestVersion, checkedAt: now }).catch(() => {});
     }
 

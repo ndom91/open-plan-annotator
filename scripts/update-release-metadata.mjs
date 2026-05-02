@@ -45,3 +45,12 @@ updateJson(".claude-plugin/marketplace.json", (marketplace) => ({
       }))
     : marketplace.plugins,
 }));
+
+updateJson("packages/pi-extension/package.json", (pkg) => ({
+  ...pkg,
+  version,
+  dependencies:
+    pkg.dependencies && typeof pkg.dependencies === "object"
+      ? { ...pkg.dependencies, "open-plan-annotator": version }
+      : { "open-plan-annotator": version },
+}));

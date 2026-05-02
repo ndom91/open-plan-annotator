@@ -7,7 +7,8 @@ export async function buildUpdateMessage(options = {}) {
   const host = options.host ?? process.env.OPEN_PLAN_HOST;
 
   try {
-    const latestVersion = await fetchLatestVersion();
+    const fetchVersion = options.fetchLatestVersion ?? fetchLatestVersion;
+    const latestVersion = await fetchVersion();
     if (currentVersion && isNewerVersion(currentVersion, latestVersion)) {
       return `latest v${latestVersion}; ${buildUpdateInstructions({ host, packageManager, version: latestVersion })}`;
     }

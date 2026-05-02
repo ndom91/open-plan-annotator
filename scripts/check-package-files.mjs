@@ -2,11 +2,22 @@
 
 import { execFileSync } from "node:child_process";
 
-const requiredPaths = [
-  "bin/open-plan-annotator.mjs",
-  "shared/runtimeResolver.mjs",
-  "shared/cliHelp.mjs",
-  "shared/cliMode.mjs",
+const packages = [
+  {
+    cwd: ".",
+    requiredPaths: [
+      "bin/open-plan-annotator.mjs",
+      "shared/runtimeResolver.mjs",
+      "shared/cliHelp.mjs",
+      "shared/cliMode.mjs",
+      "shared/planReview.mjs",
+      "shared/piExtension.mjs",
+    ],
+  },
+  {
+    cwd: "packages/pi-extension",
+    requiredPaths: ["extensions/index.js", "README.md"],
+  },
 ];
 
 function fail(message) {
@@ -14,34 +25,37 @@ function fail(message) {
   process.exit(1);
 }
 
-let packOutput;
+for (const pkg of packages) {
+  let packOutput;
 
-try {
-  packOutput = execFileSync("npm", ["pack", "--dry-run", "--json"], {
-    encoding: "utf8",
-  });
-} catch (error) {
-  fail(`npm pack --dry-run failed (${error.message})`);
-}
+  try {
+    packOutput = execFileSync("npm", ["pack", "--dry-run", "--json"], {
+      encoding: "utf8",
+      cwd: pkg.cwd,
+    });
+  } catch (error) {
+    fail(`npm pack --dry-run failed in ${pkg.cwd} (${error.message})`);
+  }
 
-let entries;
+  let entries;
 
-try {
-  entries = JSON.parse(packOutput);
-} catch {
-  fail("unable to parse npm pack JSON output");
-}
+  try {
+    entries = JSON.parse(packOutput);
+  } catch {
+    fail(`unable to parse npm pack JSON output in ${pkg.cwd}`);
+  }
 
-if (!Array.isArray(entries) || entries.length === 0) {
-  fail("npm pack returned no entries");
-}
+  if (!Array.isArray(entries) || entries.length === 0) {
+    fail(`npm pack returned no entries in ${pkg.cwd}`);
+  }
 
-const files = Array.isArray(entries[0].files) ? entries[0].files : [];
-const packagedPaths = new Set(files.map((entry) => entry.path));
-const missingPaths = requiredPaths.filter((requiredPath) => !packagedPaths.has(requiredPath));
+  const files = Array.isArray(entries[0].files) ? entries[0].files : [];
+  const packagedPaths = new Set(files.map((entry) => entry.path));
+  const missingPaths = pkg.requiredPaths.filter((requiredPath) => !packagedPaths.has(requiredPath));
 
-if (missingPaths.length > 0) {
-  fail(`missing required packaged files: ${missingPaths.join(", ")}`);
+  if (missingPaths.length > 0) {
+    fail(`missing required packaged files in ${pkg.cwd}: ${missingPaths.join(", ")}`);
+  }
 }
 
 console.error("check-package-files: package includes required runtime files");

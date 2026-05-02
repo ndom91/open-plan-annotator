@@ -17,7 +17,7 @@ interface HeaderProps {
 
 export function Header({
   annotations,
-  version,
+  version: _version,
   appVersion,
   approve,
   deny,

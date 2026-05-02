@@ -61,6 +61,33 @@ To update, refresh the plugin through OpenCode and restart the app so it reloads
 > [!NOTE]
 > The update mechanism changed significantly in `1.0.20+`: OpenCode now loads the npm package plus a platform runtime package instead of using the old in-place binary updater. If OpenCode appears to be stuck on an older plugin build, clear the cached `open-plan-annotator` entries under `~/.cache/opencode/node_modules/` and restart OpenCode.
 
+### Pi
+
+Install the dedicated Pi package:
+
+```sh
+pi install npm:@open-plan-annotator/pi-extension
+```
+
+The extension package registers:
+
+- a `submit_plan` tool, exposed to the model with prompt guidance to call it after drafting a concrete markdown plan and before implementation
+- an `/annotate-plan` command for manual review of the latest assistant message or supplied plan text
+
+Typical flow:
+
+1. Ask Pi to make a plan before coding.
+2. Pi drafts the plan and calls `submit_plan`.
+3. The browser review UI opens locally.
+4. Approval returns “Plan approved. Continue with implementation.”; requested changes return the serialized annotations as feedback.
+
+You can also trigger review manually:
+
+```sh
+/annotate-plan
+/annotate-plan # Plan\n\n1. Do the thing
+```
+
 #### Implementation Handoff
 
 By default, after a plan is approved the plugin sends "Proceed with implementation." to a `build` agent. To customize or disable this, create `open-plan-annotator.json` in your project's `.opencode/` directory or globally in `~/.config/opencode/`:
