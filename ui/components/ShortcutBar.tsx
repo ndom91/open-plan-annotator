@@ -13,7 +13,7 @@ export function ShortcutBar() {
       <span className={promptClass}>Select any text to annotate</span>
       <Shortcut label="delete" keys={["D"]} dark={dark} />
       <Shortcut label="replace" keys={["R"]} dark={dark} />
-      <Shortcut label="insert" keys={["N"]} dark={dark} />
+      <Shortcut label="insert" keys={["S"]} dark={dark} />
       <Shortcut label="comment" keys={["C"]} dark={dark} />
     </div>
   );
