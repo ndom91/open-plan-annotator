@@ -2,10 +2,26 @@
   "name": "@open-plan-annotator/pi-extension",
   "version": "1.5.1",
   "type": "module",
-  "description": "Pi extension for open-plan-annotator",
+  "description": "Pi extension for open-plan-annotator that adds plan review tools and commands",
+  "author": "ndom91",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ndom91/open-plan-annotator.git"
+  },
+  "homepage": "https://github.com/ndom91/open-plan-annotator#readme",
+  "bugs": {
+    "url": "https://github.com/ndom91/open-plan-annotator/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "keywords": [
-    "pi-package"
+    "pi-package",
+    "pi",
+    "extension",
+    "plan-mode",
+    "annotation"
   ],
   "main": "extensions/index.js",
   "files": [
