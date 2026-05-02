@@ -1,6 +1,6 @@
 {
   "name": "open-plan-annotator",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
   "author": "ndom91",
@@ -34,6 +34,8 @@
     "shared/runtimeResolver.mjs",
     "shared/updateHints.mjs",
     "shared/versionInfo.mjs",
+    "shared/planReview.mjs",
+    "shared/piExtension.mjs",
     ".claude-plugin/",
     "opencode/bridge.js",
     "opencode/config.js",
@@ -65,16 +67,25 @@
     "@biomejs/biome": "^2.4.13",
     "@types/node": "^25.6.0",
     "@types/bun": "^1.3.13",
-    "@typescript/native-preview": "^7.0.0-dev.20260430.1"
+    "@typescript/native-preview": "^7.0.0-dev.20260430.1",
+    "typebox": "^1.1.37"
   },
   "dependencies": {
     "@opencode-ai/plugin": "^1.14.30"
   },
+  "peerDependencies": {
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "typebox": {
+      "optional": true
+    }
+  },
   "optionalDependencies": {
-    "@open-plan-annotator/runtime-darwin-arm64": "1.4.2",
-    "@open-plan-annotator/runtime-darwin-x64": "1.4.2",
-    "@open-plan-annotator/runtime-linux-arm64": "1.4.2",
-    "@open-plan-annotator/runtime-linux-x64": "1.4.2"
+    "@open-plan-annotator/runtime-darwin-arm64": "1.5.0",
+    "@open-plan-annotator/runtime-darwin-x64": "1.5.0",
+    "@open-plan-annotator/runtime-linux-arm64": "1.5.0",
+    "@open-plan-annotator/runtime-linux-x64": "1.5.0"
   },
   "overrides": {
     "uuid": "^14.0.0"
