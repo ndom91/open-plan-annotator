@@ -55,21 +55,6 @@ You can also trigger review manually:
 /annotate-plan # Plan\n\n1. Do the thing
 ```
 
-#### Implementation Handoff
-
-By default, after a plan is approved the plugin sends "Proceed with implementation." to a `build` agent. To customize or disable this, create `open-plan-annotator.json` in your project's `.opencode/` directory or globally in `~/.config/opencode/`:
-
-```json
-{
-  "implementationHandoff": {
-    "enabled": true,
-    "agent": "build"
-  }
-}
-```
-
-Set `enabled` to `false` to disable auto-handoff. Project config overrides global config.
-
 ### Manual Install
 
 If you want to run the CLI standalone or install the package globally:
@@ -77,21 +62,6 @@ If you want to run the CLI standalone or install the package globally:
 ```sh
 pnpm add -g open-plan-annotator
 npm install -g open-plan-annotator
-```
-
-#### From Source
-
-```sh
-git clone https://github.com/ndom91/open-plan-annotator.git
-cd open-plan-annotator
-bun install
-bun run build
-```
-
-Then load it directly in Claude Code:
-
-```sh
-claude --plugin-dir ./open-plan-annotator
 ```
 
 ## Updates
@@ -112,7 +82,7 @@ open-plan-annotator doctor
 |--------|----------|-------------|
 | Delete | `d` | Strikethrough selected text |
 | Replace | `r` | Replace selected text with new content |
-| Insert | `i` | Insert text after the selection |
+| Insert | `s` | Insert text after the selection |
 | Comment | `c` | Attach a comment to selected text |
 | Approve | `Cmd+Enter` | Approve the plan and proceed |
 | Request Changes | `Cmd+Shift+Enter` | Send annotations back to the agent |
