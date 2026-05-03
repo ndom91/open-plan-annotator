@@ -23,25 +23,28 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Install
 
-> [!NOTE]
-> `open-plan-annotator` now ships as one package-managed install. The npm package
-> contains the plugin glue and resolves a platform runtime package locally. There
-> is no first-run binary download and no in-app self-update path.
+`open-plan-annotator` is package-managed: the plugin package installs the local platform runtime it needs. There is no first-run binary download and no in-app updater.
 
 ### Claude Code
 
-From within Claude Code, add the marketplace and install the plugin:
+Install from inside Claude Code:
 
 ```
 /plugin marketplace add ndom91/open-plan-annotator
 /plugin install open-plan-annotator@ndom91-open-plan-annotator
 ```
 
-This installs the npm-backed plugin and registers the `ExitPlanMode` hook that launches the annotation UI. In Claude Code, third-party marketplaces have auto-update disabled by default, so also enable auto-update for the `ndom91-open-plan-annotator` marketplace in the Marketplace UI.
+What you get:
+
+- `ExitPlanMode` hook: opens the annotation UI whenever Claude submits a plan
+- `/open-plan-annotator [task description]`: asks Claude to draft a plan and send it to the UI
+- `open-plan-annotator`: runtime command invoked by the hook
+
+Third-party marketplace auto-update is disabled by default in Claude Code. Enable auto-update for the `ndom91-open-plan-annotator` marketplace in the Marketplace UI if you want updates automatically.
 
 ### OpenCode
 
-Add `open-plan-annotator` to the `plugin` array in your OpenCode config (`opencode.json` or `.opencode/config.json`):
+Add the plugin to your OpenCode config (`opencode.json` or `.opencode/config.json`):
 
 ```json
 {
@@ -49,65 +52,56 @@ Add `open-plan-annotator` to the `plugin` array in your OpenCode config (`openco
 }
 ```
 
-OpenCode will install the package and load it automatically. The plugin:
-- Injects plan-mode instructions into the agent's system prompt
-- Registers a `submit_plan` tool that the agent calls after creating a plan
-- Spawns the annotation UI in your browser for review
-- Returns structured feedback to the agent on approval or rejection
-- Optionally hands off to an implementation agent after approval
+What you get:
 
-To update, refresh the plugin through OpenCode and restart the app so it reloads the latest package-managed runtime.
+- `submit_plan`: tool the agent calls after drafting a markdown plan
+- `open-plan-annotator`: runtime command spawned by the plugin
+- optional implementation-agent handoff after approval
 
-> [!NOTE]
-> The update mechanism changed significantly in `1.0.20+`: OpenCode now loads the npm package plus a platform runtime package instead of using the old in-place binary updater. If OpenCode appears to be stuck on an older plugin build, clear the cached `open-plan-annotator` entries under `~/.cache/opencode/node_modules/` and restart OpenCode.
+Restart OpenCode after installing or updating so it reloads the package-managed runtime.
 
 ### Pi
 
-Install the dedicated Pi package:
+Install the Pi extension:
 
 ```sh
 pi install npm:@open-plan-annotator/pi-extension
 ```
 
-The extension package registers:
+What you get:
 
-- a `submit_plan` tool, exposed to the model with prompt guidance to call it after drafting a concrete markdown plan and before implementation
-- an `/annotate-plan` command for manual review of the latest assistant message or supplied plan text
+- `submit_plan`: tool the agent calls after drafting a markdown plan
+- `/annotate-plan [plan markdown]`: command for manually reviewing supplied text or the latest assistant message
+- `open-plan-annotator`: runtime command used by the extension
 
-Typical flow:
-
-1. Ask Pi to make a plan before coding.
-2. Pi drafts the plan and calls `submit_plan`.
-3. The browser review UI opens locally.
-4. Approval returns “Plan approved. Continue with implementation.”; requested changes return the serialized annotations as feedback.
-
-You can also trigger review manually:
+Manual review examples:
 
 ```sh
 /annotate-plan
 /annotate-plan # Plan\n\n1. Do the thing
 ```
 
-### Manual Install
+### Manual / CLI
 
-If you want to run the CLI standalone or install the package globally:
+Install globally if you want to run the CLI directly:
 
 ```sh
-pnpm add -g open-plan-annotator
+bun add -g open-plan-annotator
 npm install -g open-plan-annotator
 ```
 
-## Updates
-
-- OpenCode: update the installed npm plugin through OpenCode, then restart OpenCode.
-- Claude Code: update the marketplace/plugin install, then restart Claude Code.
-- Standalone/global install: update the npm package (`npm`, `pnpm`, or `bun`), then rerun `open-plan-annotator`.
-
-The built-in `doctor` command reports the resolved runtime package and runtime path:
+This adds the `open-plan-annotator` command. To verify the resolved runtime:
 
 ```sh
 open-plan-annotator doctor
 ```
+
+## Updates
+
+- Claude Code: update the marketplace/plugin install, then restart Claude Code.
+- OpenCode: update the installed npm plugin through OpenCode, then restart OpenCode.
+- Pi: update the Pi extension, then restart Pi.
+- Manual/global install: update the npm package, then rerun `open-plan-annotator`.
 
 ## Keyboard Shortcuts
 
