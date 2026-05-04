@@ -2,7 +2,35 @@ import { tool } from "@opencode-ai/plugin";
 import { runPlanReview } from "./bridge.js";
 import { resolveImplementationHandoff } from "./config.js";
 
-const PLAN_REVIEW_INSTRUCTIONS = `## Plan Review Workflow
+const PLAN_REVIEW_INSTRUCTIONS = `## Plan Review Tool
+
+The "open-plan-annotator plan annotation tool" refers to the \`submit_plan\` tool.
+
+When the user asks for a plan, proposal, implementation strategy, migration path, rollout plan, or asks "what would it look like," you MUST use the \`submit_plan\` tool instead of replying with a normal Markdown plan.
+
+Use \`submit_plan\` when:
+- The user explicitly says "make a plan", "write a plan", "give me a plan", "proposal", or "implementation plan".
+- The user asks to evaluate an approach before code changes.
+- The response contains ordered implementation steps.
+- The plan would benefit from user approval before execution.
+
+Do not use \`submit_plan\` for:
+- Tiny one-step tasks.
+- Pure explanations with no proposed action.
+- Final summaries after work is complete.
+
+If there is any ambiguity about whether a response is a plan, prefer using \`submit_plan\`.
+
+The \`submit_plan\` call should include:
+- \`summary\`: one sentence describing the plan.
+- \`plan\`: the full Markdown plan.
+
+After calling \`submit_plan\`, follow the returned instruction exactly:
+- If approved, proceed.
+- If revisions are requested, revise the plan and call \`submit_plan\` again.
+- If the user asks questions, answer them before proceeding.
+
+## Plan Review Workflow
 
 Track planning/execution using this state enum:
 - \`DISCOVERY\`, \`PLAN_DRAFT\`, \`AWAITING_PLAN_DECISION\`, \`EXECUTION\`, \`DONE\`
