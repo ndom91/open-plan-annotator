@@ -66,7 +66,7 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
 
   return (
     <nav aria-label="Table of contents" className="font-sans">
-      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-secondary uppercase tracking-widest mb-3 pl-3">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-secondary uppercase tracking-widest mb-3">
         <svg
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"

@@ -243,7 +243,6 @@ export default function App() {
                 onSelectVersion={setSelectedVersion}
               />
             )}
-            {totalVersions > 1 && blocks.length > 0 && <div className="my-6 h-px bg-rule-subtle" />}
             <TableOfContents blocks={blocks} />
           </aside>
 

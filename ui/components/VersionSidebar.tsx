@@ -16,21 +16,28 @@ export function VersionSidebar({
   const versions = Array.from({ length: totalVersions }, (_, i) => totalVersions - i);
 
   return (
-    <nav aria-label="Versions" className="font-sans">
-      <div className="flex items-center justify-between mb-3 px-2">
+    <nav aria-label="Versions" className="font-sans pb-8">
+      <div className="flex items-center justify-between mb-3">
         <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-secondary uppercase tracking-widest">
           <svg
-            aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="w-3 h-3"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            className="size-3"
           >
-            <path d="M2 4.5a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4.5Zm0 3.5a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 8Zm.75 2.75a.75.75 0 0 0 0 1.5h10.5a.75.75 0 0 0 0-1.5H2.75Z" />
+            <path d="M2 7v10" />
+            <path d="M6 5v14" />
+            <rect width="12" height="18" x="10" y="3" rx="2" />
           </svg>
           Versions
         </h3>
-        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-paper-edge border border-rule-subtle px-1.5 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-paper-edge px-1.5 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
           {totalVersions}
         </span>
       </div>
@@ -46,8 +53,8 @@ export function VersionSidebar({
                 className={cn(
                   "group w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-left text-[13px] cursor-pointer transition-colors duration-150",
                   isSelected
-                    ? "bg-paper-edge text-ink"
-                    : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
+                    ? "bg-paper border-ink-tertiary/20 border text-ink-tertiary"
+                    : "text-ink-tertiary border-transparent hover:text-ink-secondary hover:bg-paper-edge/50",
                 )}
               >
                 <span className={cn("font-mono text-[12px] tabular-nums", isSelected ? "text-ink" : "")}>v{v}</span>
