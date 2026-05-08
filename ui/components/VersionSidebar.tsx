@@ -51,7 +51,7 @@ export function VersionSidebar({
                 type="button"
                 onClick={() => onSelectVersion(v)}
                 className={cn(
-                  "group w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-left text-[13px] cursor-pointer transition-colors duration-150",
+                  "group w-full flex items-center gap-2 py-1.5 px-2 rounded-md text-left text-[13px] cursor-pointer transition-colors duration-200 ease-out",
                   isSelected
                     ? "bg-paper border-ink-tertiary/20 border text-ink-tertiary"
                     : "text-ink-tertiary border-transparent hover:text-ink-secondary hover:bg-paper-edge/50",

@@ -48,7 +48,7 @@ export function DocumentChrome({
             type="button"
             onClick={onToggleDiff}
             className={cn(
-              "font-sans flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium cursor-pointer transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent/50",
+              "font-sans flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-medium cursor-pointer transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50",
               showDiff
                 ? "border border-accent/40 bg-accent-subtle text-accent"
                 : "border border-rule text-ink-secondary hover:text-ink hover:bg-paper-edge",

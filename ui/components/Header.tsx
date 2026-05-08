@@ -153,7 +153,7 @@ export function Header({
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded text-[13px] font-medium text-redline border border-redline/40 hover:bg-redline-bg hover:border-redline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded text-[13px] font-medium text-redline border border-redline/40 hover:bg-redline-bg hover:border-redline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Request changes
@@ -167,7 +167,7 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded bg-approve hover:bg-approve-hover cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded bg-approve hover:bg-approve-hover cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             <svg

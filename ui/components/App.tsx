@@ -259,14 +259,16 @@ export default function App() {
                   hasPreviousVersion={hasPreviousVersion}
                 />
                 {showDiff && hasPreviousVersion && !isViewingHistory ? (
-                  <DiffViewer
-                    oldText={history[history.length - 1]}
-                    newText={plan!}
-                    oldVersion={version - 1}
-                    newVersion={version}
-                  />
+                  <div key="diff" className="animate-fade-in-up">
+                    <DiffViewer
+                      oldText={history[history.length - 1]}
+                      newText={plan!}
+                      oldVersion={version - 1}
+                      newVersion={version}
+                    />
+                  </div>
                 ) : (
-                  <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
+                  <div key="document" className="animate-fade-in-up px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
                     <PlanDocument
                       blocks={blocks}
                       annotations={isViewingHistory ? [] : annotations}

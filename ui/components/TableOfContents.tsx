@@ -89,7 +89,7 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
                 href={`#block-${h.index}`}
                 onClick={(e) => handleClick(e, h.index)}
                 className={cn(
-                  "flex items-center gap-1.5 py-1 pr-2 rounded-md text-[13px] cursor-pointer transition-colors duration-150",
+                  "flex items-center gap-1.5 py-1 pr-2 rounded-md text-[13px] cursor-pointer transition-colors duration-200 ease-out",
                   indent,
                   isActive
                     ? "bg-paper-edge text-ink font-medium"
