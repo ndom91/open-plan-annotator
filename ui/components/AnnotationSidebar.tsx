@@ -1,55 +1,16 @@
 import type { Annotation } from "../utils/annotationSerializer.ts";
-import { cn } from "../utils/cn.ts";
+import { AnnotationCard } from "./AnnotationCard.tsx";
 
 interface AnnotationSidebarProps {
   annotations: Annotation[];
   onRemove: (id: string) => void;
 }
 
-interface TypeConfig {
-  label: string;
-  bulletClass: string;
-  bulletGlyph: React.ReactNode;
-  pillClass: string;
-  previewClass: string;
-}
-
-const typeConfig: Record<Annotation["type"], TypeConfig> = {
-  comment: {
-    label: "Comment",
-    bulletClass: "bg-margin-note text-white",
-    bulletGlyph: "?",
-    pillClass: "text-margin-note",
-    previewClass: "bg-margin-note-bg text-margin-note",
-  },
-  deletion: {
-    label: "Delete",
-    bulletClass: "bg-redline text-white",
-    bulletGlyph: "−",
-    pillClass: "text-redline",
-    previewClass: "bg-redline-bg text-redline line-through decoration-redline/70",
-  },
-  replacement: {
-    label: "Replace",
-    bulletClass: "bg-replace text-white",
-    bulletGlyph: "→",
-    pillClass: "text-replace",
-    previewClass: "bg-replace-bg text-replace",
-  },
-  insertion: {
-    label: "Insert",
-    bulletClass: "bg-approve text-white",
-    bulletGlyph: "+",
-    pillClass: "text-approve",
-    previewClass: "bg-approve-bg text-approve",
-  },
-};
-
 export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarProps) {
   return (
     <div className="font-sans pb-4">
-      <div className="flex items-center justify-between mb-4 pl-3 pr-1">
-        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest">
+      <div className="flex items-center justify-between mb-4 px-2">
+        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-secondary uppercase tracking-widest">
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"
@@ -61,75 +22,21 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
           </svg>
           Annotations
         </h3>
-        <span className="inline-flex h-4 min-w-4 items-center justify-center rounded bg-paper-edge border border-rule-subtle px-1 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-paper-edge px-1.5 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
           {annotations.length}
         </span>
       </div>
-      <div className="space-y-3 relative">
-        {annotations.map((ann, i) => {
-          const cfg = typeConfig[ann.type];
-          return (
-            <div key={ann.id} className="animate-fade-in-up flex gap-3" style={{ animationDelay: `${i * 40}ms` }}>
-              <div
-                className={cn(
-                  "shrink-0 mt-1 w-5 h-5 rounded-full flex items-center justify-center text-[11px] font-bold leading-none",
-                  cfg.bulletClass,
-                )}
-                aria-hidden="true"
-              >
-                {cfg.bulletGlyph}
-              </div>
-              <div className="group relative flex-1 min-w-0 rounded-md border border-rule-subtle bg-paper p-2.5">
-                <button
-                  type="button"
-                  onClick={() => onRemove(ann.id)}
-                  className="absolute top-1.5 right-1.5 inline-flex items-center justify-center w-4 h-4 rounded-sm text-ink-tertiary leading-none cursor-pointer transition-colors duration-150 hover:text-redline focus-visible:ring-2 focus-visible:ring-accent/50 opacity-0 group-hover:opacity-100"
-                  title="Remove annotation"
-                  aria-label="Remove annotation"
-                >
-                  <svg
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 16 16"
-                    fill="currentColor"
-                    className="size-3"
-                  >
-                    <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
-                  </svg>
-                </button>
-                <div className="pr-5">
-                  <span className={cn("text-[10px] font-bold uppercase tracking-widest leading-none", cfg.pillClass)}>
-                    {cfg.label}
-                  </span>
-                </div>
-                <div
-                  className={cn(
-                    "mt-2 px-2 py-1 rounded-sm text-[12px] font-mono leading-relaxed truncate",
-                    cfg.previewClass,
-                  )}
-                >
-                  {truncate(ann.text, 50)}
-                </div>
-                {ann.type === "replacement" && ann.replacement && (
-                  <p className="mt-1.5 text-[12px] text-replace leading-relaxed">
-                    <span aria-hidden="true">→</span> {truncate(ann.replacement, 60)}
-                  </p>
-                )}
-                {ann.type === "insertion" && ann.replacement && (
-                  <p className="mt-1.5 text-[12px] text-approve leading-relaxed">+ {truncate(ann.replacement, 60)}</p>
-                )}
-                {ann.type === "comment" && ann.comment && (
-                  <p className="mt-1.5 text-[12px] text-ink-secondary leading-relaxed">{ann.comment}</p>
-                )}
-              </div>
-            </div>
-          );
-        })}
+      <div className="relative">
+        {annotations.map((ann, i) => (
+          <AnnotationCard
+            key={ann.id}
+            annotation={ann}
+            index={i}
+            isLast={i === annotations.length - 1}
+            onRemove={onRemove}
+          />
+        ))}
       </div>
     </div>
   );
-}
-
-function truncate(s: string, max: number): string {
-  return s.length > max ? `${s.slice(0, max)}…` : s;
 }
