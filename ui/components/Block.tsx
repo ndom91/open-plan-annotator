@@ -296,7 +296,9 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
       );
     }
 
-    case "code":
+    case "code": {
+      const codeSegments = splitIntoSegments(block.content, blockAnnotations);
+      const hasAnnotations = blockAnnotations.length > 0;
       return (
         <div
           data-block-index={block.index}
@@ -312,11 +314,20 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
               </span>
             </div>
           )}
-          <div data-seg-start={0} data-seg-end={block.content.length}>
-            <HighlightedCode code={block.content} lang={block.lang} />
-          </div>
+          {hasAnnotations ? (
+            <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-code-ink whitespace-pre">
+              <code data-seg-start={0} data-seg-end={block.content.length}>
+                {renderSegments(codeSegments, annotations, false)}
+              </code>
+            </pre>
+          ) : (
+            <div data-seg-start={0} data-seg-end={block.content.length}>
+              <HighlightedCode code={block.content} lang={block.lang} />
+            </div>
+          )}
         </div>
       );
+    }
 
     case "list": {
       return (
