@@ -248,7 +248,7 @@ export default function App() {
           </aside>
 
           <div className="flex-1 min-w-0 flex justify-center px-4 py-6 pb-24 sm:px-6 lg:px-8">
-            <div className="w-full max-w-250 min-w-0">
+            <div className="w-full max-w-220 min-w-0">
               {/* Document surface */}
               <main id="main-content" tabIndex={-1} className="bg-paper border border-rule rounded-md overflow-hidden">
                 <DocumentChrome
