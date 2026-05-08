@@ -14,6 +14,7 @@ import { DocumentChrome } from "./DocumentChrome.tsx";
 import { Header } from "./Header.tsx";
 import { PlanDocument } from "./PlanDocument.tsx";
 import { ShortcutBar } from "./ShortcutBar.tsx";
+import { TableOfContents } from "./TableOfContents.tsx";
 import { ThemeProvider } from "./ThemeProvider.tsx";
 import { UpdateBanner } from "./UpdateBanner.tsx";
 import { VersionSidebar } from "./VersionSidebar.tsx";
@@ -232,17 +233,19 @@ export default function App() {
         )}
 
         <div className="flex items-start justify-center px-4 py-8 pb-24 sm:px-6 lg:px-8">
-          {/* Version history sidebar */}
-          {totalVersions > 1 && (
-            <aside className="w-56 shrink-0 pl-2 mr-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+          {/* Left rail: versions (top) + TOC (below) */}
+          <aside className="w-56 shrink-0 pl-2 mr-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+            {totalVersions > 1 && (
               <VersionSidebar
                 currentVersion={version}
                 totalVersions={totalVersions}
                 selectedVersion={activeVersion}
                 onSelectVersion={setSelectedVersion}
               />
-            </aside>
-          )}
+            )}
+            {totalVersions > 1 && blocks.length > 0 && <div className="my-6 h-px bg-rule-subtle" />}
+            <TableOfContents blocks={blocks} />
+          </aside>
 
           <div className="w-full max-w-208 min-w-0">
             {/* Document surface */}
@@ -259,23 +262,22 @@ export default function App() {
                 onToggleDiff={handleToggleDiff}
                 hasPreviousVersion={hasPreviousVersion}
               />
-              {/* Diff view — between chrome and content */}
-              {hasPreviousVersion && !isViewingHistory && (
+              {showDiff && hasPreviousVersion && !isViewingHistory ? (
                 <DiffViewer
                   oldText={history[history.length - 1]}
                   newText={plan!}
                   oldVersion={version - 1}
                   newVersion={version}
-                  visible={showDiff}
                 />
+              ) : (
+                <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
+                  <PlanDocument
+                    blocks={blocks}
+                    annotations={isViewingHistory ? [] : annotations}
+                    onRemoveAnnotation={isViewingHistory ? undefined : removeAnnotation}
+                  />
+                </div>
               )}
-              <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
-                <PlanDocument
-                  blocks={blocks}
-                  annotations={isViewingHistory ? [] : annotations}
-                  onRemoveAnnotation={isViewingHistory ? undefined : removeAnnotation}
-                />
-              </div>
             </main>
           </div>
 
