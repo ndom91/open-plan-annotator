@@ -22,7 +22,7 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
           </svg>
           Annotations
         </h3>
-        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-paper-edge px-1.5 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
+        <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-ink-tertiary px-1.5 font-mono text-[11px] font-medium text-paper tabular-nums">
           {annotations.length}
         </span>
       </div>

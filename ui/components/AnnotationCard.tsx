@@ -67,28 +67,28 @@ export function AnnotationCard({ annotation, index, isLast, onRemove }: Annotati
         </div>
         {!isLast && <div className="w-px flex-1 bg-rule mt-1" aria-hidden="true" />}
       </div>
-      <div className="group relative flex-1 min-w-0 rounded-md border border-rule-subtle bg-paper p-2.5">
-        <button
-          type="button"
-          onClick={() => onRemove(annotation.id)}
-          className="absolute top-1.5 right-1.5 inline-flex items-center justify-center w-4 h-4 rounded-sm text-ink-tertiary leading-none cursor-pointer transition-colors duration-150 hover:text-redline focus-visible:ring-2 focus-visible:ring-accent/50 opacity-0 group-hover:opacity-100"
-          title="Remove annotation"
-          aria-label="Remove annotation"
-        >
-          <svg
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 16 16"
-            fill="currentColor"
-            className="size-3"
-          >
-            <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
-          </svg>
-        </button>
-        <div className="pr-5">
-          <span className={cn("text-[10px] font-bold uppercase tracking-widest leading-none", cfg.pillClass)}>
+      <div className="group relative flex-1 min-w-0 rounded-md border border-rule-subtle bg-paper px-2.5 pt-1.5 pb-2.5">
+        <div className="flex items-center justify-between gap-2 h-5">
+          <span className={cn("text-[11px] font-bold uppercase tracking-wide leading-none", cfg.pillClass)}>
             {cfg.label}
           </span>
+          <button
+            type="button"
+            onClick={() => onRemove(annotation.id)}
+            className="inline-flex items-center justify-center w-4 h-4 rounded-sm text-ink-tertiary leading-none cursor-pointer transition-colors duration-150 hover:text-redline focus-visible:ring-2 focus-visible:ring-accent/50 opacity-0 group-hover:opacity-100"
+            title="Remove annotation"
+            aria-label="Remove annotation"
+          >
+            <svg
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="size-3"
+            >
+              <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
+            </svg>
+          </button>
         </div>
         <div
           className={cn("mt-2 px-2 py-1 rounded-sm text-[12px] font-mono leading-relaxed truncate", cfg.previewClass)}
