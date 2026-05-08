@@ -232,9 +232,9 @@ export default function App() {
           />
         )}
 
-        <div className="flex items-start justify-center px-4 py-8 pb-24 sm:px-6 lg:px-8">
-          {/* Left rail: versions (top) + TOC (below) */}
-          <aside className="w-56 shrink-0 pl-2 pr-4 mr-6 sticky top-18 self-stretch min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-5.5rem)] overflow-y-auto border-r border-rule hidden xl:block">
+        <div className="flex items-start">
+          {/* Left rail: versions (top) + TOC (below) — flush to viewport edge */}
+          <aside className="w-60 shrink-0 sticky top-18 self-stretch min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] overflow-y-auto border-r border-rule px-5 py-8 hidden xl:block">
             {totalVersions > 1 && (
               <VersionSidebar
                 currentVersion={version}
@@ -247,38 +247,40 @@ export default function App() {
             <TableOfContents blocks={blocks} />
           </aside>
 
-          <div className="w-full max-w-208 min-w-0">
-            {/* Document surface */}
-            <main id="main-content" tabIndex={-1} className="bg-paper border border-rule rounded-md overflow-hidden">
-              <DocumentChrome
-                isViewingHistory={isViewingHistory}
-                activeVersion={activeVersion}
-                onReturnToCurrent={() => setSelectedVersion(null)}
-                showDiff={showDiff}
-                onToggleDiff={handleToggleDiff}
-                hasPreviousVersion={hasPreviousVersion}
-              />
-              {showDiff && hasPreviousVersion && !isViewingHistory ? (
-                <DiffViewer
-                  oldText={history[history.length - 1]}
-                  newText={plan!}
-                  oldVersion={version - 1}
-                  newVersion={version}
+          <div className="flex-1 min-w-0 flex justify-center px-4 py-8 pb-24 sm:px-6 lg:px-8">
+            <div className="w-full max-w-208 min-w-0">
+              {/* Document surface */}
+              <main id="main-content" tabIndex={-1} className="bg-paper border border-rule rounded-md overflow-hidden">
+                <DocumentChrome
+                  isViewingHistory={isViewingHistory}
+                  activeVersion={activeVersion}
+                  onReturnToCurrent={() => setSelectedVersion(null)}
+                  showDiff={showDiff}
+                  onToggleDiff={handleToggleDiff}
+                  hasPreviousVersion={hasPreviousVersion}
                 />
-              ) : (
-                <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
-                  <PlanDocument
-                    blocks={blocks}
-                    annotations={isViewingHistory ? [] : annotations}
-                    onRemoveAnnotation={isViewingHistory ? undefined : removeAnnotation}
+                {showDiff && hasPreviousVersion && !isViewingHistory ? (
+                  <DiffViewer
+                    oldText={history[history.length - 1]}
+                    newText={plan!}
+                    oldVersion={version - 1}
+                    newVersion={version}
                   />
-                </div>
-              )}
-            </main>
+                ) : (
+                  <div className="px-10 py-12 sm:px-14 lg:px-20 lg:py-16">
+                    <PlanDocument
+                      blocks={blocks}
+                      annotations={isViewingHistory ? [] : annotations}
+                      onRemoveAnnotation={isViewingHistory ? undefined : removeAnnotation}
+                    />
+                  </div>
+                )}
+              </main>
+            </div>
           </div>
 
-          {/* Annotation sidebar */}
-          <aside className="w-60 shrink-0 pr-2 ml-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+          {/* Annotation sidebar — flush to viewport edge */}
+          <aside className="w-72 shrink-0 sticky top-18 self-stretch min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] overflow-y-auto border-l border-rule px-5 py-8 hidden xl:block">
             {!isViewingHistory && <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />}
           </aside>
         </div>
