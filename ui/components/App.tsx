@@ -234,7 +234,7 @@ export default function App() {
 
         <div className="flex items-start">
           {/* Left rail: versions (top) + TOC (below) — flush to viewport edge */}
-          <aside className="w-60 shrink-0 sticky top-18 self-stretch min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] overflow-y-auto border-r border-rule px-5 py-8 hidden xl:block">
+          <aside className="w-60 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-r border-rule px-5 py-8 hidden xl:block">
             {totalVersions > 1 && (
               <VersionSidebar
                 currentVersion={version}
@@ -280,7 +280,7 @@ export default function App() {
           </div>
 
           {/* Annotation sidebar — flush to viewport edge */}
-          <aside className="w-72 shrink-0 sticky top-18 self-stretch min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-4.5rem)] overflow-y-auto border-l border-rule px-5 py-8 hidden xl:block">
+          <aside className="w-72 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-l border-rule px-5 py-8 hidden xl:block">
             {!isViewingHistory && <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />}
           </aside>
         </div>
