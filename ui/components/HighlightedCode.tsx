@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import type { HighlighterCore } from "shiki/core";
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
@@ -58,7 +58,9 @@ interface HighlightedCodeProps {
   lang?: string;
 }
 
-export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
+export const HighlightedCode = memo(HighlightedCodeImpl);
+
+function HighlightedCodeImpl({ code, lang }: HighlightedCodeProps) {
   const [html, setHtml] = useState<string | null>(null);
   const theme = "github-dark-default";
 
@@ -92,7 +94,7 @@ export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
 
       if (cancelled) return;
 
-      const result = highlighter.codeToHtml(code, { lang, theme });
+      const result = highlighter.codeToHtml(code, { lang, theme }).replace(/\stabindex="0"/g, "");
       setHtml(result);
     })();
 
