@@ -158,9 +158,9 @@ export function Header({
           >
             Request changes
             <kbd className="flex items-center gap-0.5 font-mono">
-              <span className="shortcut-key">⌘</span>
-              <span className="shortcut-key">⇧</span>
-              <span className="shortcut-key">↵</span>
+              <span className="shortcut-key !bg-redline-bg !border-redline/40 !text-redline">⌘</span>
+              <span className="shortcut-key !bg-redline-bg !border-redline/40 !text-redline">⇧</span>
+              <span className="shortcut-key !bg-redline-bg !border-redline/40 !text-redline">↵</span>
             </kbd>
           </button>
           <button
