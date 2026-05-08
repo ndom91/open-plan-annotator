@@ -19,7 +19,7 @@ Select text to <code>strikethrough</code>, <code>replace</code>, <code>insert</c
 
 Everything runs locally. Nothing leaves your machine.
 
-![](.github/assets/screenshot_light_002.png)
+![](.github/assets/screenshot_light_004.png)
 
 ## Install
 
