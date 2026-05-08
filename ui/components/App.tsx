@@ -234,7 +234,7 @@ export default function App() {
 
         <div className="flex items-start">
           {/* Left rail: versions (top) + TOC (below) — flush to viewport edge */}
-          <aside className="w-60 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-r border-rule px-5 py-8 hidden xl:block">
+          <aside className="w-60 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-r border-rule px-5 py-6 hidden xl:block">
             {totalVersions > 1 && (
               <VersionSidebar
                 currentVersion={version}
@@ -247,8 +247,8 @@ export default function App() {
             <TableOfContents blocks={blocks} />
           </aside>
 
-          <div className="flex-1 min-w-0 flex justify-center px-4 py-8 pb-24 sm:px-6 lg:px-8">
-            <div className="w-full max-w-208 min-w-0">
+          <div className="flex-1 min-w-0 flex justify-center px-4 py-6 pb-24 sm:px-6 lg:px-8">
+            <div className="w-full max-w-250 min-w-0">
               {/* Document surface */}
               <main id="main-content" tabIndex={-1} className="bg-paper border border-rule rounded-md overflow-hidden">
                 <DocumentChrome
@@ -280,7 +280,7 @@ export default function App() {
           </div>
 
           {/* Annotation sidebar — flush to viewport edge */}
-          <aside className="w-72 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-l border-rule px-5 py-8 hidden xl:block">
+          <aside className="w-72 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-l border-rule px-5 py-6 hidden xl:block">
             {!isViewingHistory && <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />}
           </aside>
         </div>

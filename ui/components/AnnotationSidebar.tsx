@@ -59,7 +59,7 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
           >
             <path d="M1 8.74c0 .983.713 1.825 1.69 1.943.764.092 1.534.164 2.31.216a.75.75 0 0 1 .474.298l1.316 1.796a.25.25 0 0 0 .42 0l1.316-1.796a.75.75 0 0 1 .474-.298c.776-.052 1.546-.124 2.31-.216C12.287 10.565 13 9.723 13 8.74V4.26c0-.983-.713-1.825-1.69-1.943A44.077 44.077 0 0 0 7 2c-1.543 0-3.06.096-4.31.317C1.713 2.435 1 3.277 1 4.26v4.48Z" />
           </svg>
-          Conversation
+          Annotations
         </h3>
         <span className="inline-flex h-4 min-w-4 items-center justify-center rounded bg-paper-edge border border-rule-subtle px-1 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
           {annotations.length}

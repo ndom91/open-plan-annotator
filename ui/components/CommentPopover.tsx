@@ -99,7 +99,7 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
         role="dialog"
         aria-labelledby="popover-title"
         aria-modal="true"
-        className="bg-paper border border-rule rounded-2xl shadow-[0_1px_3px_oklch(0_0_0/0.12),0_8px_40px_oklch(0_0_0/0.25),0_24px_60px_oklch(0_0_0/0.15)] overflow-hidden w-104"
+        className="font-sans bg-paper border border-rule rounded-md shadow-[0_8px_24px_oklch(0_0_0/0.18)] overflow-hidden w-104"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-6">
@@ -116,14 +116,14 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
             onKeyDown={handleKeyDown}
             placeholder={placeholder}
             aria-label={title}
-            className="w-full h-20 px-3 py-2.5 text-sm rounded-lg border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)] focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-all duration-200"
+            className="w-full h-20 px-3 py-2.5 text-sm rounded border border-rule bg-inset text-ink placeholder-ink-tertiary resize-none focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent/40 transition-colors duration-150"
           />
           <div className="flex items-center justify-end mt-4">
             <div className="flex gap-2">
               <button
                 type="button"
                 onClick={onCancel}
-                className="px-3 py-1.5 text-sm rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-margin-note/50"
+                className="px-3 py-1.5 text-sm rounded text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-margin-note/50"
               >
                 Cancel
               </button>
@@ -132,16 +132,16 @@ export function TextInputPopover({ mode, selectedText, onSubmit, onCancel }: Tex
                 onClick={handleSubmit}
                 disabled={!text.trim()}
                 className={cn(
-                  "group flex items-center gap-3 pl-4 pr-2.5 py-1.5 text-sm rounded-lg text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-all duration-200 font-medium shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.1)] focus-visible:ring-2 focus-visible:ring-accent/50",
+                  "group flex items-center gap-2 pl-3 pr-2 py-1.5 text-sm rounded text-white cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150 font-medium focus-visible:ring-2 focus-visible:ring-accent/50",
                   buttonClass,
                 )}
               >
                 {button}
-                <kbd className="flex items-center gap-0.5 text-[11px] font-mono transition-opacity">
-                  <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+                <kbd className="flex items-center gap-0.5 font-mono">
+                  <span className="flex items-center justify-center size-[1.1rem] rounded-sm bg-black/20 text-white/80 text-[0.66rem] font-medium leading-none">
                     ⌘
                   </span>
-                  <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+                  <span className="flex items-center justify-center size-[1.1rem] rounded-sm bg-black/20 text-white/80 text-[0.66rem] font-medium leading-none">
                     ↵
                   </span>
                 </kbd>

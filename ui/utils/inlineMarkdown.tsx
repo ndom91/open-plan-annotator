@@ -186,7 +186,7 @@ export function renderInlineMarkdown(text: string): ReactNode[] {
         );
       case "code":
         return (
-          <code key={i} className="text-[13px] font-mono bg-inset border border-rule rounded px-1 py-0.5">
+          <code key={i} className="text-[0.85em] font-mono bg-inset border border-rule-subtle rounded-sm px-1 py-px">
             {token.content}
           </code>
         );

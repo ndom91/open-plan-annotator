@@ -88,7 +88,7 @@ export function Header({
       <div className="font-sans flex items-center justify-between px-8 py-3 bg-desk/85 backdrop-blur-xl border-b border-rule">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full flex items-center justify-center text-accent">
+            <div className="size-7 rounded-sm flex items-center justify-center text-accent bg-accent-subtle">
               <svg
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
@@ -105,7 +105,7 @@ export function Header({
             <>
               <span className="text-ink-tertiary text-sm select-none">/</span>
               <span className="inline-flex h-6 items-center rounded border border-rule bg-paper-edge px-2 font-mono text-[11px] font-medium text-ink-secondary tabular-nums">
-                PR #{appVersion}
+                v{appVersion}
               </span>
             </>
           )}

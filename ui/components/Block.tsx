@@ -300,7 +300,7 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
       return (
         <div data-block-index={block.index} className="my-6 rounded bg-inset border border-rule-subtle overflow-hidden">
           {block.lang && (
-            <div className="px-4 py-2 border-b border-rule-subtle flex items-center">
+            <div className="px-4 py-2 border-b border-rule flex items-center">
               <span className="text-[11px] font-mono text-ink-tertiary uppercase tracking-widest">{block.lang}</span>
             </div>
           )}

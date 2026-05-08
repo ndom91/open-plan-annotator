@@ -18,7 +18,7 @@ export function VersionSidebar({
   return (
     <nav aria-label="Versions" className="font-sans">
       <div className="flex items-center justify-between mb-3 pl-3 pr-2">
-        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest">
+        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-secondary uppercase tracking-widest">
           <svg
             aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg"

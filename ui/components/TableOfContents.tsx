@@ -66,7 +66,7 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
 
   return (
     <nav aria-label="Table of contents" className="font-sans">
-      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest mb-3 pl-3">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-secondary uppercase tracking-widest mb-3 pl-3">
         <svg
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
@@ -80,25 +80,8 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
       </h3>
       <ul className="space-y-0.5">
         {headings.map((h) => {
+          if (h.level === 1) return null;
           const isActive = activeIndex === h.index;
-          if (h.level === 1) {
-            return (
-              <li key={h.index} className="mt-3 first:mt-0">
-                <a
-                  href={`#block-${h.index}`}
-                  onClick={(e) => handleClick(e, h.index)}
-                  className={cn(
-                    "block px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-widest cursor-pointer transition-colors duration-150 leading-snug",
-                    isActive
-                      ? "bg-paper-edge text-ink"
-                      : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
-                  )}
-                >
-                  {h.text}
-                </a>
-              </li>
-            );
-          }
           const indent = h.level === 3 ? "pl-7" : "pl-3";
           return (
             <li key={h.index}>
@@ -113,7 +96,7 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
                     : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
                 )}
               >
-                <span className="text-ink-tertiary/70">·</span>
+                <span className="bg-ink-tertiary/40 rounded-full size-1.25"></span>
                 <span className="truncate">{h.text}</span>
               </a>
             </li>
