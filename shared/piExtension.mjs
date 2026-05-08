@@ -4,7 +4,7 @@ import { detectPackageManager } from "./packageManager.mjs";
 import { runPlanReviewBinary } from "./planReview.mjs";
 import { resolveRuntimeBinary } from "./runtimeResolver.mjs";
 
-const TOOL_NAME = "submit_plan";
+const TOOL_NAME = "annotate_plan";
 
 function getSessionId(ctx) {
   try {
@@ -65,7 +65,7 @@ export function registerPiExtension(pi) {
     description: "Open the browser-based plan annotation UI and return approval or revision feedback.",
     promptSnippet: "Use this tool after drafting a plan that needs human review before implementation.",
     promptGuidelines: [
-      "Call submit_plan when you have a concrete plan in markdown form.",
+      "Call annotate_plan when you have a concrete plan in markdown form.",
       "Include the full plan text, including numbered steps if available.",
       "Wait for the review result before proceeding with implementation.",
     ],

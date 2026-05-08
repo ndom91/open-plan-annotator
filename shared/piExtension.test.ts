@@ -21,12 +21,12 @@ function createMockPi() {
 }
 
 describe("piExtension", () => {
-  test("registers the submit_plan tool and annotate-plan command", () => {
+  test("registers the annotate_plan tool and annotate-plan command", () => {
     const mock = createMockPi();
 
     registerPiExtension(mock.pi);
 
-    expect(mock.tools.map((tool) => tool.name)).toEqual(["submit_plan"]);
+    expect(mock.tools.map((tool) => tool.name)).toEqual(["annotate_plan"]);
     expect(mock.commands.map((command) => command.name)).toEqual(["annotate-plan"]);
   });
 
@@ -35,7 +35,7 @@ describe("piExtension", () => {
 
     await packageExtension(mock.pi);
 
-    expect(mock.tools.map((tool) => tool.name)).toEqual(["submit_plan"]);
+    expect(mock.tools.map((tool) => tool.name)).toEqual(["annotate_plan"]);
     expect(mock.commands.map((command) => command.name)).toEqual(["annotate-plan"]);
   });
 });

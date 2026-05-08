@@ -37,7 +37,7 @@ Install from inside Claude Code:
 What you get:
 
 - `ExitPlanMode` hook: opens the annotation UI whenever Claude submits a plan
-- `/open-plan-annotator [task description]`: asks Claude to draft a plan and send it to the UI
+- `/annotate-plan [task description]`: asks Claude to draft a plan and send it to the UI
 - `open-plan-annotator`: runtime command invoked by the hook
 
 Third-party marketplace auto-update is disabled by default in Claude Code. Enable auto-update for the `ndom91-open-plan-annotator` marketplace in the Marketplace UI if you want updates automatically.
@@ -54,7 +54,7 @@ Add the plugin to your OpenCode config (`opencode.json` or `.opencode/config.jso
 
 What you get:
 
-- `submit_plan`: tool the agent calls after drafting a markdown plan
+- `annotate_plan`: tool the agent calls after drafting a markdown plan
 - `open-plan-annotator`: runtime command spawned by the plugin
 - optional implementation-agent handoff after approval
 
@@ -70,7 +70,7 @@ pi install npm:@open-plan-annotator/pi-extension
 
 What you get:
 
-- `submit_plan`: tool the agent calls after drafting a markdown plan
+- `annotate_plan`: tool the agent calls after drafting a markdown plan
 - `/annotate-plan [plan markdown]`: command for manually reviewing supplied text or the latest assistant message
 - `open-plan-annotator`: runtime command used by the extension
 

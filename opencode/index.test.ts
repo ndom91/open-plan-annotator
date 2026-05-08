@@ -19,7 +19,7 @@ function createPluginContext() {
   };
 }
 
-describe("submit_plan tool output", () => {
+describe("annotate_plan tool output", () => {
   test("returns plain text execution instructions after approval", async () => {
     mock.module("./bridge.js", () => ({
       runPlanReview: async () => ({ approved: true }),
@@ -28,12 +28,12 @@ describe("submit_plan tool output", () => {
     const { OpenPlanAnnotatorPlugin } = await import(`./index.js?approved-${Date.now()}`);
     const plugin = await OpenPlanAnnotatorPlugin(createPluginContext());
 
-    const result = await plugin.tool.submit_plan.execute({ plan: "# Plan" }, { sessionID: "session-1" });
+    const result = await plugin.tool.annotate_plan.execute({ plan: "# Plan" }, { sessionID: "session-1" });
 
     expect(typeof result).toBe("string");
     expect(result).toContain("plan_status=approved");
     expect(result).toContain("next_state=EXECUTION");
-    expect(result).toContain("Do not call `submit_plan` again");
+    expect(result).toContain("Do not call `annotate_plan` again");
   });
 
   test("returns plain text revision instructions after rejection", async () => {
@@ -44,7 +44,7 @@ describe("submit_plan tool output", () => {
     const { OpenPlanAnnotatorPlugin } = await import(`./index.js?rejected-${Date.now()}`);
     const plugin = await OpenPlanAnnotatorPlugin(createPluginContext());
 
-    const result = await plugin.tool.submit_plan.execute({ plan: "# Plan" }, { sessionID: "session-2" });
+    const result = await plugin.tool.annotate_plan.execute({ plan: "# Plan" }, { sessionID: "session-2" });
 
     expect(typeof result).toBe("string");
     expect(result).toContain("plan_status=rejected");

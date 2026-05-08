@@ -13,7 +13,7 @@ This is distinct from `plannotator-review` (post-implementation code review). op
 When any trigger below fires, you MUST route through the annotator. "Prefer" / "consider" do not apply. Inline plans are a bug.
 
 - Assistant-initiated (you decided a plan is needed): call `EnterPlanMode`, draft, then `ExitPlanMode` — this fires the annotator hook.
-- User-initiated ("draft a plan", "/plan", etc.): invoke the `/open-plan-annotator <task>` slash command. It runs the same plan-mode flow.
+- User-initiated ("draft a plan", "/plan", etc.): invoke the `/annotate-plan <task>` slash command. It runs the same plan-mode flow.
 
 ## Trigger: Mechanical Heuristic
 
@@ -89,8 +89,8 @@ When writing a plan, include:
 draft mentally → call `EnterPlanMode` → draft plan → call `ExitPlanMode` → annotator opens → user annotates → revise based on feedback → re-exit when aligned.
 
 **User-initiated (user asked for a plan):**
-invoke `/open-plan-annotator <task>`. The command enters plan mode, drafts a plan, and exits to fire the annotator. Do not paste a multi-section plan inline and ask "sound good?" — that bypasses the annotator.
+invoke `/annotate-plan <task>`. The command enters plan mode, drafts a plan, and exits to fire the annotator. Do not paste a multi-section plan inline and ask "sound good?" — that bypasses the annotator.
 
 ## Slash Command
 
-`/open-plan-annotator <task>` is the canonical user-invoked entry point. When the user invokes it, follow the command body exactly. When you (the assistant) decide a plan is needed without the user invoking the command, prefer `EnterPlanMode` directly — the slash command is for user invocation, the tool is for assistant initiation. Both paths fire the same annotator hook.
+`/annotate-plan <task>` is the canonical user-invoked entry point. When the user invokes it, follow the command body exactly. When you (the assistant) decide a plan is needed without the user invoking the command, prefer `EnterPlanMode` directly — the slash command is for user invocation, the tool is for assistant initiation. Both paths fire the same annotator hook.

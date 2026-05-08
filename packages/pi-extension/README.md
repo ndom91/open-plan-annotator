@@ -38,13 +38,13 @@ pi install npm:@open-plan-annotator/pi-extension
 
 The extension package registers:
 
-- a `submit_plan` tool, exposed to the model with prompt guidance to call it after drafting a concrete markdown plan and before implementation
+- a `annotate_plan` tool, exposed to the model with prompt guidance to call it after drafting a concrete markdown plan and before implementation
 - an `/annotate-plan` command for manual review of the latest assistant message or supplied plan text
 
 Typical flow:
 
 1. Ask Pi to make a plan before coding.
-2. Pi drafts the plan and calls `submit_plan`.
+2. Pi drafts the plan and calls `annotate_plan`.
 3. The browser review UI opens locally.
 4. Approval returns “Plan approved. Continue with implementation.”; requested changes return the serialized annotations as feedback.
 

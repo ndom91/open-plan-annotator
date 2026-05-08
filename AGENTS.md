@@ -18,7 +18,7 @@ Claude Code path:
         → Writes hook response JSON to stdout
 
 OpenCode path:
-  Agent calls submit_plan tool
+  Agent calls annotate_plan tool
     → opencode/index.js             (OpenCode plugin entry, loaded via package.json "main")
       → opencode/bridge.js          (constructs fake HookEvent, spawns binary)
         → bin/open-plan-annotator.mjs → binary (same as above)
@@ -35,7 +35,7 @@ The OpenCode plugin bridges to the same binary by constructing a Claude-format `
 - `server/api.ts` — Routes: `GET /api/plan`, `POST /api/approve`, `POST /api/deny`, `POST /api/settings`, and catch-all serving the embedded HTML.
 - `server/launch.ts` — Cross-platform `open` / `xdg-open` browser launcher.
 - `server/types.ts` — Shared types (`HookEvent`, `HookOutput`, `Annotation`, `ServerState`, `ServerDecision`, `UserPreferences`).
-- `opencode/index.js` — OpenCode plugin entry point. Registers `submit_plan` tool, injects system prompt instructions, handles implementation agent handoff.
+- `opencode/index.js` — OpenCode plugin entry point. Registers `annotate_plan` tool, injects system prompt instructions, handles implementation agent handoff.
 - `opencode/bridge.js` — Spawns the binary with a fake HookEvent, parses the HookOutput response.
 - `opencode/config.js` — Reads `open-plan-annotator.json` config for implementation handoff settings.
 - `ui/` — React + Vite frontend, built to a single `build/index.html` embedded at compile time.

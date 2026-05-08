@@ -12,7 +12,7 @@ This plugin (open-plan-annotator) installs a hook on `ExitPlanMode` that opens a
 Inline plans are a bug. When any trigger below fires, route through the annotator:
 
 - Assistant-initiated (you decided a plan is needed): call `EnterPlanMode`, draft, then `ExitPlanMode` — fires the annotator hook.
-- User-initiated ("draft a plan", "/plan", etc.): invoke `/open-plan-annotator <task>`.
+- User-initiated ("draft a plan", "/plan", etc.): invoke `/annotate-plan <task>`.
 
 ## Mechanical Heuristic
 
@@ -82,6 +82,6 @@ Include in every plan:
 
 **Assistant-initiated:** `EnterPlanMode` → draft → `ExitPlanMode` → user annotates → revise on feedback → re-exit when aligned.
 
-**User-initiated:** invoke `/open-plan-annotator <task>`. Same flow under the hood.
+**User-initiated:** invoke `/annotate-plan <task>`. Same flow under the hood.
 
 The slash command is for user invocation. When you decide a plan is needed without the user invoking it, prefer `EnterPlanMode` directly. Both paths fire the same annotator hook.
