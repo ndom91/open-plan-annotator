@@ -264,3 +264,37 @@ html {
 .animate-fade-in-up {
   animation: fade-in-up 0.2s ease-out both;
 }
+
+/* Slide-down fade for the decision chrome swap */
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-in-down {
+  animation: fade-in-down 0.25s ease-out both;
+}
+
+/* Brief celebratory pulse for the success confirmation badge */
+@keyframes success-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--color-approve-bg);
+  }
+  60% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 6px transparent;
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 transparent;
+  }
+}
+.animate-success-pulse {
+  animation: success-pulse 0.6s ease-out both;
+}

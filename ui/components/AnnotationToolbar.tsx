@@ -35,7 +35,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       aria-label="Annotation actions"
       onKeyDown={handleToolbarKeyDown}
       style={{ top, left, transform: "translateX(-50%)" }}
-      className="font-sans absolute z-50 flex items-center gap-1 bg-paper backdrop-blur-xl rounded-md border border-rule shadow-[0_4px_12px_rgba(0,0,0,0.12)] pl-3 pr-1 py-1"
+      className="animate-fade-in-up font-sans absolute z-50 flex items-center gap-1 bg-paper backdrop-blur-xl rounded-md border border-rule shadow-[0_4px_12px_rgba(0,0,0,0.12)] pl-3 pr-1 py-1"
     >
       <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-ink-tertiary select-none">
         Selection
