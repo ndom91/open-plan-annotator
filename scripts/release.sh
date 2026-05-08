@@ -77,17 +77,15 @@ bun run build:ui
 echo "Cross-compiling binaries..."
 bun scripts/build-platforms.mjs
 
-# --- Git tag + commit ---
+# --- Git commit + tag (local only; push deferred until after publish) ---
 echo ""
 git add package.json bun.lock .claude-plugin/plugin.json .claude-plugin/marketplace.json packages/runtime-*/package.json packages/pi-extension/package.json
 git commit -m "v$NEW_VERSION"
 git tag -m "v$NEW_VERSION" "v$NEW_VERSION"
 
-# --- Push ---
-echo ""
-git push --follow-tags
-
 # --- Publish ---
+# Publish before pushing so CI (triggered by tag/push) can resolve NEW_VERSION
+# on npm immediately.
 echo "Publishing runtime packages to npm..."
 for package_dir in "${RUNTIME_PACKAGES[@]}"; do
   bun publish --cwd "$package_dir" --access public
@@ -101,9 +99,27 @@ for package_dir in "${PI_PACKAGES[@]}"; do
   bun publish --cwd "$package_dir" --access public
 done
 
+# --- Wait for npm propagation ---
+# `bun publish` returns before the version is queryable on registry. Poll
+# until `npm view` resolves NEW_VERSION (or give up after timeout).
+echo ""
+echo "Waiting for open-plan-annotator@$NEW_VERSION on npm registry..."
+ATTEMPTS=0
+MAX_ATTEMPTS=30
+until npm view "open-plan-annotator@$NEW_VERSION" version >/dev/null 2>&1; do
+  ATTEMPTS=$((ATTEMPTS + 1))
+  if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
+    echo "Timed out waiting for npm to surface $NEW_VERSION; pushing anyway."
+    break
+  fi
+  sleep 5
+done
+
+# --- Push ---
+echo ""
+git push --follow-tags
+
 # --- Post-publish lockfile sync ---
-# pi-extension's open-plan-annotator@NEW_VERSION dep is now resolvable from
-# npm, so refresh the lockfile and commit it as a follow-up.
 echo ""
 echo "Syncing bun.lock against published versions..."
 bun install
