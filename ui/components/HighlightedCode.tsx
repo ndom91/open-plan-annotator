@@ -103,7 +103,7 @@ export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
 
   if (!html) {
     return (
-      <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-[#e6edf3]">
+      <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-code-ink">
         <code>{code}</code>
       </pre>
     );

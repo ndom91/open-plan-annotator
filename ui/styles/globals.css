@@ -23,9 +23,11 @@
   --color-margin-note: #e7c073;
   --color-margin-note-bg: rgba(231, 192, 115, 0.14);
 
-  /* Code surface — always dark, regardless of theme */
+  /* Code surface — dark in dark mode, light cream in light mode */
   --color-code-bg: #0d1117;
   --color-code-edge: #1d242d;
+  --color-code-ink: #e6edf3;
+  --color-code-muted: #8a93a0;
 
   /* Brand accent — warm peach for logo and small flourishes */
   --peach-glow: #f7c59f;
@@ -69,6 +71,11 @@
   --color-scrollbar-track: #e3e0d6;
   --color-scrollbar-thumb: #c7c4b8;
   --color-scrollbar-thumb-hover: #a8a59a;
+
+  --color-code-bg: #161b22;
+  --color-code-edge: #2a323d;
+  --color-code-ink: #e6edf3;
+  --color-code-muted: #8a93a0;
 }
 
 @theme {
