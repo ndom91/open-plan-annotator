@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import type { HighlighterCore } from "shiki/core";
 import { createHighlighterCore } from "shiki/core";
 import { createJavaScriptRegexEngine } from "shiki/engine/javascript";
-import { useTheme } from "./ThemeProvider.tsx";
 
 /**
  * Language grammars loaded on demand. Only languages listed here are bundled by
@@ -46,7 +45,7 @@ let highlighterPromise: Promise<HighlighterCore> | null = null;
 function getHighlighter(): Promise<HighlighterCore> {
   if (!highlighterPromise) {
     highlighterPromise = createHighlighterCore({
-      themes: [import("shiki/themes/github-dark-default"), import("shiki/themes/github-light-default")],
+      themes: [import("shiki/themes/github-dark-default")],
       langs: [],
       engine: createJavaScriptRegexEngine(),
     });
@@ -61,8 +60,7 @@ interface HighlightedCodeProps {
 
 export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
   const [html, setHtml] = useState<string | null>(null);
-  const { dark } = useTheme();
-  const theme = dark ? "github-dark-default" : "github-light-default";
+  const theme = "github-dark-default";
 
   useEffect(() => {
     let cancelled = false;
@@ -101,11 +99,11 @@ export function HighlightedCode({ code, lang }: HighlightedCodeProps) {
     return () => {
       cancelled = true;
     };
-  }, [code, lang, theme]);
+  }, [code, lang]);
 
   if (!html) {
     return (
-      <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-ink-secondary">
+      <pre className="p-4 overflow-x-auto font-mono text-[13px] leading-relaxed text-[#e6edf3]">
         <code>{code}</code>
       </pre>
     );

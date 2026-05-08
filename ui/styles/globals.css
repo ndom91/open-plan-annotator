@@ -23,6 +23,10 @@
   --color-margin-note: #e7c073;
   --color-margin-note-bg: rgba(231, 192, 115, 0.14);
 
+  /* Code surface — always dark, regardless of theme */
+  --color-code-bg: #0d1117;
+  --color-code-edge: #1d242d;
+
   /* Brand accent — warm peach for logo and small flourishes */
   --peach-glow: #f7c59f;
   --color-accent: var(--peach-glow);

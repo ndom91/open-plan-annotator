@@ -298,14 +298,17 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
 
     case "code":
       return (
-        <div data-block-index={block.index} className="my-6 rounded bg-inset border border-rule-subtle overflow-hidden">
+        <div
+          data-block-index={block.index}
+          className="my-6 rounded-md bg-code-bg border border-code-edge overflow-hidden text-[#e6edf3]"
+        >
           {block.lang && (
-            <div className="px-4 py-2 border-b border-rule flex items-center justify-between">
-              <span className="text-[11px] font-mono text-ink-tertiary uppercase tracking-widest">{block.lang}</span>
+            <div className="px-4 py-2 border-b border-code-edge flex items-center justify-between">
+              <span className="text-[11px] font-mono text-[#8a93a0] uppercase tracking-widest">{block.lang}</span>
               <span className="flex items-center gap-1.5" aria-hidden="true">
-                <span className="w-2.5 h-2.5 rounded-full bg-redline/60" />
-                <span className="w-2.5 h-2.5 rounded-full bg-margin-note/60" />
-                <span className="w-2.5 h-2.5 rounded-full bg-approve/60" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#ee7065]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#e7c073]" />
+                <span className="w-2.5 h-2.5 rounded-full bg-[#4ec9a4]" />
               </span>
             </div>
           )}
