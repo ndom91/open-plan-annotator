@@ -4,39 +4,74 @@
 
 Markdown plans rendered in chat are read-only for the user. To give feedback they have to retype sections inline, which is awkward in a terminal. open-plan-annotator opens a browser UI where the user can mark up your plan directly — delete lines, replace text, insert steps, leave comments. Their annotations come back to you as structured feedback.
 
-**Prefer this workflow whenever the user is expected to give structured feedback on a multi-section proposal.**
+**This is the user's required review surface for any multi-section proposal.** Inline plans bypass the tool the user installed and silently lose their preferred feedback workflow.
 
 This is distinct from `plannotator-review` (post-implementation code review). open-plan-annotator runs *before* code is written.
 
-## ALWAYS Use Plan Mode for Non-Trivial Tasks
+## Hard Rule: Annotator Required When Triggers Match
 
-Enter plan mode (which triggers the annotator on `ExitPlanMode`) before implementation that involves:
+When any trigger below fires, you MUST route through the annotator. "Prefer" / "consider" do not apply. Inline plans are a bug.
+
+- Assistant-initiated (you decided a plan is needed): call `EnterPlanMode`, draft, then `ExitPlanMode` — this fires the annotator hook.
+- User-initiated ("draft a plan", "/plan", etc.): invoke the `/open-plan-annotator <task>` slash command. It runs the same plan-mode flow.
+
+## Trigger: Mechanical Heuristic
+
+Annotator REQUIRED when the response would contain ANY of:
+
+- 3 or more file paths to be created or modified
+- 2 or more option/tradeoff comparisons the user is asked to choose between
+- A `Plan:`, `Steps:`, `Concrete changes:`, `Implementation:`, `Approach:`, or similar section header
+- A numbered or bulleted list of action items the user is expected to react to
+- A multi-section proposal with decision points
+
+This is a hard gate. Count file paths. Count options. If the count crosses the line, you do not get to write the inline response.
+
+## Trigger: Task Shape
+
+Enter plan mode (or invoke the slash command) before any of:
 
 - Creating or modifying more than 2 files
 - Architectural or structural changes
-- Anything the user hasn't explicitly described step-by-step
 - Refactoring, migration, or feature additions
 - Bug fixes that require investigation
+- Anything the user has not explicitly described step-by-step
 
-## Also Trigger When Drafting Plans Outside Plan Mode
+## Trigger: Phrase Match
 
-Plan-shaped output happens in many contexts beyond `EnterPlanMode`. Enter plan mode (so the annotator fires on exit) whenever you're about to produce:
+Treat these as plan triggers regardless of length:
 
-- A multi-step proposal with numbered or bulleted action items the user is expected to react to
-- A reply containing phrases like "recommended approach", "implementation plan", "proposed fix", "rollout plan", "here's what I'd do"
-- A response to user prompts like "let's plan X", "draft a plan", "what's the approach", "give me options", "how should we tackle this"
-- Any moment you'd otherwise ask "want me to proceed?" / "shall I draft this?" — enter plan mode instead
+- User says "draft a plan", "let's plan X", "what's the approach", "give me options", "how should we tackle this", "what would it look like"
+- Your response would contain "recommended approach", "implementation plan", "proposed fix", "rollout plan", "here's what I'd do", or "concrete file changes"
+- Any moment you would otherwise ask "want me to proceed?" / "shall I draft this?" / "OK to proceed?" / "sound good?"
 
-Rough gate: **structured feedback expected + more than ~5 action items or sections**. Below that bar, a direct answer is fine.
+## Mixed Signals: Still Trigger
+
+When a user message combines directives ("let's add X", "can we Y") with an exploratory question ("what do you think?"), the annotator still applies. Do NOT collapse into a 2-3 sentence inline response just because one clause was exploratory.
+
+The annotator IS the discussion surface. Tradeoffs, options, and open questions belong inside the plan body where the user can comment on each one — not in flat chat where they would have to retype your bullets to push back. Treat exploratory clauses as "include alternatives in the plan", not "skip the plan".
+
+## Self-Check Before Sending
+
+Before emitting any response, scan it for these strings:
+
+- "Concrete file changes", "Concrete changes", "Plan:", "Steps:", "Implementation:", "Approach:"
+- "OK to proceed?", "Want me to proceed?", "Shall I…?", "Sound good?", "Confirm…?"
+- 3+ lines that look like file paths (`foo/bar.tsx`, `path/to/file.ts`)
+- Numbered list of more than 2 items each describing a code change
+- "**N.**" / "**Fix N —**" headers introducing proposed changes
+
+If ANY match: stop, discard the inline response, route through the annotator instead.
 
 ## Do NOT Trigger For
 
 - Single-line fixes, typos, renames
 - Direct factual answers
 - Status updates or progress reports
-- Plans the user has already approved (don't re-prompt)
+- Plans the user has already approved (do not re-prompt)
 - Pure research or exploration with no proposed actions
 - Trivial questions where a plan would be overhead
+- Replies to the user's questions ABOUT an already-submitted plan (answer the question, do not re-submit)
 
 ## Plan Quality Standards
 
@@ -44,15 +79,18 @@ When writing a plan, include:
 
 - Brief summary of what you understood the task to require
 - Specific files you intend to create or modify and why
-- Any assumptions you're making
+- Any assumptions you are making
 - Explicit question if anything is ambiguous
+- Tradeoffs / option comparisons inline in the plan (since mixed-signal user messages route here)
 
 ## Workflow
 
-**In plan mode:** draft plan → call `ExitPlanMode` → annotator opens → user annotates → revise based on feedback → re-exit when aligned.
+**Assistant-initiated (you decided a plan is needed):**
+draft mentally → call `EnterPlanMode` → draft plan → call `ExitPlanMode` → annotator opens → user annotates → revise based on feedback → re-exit when aligned.
 
-**Outside plan mode (inline plan situations):** invoke the `/open-plan-annotator` slash command instead of pasting a plan inline. That command runs the same plan-mode + draft + `ExitPlanMode` flow and routes the plan through the annotator UI. Do not paste a multi-section plan inline and ask "sound good?" — that bypasses the annotator.
+**User-initiated (user asked for a plan):**
+invoke `/open-plan-annotator <task>`. The command enters plan mode, drafts a plan, and exits to fire the annotator. Do not paste a multi-section plan inline and ask "sound good?" — that bypasses the annotator.
 
 ## Slash Command
 
-`/open-plan-annotator <task>` is the canonical entry point for the plan-and-annotate workflow. Users can invoke it explicitly, and you should invoke it yourself any time you'd otherwise draft an inline plan (see "Also Trigger When Drafting Plans Outside Plan Mode" above). The command enters plan mode, drafts a plan for the task, and exits to trigger the annotator — do not skip straight to implementation.
+`/open-plan-annotator <task>` is the canonical user-invoked entry point. When the user invokes it, follow the command body exactly. When you (the assistant) decide a plan is needed without the user invoking the command, prefer `EnterPlanMode` directly — the slash command is for user invocation, the tool is for assistant initiation. Both paths fire the same annotator hook.

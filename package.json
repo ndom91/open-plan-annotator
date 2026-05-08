@@ -42,6 +42,7 @@
     "opencode/index.js",
     "hooks/",
     "commands/",
+    "skills/",
     "CLAUDE.md",
     "README.md"
   ],

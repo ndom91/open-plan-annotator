@@ -93,3 +93,9 @@ Claude Code sends a `HookEvent` JSON on stdin with `tool_input.plan` containing 
 The deny message contains serialized annotations (deletions, replacements, insertions, comments) as markdown so Claude can revise the plan.
 
 The OpenCode bridge (`opencode/bridge.js`) constructs the same `HookEvent` format and parses the same `HookOutput` response, so the binary always goes through the same code path.
+
+## Plan Review Trigger Rules
+
+When working on this repo, the same plan-review trigger rules that ship to end users also apply to you. Dogfood the plugin: when proposing non-trivial changes here, route through the annotator instead of pasting plans inline.
+
+@CLAUDE.plugin.md
