@@ -101,5 +101,17 @@ for package_dir in "${PI_PACKAGES[@]}"; do
   bun publish --cwd "$package_dir" --access public
 done
 
+# --- Post-publish lockfile sync ---
+# pi-extension's open-plan-annotator@NEW_VERSION dep is now resolvable from
+# npm, so refresh the lockfile and commit it as a follow-up.
+echo ""
+echo "Syncing bun.lock against published versions..."
+bun install
+if ! git diff --quiet bun.lock; then
+  git add bun.lock
+  git commit -m "Bump bun.lock for v$NEW_VERSION"
+  git push
+fi
+
 echo ""
 echo "Done! Released v$NEW_VERSION"
