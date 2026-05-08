@@ -100,8 +100,9 @@ for package_dir in "${PI_PACKAGES[@]}"; do
 done
 
 # --- Wait for npm propagation ---
-# `bun publish` returns before the version is queryable on registry. Poll
-# until `npm view` resolves NEW_VERSION (or give up after timeout).
+# `bun publish` returns before the version is queryable on the registry.
+# Poll using `npm view` (uses live registry, no cache) until NEW_VERSION
+# resolves.
 echo ""
 echo "Waiting for open-plan-annotator@$NEW_VERSION on npm registry..."
 ATTEMPTS=0
@@ -120,9 +121,25 @@ echo ""
 git push --follow-tags
 
 # --- Post-publish lockfile sync ---
+# Bun caches registry metadata separately from npm; clear it so the freshly
+# published NEW_VERSION resolves. Retry on transient cache-miss errors.
 echo ""
 echo "Syncing bun.lock against published versions..."
-bun install
+bun pm cache rm >/dev/null 2>&1 || true
+
+ATTEMPTS=0
+MAX_ATTEMPTS=12
+until bun install --force; do
+  ATTEMPTS=$((ATTEMPTS + 1))
+  if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
+    echo "bun install failed to resolve $NEW_VERSION after $MAX_ATTEMPTS attempts; aborting lockfile sync."
+    exit 1
+  fi
+  echo "bun install failed; clearing cache and retrying ($ATTEMPTS/$MAX_ATTEMPTS)..."
+  bun pm cache rm >/dev/null 2>&1 || true
+  sleep 5
+done
+
 if ! git diff --quiet bun.lock; then
   git add bun.lock
   git commit -m "Bump bun.lock for v$NEW_VERSION"
