@@ -172,7 +172,7 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_16px_oklch(0.67_0.20_145/0.32)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all duration-200 shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.14)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_16px_oklch(from_var(--color-approve)_l_c_h/0.32)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all duration-200 shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.14)] focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             Approve

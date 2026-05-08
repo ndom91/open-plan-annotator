@@ -1,56 +1,74 @@
 @import "tailwindcss";
 
 @theme {
-  /* Document surface colors */
-  --color-desk: oklch(0.20 0.006 260);
-  --color-paper: oklch(0.25 0.006 255);
-  --color-paper-edge: oklch(0.29 0.008 260);
-  --color-inset: oklch(0.21 0.008 260);
+  /* Palette primitives */
+  --peach-glow: oklch(0.852 0.085 65);     /* #f7c59f — warm accent */
+  --pale-slate: oklch(0.825 0.020 265);    /* #c7ccdb — light blue-grey */
+  --alice-blue: oklch(0.910 0.013 265);    /* #e1e5ee — near-white */
+  --slate-grey: oklch(0.555 0.025 265);    /* #767b91 — mid neutral */
+  /* Dark anchors — warm-leaning neutrals, harmonize with peach */
+  --graphite-deep: oklch(0.180 0.005 60);  /* outer backdrop */
+  --graphite: oklch(0.235 0.005 60);       /* document surface */
+  --graphite-lift: oklch(0.290 0.005 60);  /* paper edge */
+
+  /* Document surfaces (dark mode default) */
+  --color-desk: var(--graphite-deep);
+  --color-paper: var(--graphite);
+  --color-paper-edge: var(--graphite-lift);
+  --color-inset: oklch(from var(--graphite) calc(l - 0.025) c h);
 
   /* Ink hierarchy */
-  --color-ink: oklch(0.93 0.005 260);
-  --color-ink-secondary: oklch(0.65 0.01 260);
-  --color-ink-tertiary: oklch(0.48 0.01 260);
+  --color-ink: var(--alice-blue);
+  --color-ink-secondary: var(--pale-slate);
+  --color-ink-tertiary: var(--slate-grey);
 
-  /* Functional */
-  --color-redline: oklch(0.65 0.2 25);
-  --color-redline-bg: oklch(0.30 0.06 25);
-  --color-margin-note: oklch(0.76 0.17 78);
-  --color-margin-note-bg: oklch(0.33 0.07 78);
-  --color-approve: oklch(0.67 0.20 145);
-  --color-approve-hover: oklch(0.60 0.20 145);
+  /* Functional — semantic colors */
+  --color-redline: oklch(0.68 0.20 25);
+  --color-redline-bg: oklch(0.32 0.08 25);
+  --color-margin-note: oklch(0.78 0.15 80);
+  --color-margin-note-bg: oklch(0.34 0.07 80);
+  --color-approve: oklch(0.70 0.16 145);
+  --color-approve-hover: oklch(0.62 0.16 145);
 
-  /* Accent */
-  --color-accent: oklch(0.78 0.09 330);
-  --color-accent-subtle: oklch(0.42 0.06 330);
-  --color-link: oklch(0.78 0.09 330);
+  /* Accent (peach) */
+  --color-accent: var(--peach-glow);
+  --color-accent-subtle: oklch(from var(--peach-glow) calc(l - 0.50) calc(c * 0.5) h);
+  --color-link: var(--peach-glow);
 
   /* Structure */
-  --color-rule: oklch(0.30 0.005 260);
-  --color-rule-subtle: oklch(0.26 0.005 260);
+  --color-rule: oklch(from var(--graphite) calc(l + 0.10) c h);
+  --color-rule-subtle: oklch(from var(--graphite) calc(l + 0.05) c h);
+
+  /* Scrollbar (track sits darker than thumb) */
+  --color-scrollbar-track: oklch(from var(--graphite-deep) calc(l - 0.05) c h);
+  --color-scrollbar-thumb: oklch(from var(--slate-grey) l c h / 0.5);
+  --color-scrollbar-thumb-hover: oklch(from var(--slate-grey) l c h / 0.8);
 }
 
-/* Light mode overrides (class-based toggle) */
+/* Light mode overrides (class-based toggle — daylit paper) */
 :root:not(.dark) {
   color-scheme: light;
-  --color-desk: oklch(0.95 0.005 260);
-  --color-paper: oklch(0.99 0.002 80);
-  --color-paper-edge: oklch(0.90 0.005 260);
-  --color-inset: oklch(0.96 0.004 260);
-  --color-ink: oklch(0.18 0.005 260);
-  --color-ink-secondary: oklch(0.42 0.01 260);
-  --color-ink-tertiary: oklch(0.58 0.01 260);
-  --color-redline: oklch(0.52 0.2 25);
-  --color-redline-bg: oklch(0.93 0.04 25);
-  --color-margin-note: oklch(0.58 0.17 72);
-  --color-margin-note-bg: oklch(0.95 0.05 72);
+  --color-desk: var(--alice-blue);
+  --color-paper: oklch(from var(--alice-blue) calc(l + 0.06) calc(c * 0.5) h);
+  --color-paper-edge: var(--pale-slate);
+  --color-inset: oklch(from var(--alice-blue) calc(l - 0.02) c h);
+  --color-ink: oklch(0.20 0.020 265);
+  --color-ink-secondary: oklch(0.32 0.020 265);
+  --color-ink-tertiary: var(--slate-grey);
+  --color-redline: oklch(0.55 0.20 25);
+  --color-redline-bg: oklch(0.94 0.05 25);
+  --color-margin-note: oklch(0.58 0.15 75);
+  --color-margin-note-bg: oklch(0.95 0.06 75);
   --color-approve: oklch(0.58 0.15 145);
   --color-approve-hover: oklch(0.50 0.15 145);
-  --color-accent: oklch(0.65 0.11 330);
-  --color-accent-subtle: oklch(0.93 0.04 330);
-  --color-link: oklch(0.50 0.20 330);
-  --color-rule: oklch(0.88 0.005 260);
-  --color-rule-subtle: oklch(0.92 0.005 260);
+  --color-accent: oklch(from var(--peach-glow) calc(l - 0.30) calc(c * 1.6) h);
+  --color-accent-subtle: oklch(from var(--peach-glow) calc(l + 0.08) calc(c * 0.6) h);
+  --color-link: oklch(from var(--peach-glow) calc(l - 0.35) calc(c * 1.7) h);
+  --color-rule: var(--pale-slate);
+  --color-rule-subtle: oklch(from var(--pale-slate) calc(l + 0.05) c h);
+  --color-scrollbar-track: var(--slate-grey);
+  --color-scrollbar-thumb: oklch(from var(--alice-blue) l c h / 0.95);
+  --color-scrollbar-thumb-hover: var(--alice-blue);
 }
 
 html {
@@ -173,14 +191,14 @@ html {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--color-scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: oklch(0.5 0 0 / 0.35);
+  background: var(--color-scrollbar-thumb);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.55 0 0 / 0.55);
+  background: var(--color-scrollbar-thumb-hover);
 }
 
 /* Subtle noise texture for desk surface */

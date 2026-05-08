@@ -42,7 +42,7 @@ export function DocumentChrome({
             </button>
           </div>
         ) : (
-          <span className="text-sm font-medium text-ink-secondary">open-plan-annotator</span>
+          <span className="font-mono text-[13px] font-semibold tracking-tight text-accent">open-plan-annotator</span>
         )}
       </div>
 

@@ -4,7 +4,7 @@ export function ShortcutBar() {
   const { dark } = useTheme();
   const barClass = dark
     ? "bg-paper-edge/95 text-ink-secondary shadow-[0_10px_32px_oklch(0_0_0/0.4),inset_0_1px_0_oklch(1_0_0/0.05)]"
-    : "bg-[oklch(0.18_0.005_260/0.92)] text-white/75 shadow-[0_10px_32px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.06)]";
+    : "bg-[oklch(from_var(--graphite)_l_c_h/0.92)] text-white/75 shadow-[0_10px_32px_oklch(0_0_0/0.35),inset_0_1px_0_oklch(1_0_0/0.06)]";
   const promptClass = dark ? "text-ink" : "text-white";
   return (
     <div
