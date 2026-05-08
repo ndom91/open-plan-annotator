@@ -7,6 +7,7 @@ interface TypeConfig {
   bulletGlyph: React.ReactNode;
   pillClass: string;
   previewClass: string;
+  indexClass: string;
 }
 
 const typeConfig: Record<Annotation["type"], TypeConfig> = {
@@ -16,6 +17,7 @@ const typeConfig: Record<Annotation["type"], TypeConfig> = {
     bulletGlyph: "?",
     pillClass: "text-margin-note",
     previewClass: "bg-margin-note-bg text-margin-note",
+    indexClass: "annotation-index--comment",
   },
   deletion: {
     label: "Delete",
@@ -23,6 +25,7 @@ const typeConfig: Record<Annotation["type"], TypeConfig> = {
     bulletGlyph: "−",
     pillClass: "text-redline",
     previewClass: "bg-redline-bg text-redline line-through decoration-redline/70",
+    indexClass: "annotation-index--delete",
   },
   replacement: {
     label: "Replace",
@@ -30,6 +33,7 @@ const typeConfig: Record<Annotation["type"], TypeConfig> = {
     bulletGlyph: "→",
     pillClass: "text-replace",
     previewClass: "bg-replace-bg text-replace",
+    indexClass: "annotation-index--replace",
   },
   insertion: {
     label: "Insert",
@@ -37,6 +41,7 @@ const typeConfig: Record<Annotation["type"], TypeConfig> = {
     bulletGlyph: "+",
     pillClass: "text-approve",
     previewClass: "bg-approve-bg text-approve",
+    indexClass: "annotation-index--insert",
   },
 };
 
@@ -75,16 +80,17 @@ export function AnnotationCard({ annotation, index, isLast, onRemove }: Annotati
           <button
             type="button"
             onClick={() => onRemove(annotation.id)}
-            className="inline-flex items-center justify-center w-4 h-4 rounded-sm text-ink-tertiary leading-none cursor-pointer transition-colors duration-150 hover:text-redline focus-visible:ring-2 focus-visible:ring-accent/50 opacity-0 group-hover:opacity-100"
+            className={cn("annotation-index annotation-index-button !top-0", cfg.indexClass)}
             title="Remove annotation"
-            aria-label="Remove annotation"
+            aria-label={`Remove annotation ${index + 1}`}
           >
+            <span className="annotation-index-num">{index + 1}</span>
             <svg
               aria-hidden="true"
               xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 16 16"
+              viewBox="0 0 18 18"
               fill="currentColor"
-              className="size-3"
+              className="annotation-index-x"
             >
               <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
             </svg>
