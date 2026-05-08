@@ -280,10 +280,10 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
     case "heading": {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);
       const sizeClasses: Record<number, string> = {
-        1: "font-serif text-4xl font-bold tracking-[-0.02em] mt-0 mb-8 text-ink scroll-mt-20",
-        2: "font-serif text-2xl font-semibold tracking-tight mt-12 mb-3 text-ink scroll-mt-20",
-        3: "font-serif text-lg font-semibold mt-8 mb-2 text-ink scroll-mt-20",
-        4: "font-serif text-base font-semibold mt-6 mb-2 text-ink scroll-mt-20",
+        1: "font-sans text-[28px] font-bold tracking-[-0.01em] mt-0 mb-8 text-ink scroll-mt-20",
+        2: "font-sans text-xl font-semibold tracking-tight mt-12 mb-3 pb-2 text-ink scroll-mt-20 border-b border-dotted border-rule",
+        3: "font-sans text-base font-semibold mt-8 mb-2 text-ink scroll-mt-20",
+        4: "font-sans text-[15px] font-semibold mt-6 mb-2 text-ink scroll-mt-20",
         5: "font-sans text-[11px] font-semibold uppercase tracking-widest mt-6 mb-1.5 text-ink-tertiary scroll-mt-20",
         6: "font-sans text-[10px] font-semibold uppercase tracking-widest mt-5 mb-1.5 text-ink-tertiary scroll-mt-20",
       };
