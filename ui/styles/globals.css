@@ -99,6 +99,14 @@ html {
   background: var(--color-accent-subtle);
 }
 
+/* Stronger selection inside code blocks — dark surface drowns the default tint */
+.shiki-wrapper ::selection,
+pre ::selection,
+code ::selection {
+  background: rgba(247, 197, 159, 0.4);
+  color: inherit;
+}
+
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
