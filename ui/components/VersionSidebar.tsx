@@ -54,9 +54,6 @@ export function VersionSidebar({
           );
         })}
       </div>
-      <div className="mt-5 pl-3 text-[11px] text-ink-tertiary">
-        Press <kbd className="shortcut-key mx-1">D</kbd> for diff
-      </div>
     </div>
   );
 }
