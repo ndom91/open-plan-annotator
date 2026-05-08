@@ -68,19 +68,19 @@
 }
 
 @theme {
-  /* Type system — editorial spec */
-  --font-serif: "Source Serif 4", Charter, "Iowan Old Style", "Apple Garamond", Georgia, "Times New Roman", serif;
-  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  /* Type system — IBM Plex per design spec */
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-sans);
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 html {
   color-scheme: dark;
-  font-family: var(--font-serif);
-  font-feature-settings: "kern", "liga", "ss01";
+  font-family: var(--font-sans);
+  font-feature-settings: "kern", "liga";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.005em;
+  letter-spacing: 0;
   accent-color: var(--color-accent);
 }
 

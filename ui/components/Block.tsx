@@ -255,7 +255,7 @@ function renderListGroups(
           return (
             <li
               key={`${group.marker}-${groupIndex}-${itemIndex}`}
-              className="text-[16px] text-ink-secondary leading-relaxed"
+              className="text-[14.5px] text-ink-secondary leading-[1.65]"
             >
               {renderSegments(itemSegments, allAnnotations)}
               {item.children.length > 0 &&
@@ -280,10 +280,10 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
     case "heading": {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);
       const sizeClasses: Record<number, string> = {
-        1: "font-sans text-[28px] font-bold tracking-[-0.01em] mt-0 mb-8 text-ink scroll-mt-20",
-        2: "font-sans text-xl font-semibold tracking-tight mt-12 mb-3 pb-2 text-ink scroll-mt-20 border-b border-dotted border-rule",
-        3: "font-sans text-base font-semibold mt-8 mb-2 text-ink scroll-mt-20",
-        4: "font-sans text-[15px] font-semibold mt-6 mb-2 text-ink scroll-mt-20",
+        1: "font-sans text-[26px] font-semibold leading-[1.2] tracking-[-0.015em] mt-0 mb-8 text-ink scroll-mt-20",
+        2: "font-sans text-[18px] font-semibold leading-[1.3] tracking-[-0.01em] mt-12 mb-3 pb-2 text-ink scroll-mt-20 border-b border-dashed border-rule-subtle",
+        3: "font-sans text-[14.5px] font-semibold leading-[1.35] mt-8 mb-2 text-ink scroll-mt-20",
+        4: "font-sans text-[14.5px] font-semibold mt-6 mb-2 text-ink scroll-mt-20",
         5: "font-sans text-[11px] font-semibold uppercase tracking-widest mt-6 mb-1.5 text-ink-tertiary scroll-mt-20",
         6: "font-sans text-[10px] font-semibold uppercase tracking-widest mt-5 mb-1.5 text-ink-tertiary scroll-mt-20",
       };
@@ -380,7 +380,7 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
 
     default:
       return (
-        <p data-block-index={block.index} className="text-[16px] text-ink-secondary leading-[1.75] my-4">
+        <p data-block-index={block.index} className="text-[14.5px] text-ink-secondary leading-[1.65] my-4">
           {renderSegments(segments, annotations)}
         </p>
       );
