@@ -312,7 +312,9 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
               </span>
             </div>
           )}
-          <HighlightedCode code={block.content} lang={block.lang} />
+          <div data-seg-start={0} data-seg-end={block.content.length}>
+            <HighlightedCode code={block.content} lang={block.lang} />
+          </div>
         </div>
       );
 
