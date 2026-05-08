@@ -54,13 +54,20 @@ for package_dir in "${RUNTIME_PACKAGES[@]}"; do
 done
 
 for package_dir in "${PI_PACKAGES[@]}"; do
-  # The pi extension hardcodes its `open-plan-annotator` dep version because the
-  # workspace root cannot be referenced via `workspace:*` (root is not a member
-  # of the `workspaces` array). Keep both fields locked to NEW_VERSION here so
-  # published pi-extension always pulls the matching runtime instructions.
-  bun pm pkg set "version=$NEW_VERSION" "dependencies.open-plan-annotator=$NEW_VERSION" --cwd "$package_dir"
+  # Bump pi-extension's own version only. Its `dependencies.open-plan-annotator`
+  # field is bumped later by update-release-metadata.mjs, AFTER `bun install`,
+  # because root is not a workspace member — bun resolves that dep against
+  # npm, and NEW_VERSION does not exist there until publish.
+  bun pm pkg set "version=$NEW_VERSION" --cwd "$package_dir"
 done
 
+# --- Refresh lockfile ---
+# Runs while pi-extension's open-plan-annotator dep still points at the
+# currently-published version, so resolution succeeds.
+echo "Refreshing bun.lock..."
+bun install
+
+# --- Update plugin/marketplace metadata + pi-extension dep ---
 bun scripts/update-release-metadata.mjs "$NEW_VERSION"
 
 # --- Build ---
@@ -72,7 +79,7 @@ bun scripts/build-platforms.mjs
 
 # --- Git tag + commit ---
 echo ""
-git add package.json .claude-plugin/plugin.json .claude-plugin/marketplace.json packages/runtime-*/package.json packages/pi-extension/package.json
+git add package.json bun.lock .claude-plugin/plugin.json .claude-plugin/marketplace.json packages/runtime-*/package.json packages/pi-extension/package.json
 git commit -m "v$NEW_VERSION"
 git tag -m "v$NEW_VERSION" "v$NEW_VERSION"
 
