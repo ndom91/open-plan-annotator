@@ -54,12 +54,20 @@ function splitIntoSegments(text: string, annotations: Annotation[]): Segment[] {
   return segments;
 }
 
+const annotationTypeClass: Record<Annotation["type"], string> = {
+  deletion: "annotation-index--delete",
+  replacement: "annotation-index--replace",
+  insertion: "annotation-index--insert",
+  comment: "annotation-index--comment",
+};
+
 function AnnotationIndex({ annotation, annotations }: { annotation: Annotation; annotations: Annotation[] }) {
   const index = annotations.findIndex((ann) => ann.id === annotation.id) + 1;
   const onRemove = useContext(RemoveAnnotationContext);
+  const typeClass = annotationTypeClass[annotation.type];
   if (index <= 0) return null;
   if (!onRemove) {
-    return <sup className="annotation-index">{index}</sup>;
+    return <sup className={`annotation-index ${typeClass}`}>{index}</sup>;
   }
   return (
     <button
@@ -69,7 +77,7 @@ function AnnotationIndex({ annotation, annotations }: { annotation: Annotation; 
         e.stopPropagation();
         onRemove(annotation.id);
       }}
-      className="annotation-index annotation-index-button"
+      className={`annotation-index annotation-index-button ${typeClass}`}
       title="Remove annotation"
       aria-label={`Remove annotation ${index}`}
     >
@@ -109,7 +117,7 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
       return (
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
           <span
-            className="annotation-mark bg-redline-bg/55 text-redline line-through decoration-redline/80 decoration-2"
+            className="annotation-mark bg-redline-bg text-redline line-through decoration-redline/80 decoration-2"
             title="Marked for removal"
           >
             {content}
@@ -121,11 +129,11 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
     if (seg.annotation.type === "replacement") {
       return (
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
-          <span className="annotation-mark bg-redline-bg/45 text-redline line-through decoration-redline/75 decoration-2">
+          <span className="annotation-mark bg-redline-bg text-redline line-through decoration-redline/75 decoration-2">
             {content}
           </span>
           <span
-            className="annotation-mark text-approve bg-approve/12 border-b-2 border-approve/60 ml-1 not-italic no-underline"
+            className="annotation-mark text-replace bg-replace-bg border-b-2 border-replace/60 ml-1 not-italic no-underline"
             data-replacement="true"
             style={{ textDecoration: "none" }}
           >
@@ -140,7 +148,7 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
         <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
           {content}
           <span
-            className="annotation-mark text-approve bg-approve/12 border-b-2 border-approve/60 ml-1"
+            className="annotation-mark text-approve bg-approve-bg border-b-2 border-approve/60 ml-1"
             data-replacement="true"
           >
             +{seg.annotation.replacement}
@@ -153,13 +161,13 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
     return (
       <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
         <span
-          className="group/comment annotation-mark relative bg-margin-note-bg/70 border-b-2 border-margin-note/70 cursor-help"
+          className="group/comment annotation-mark relative bg-margin-note-bg border-b-2 border-margin-note/70 cursor-help"
           role="note"
           aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
         >
           {content}
           {seg.annotation.comment && (
-            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-lg bg-inset border border-rule shadow-[0_2px_4px_oklch(0_0_0/0.08),0_8px_20px_oklch(0_0_0/0.10),0_20px_40px_oklch(0_0_0/0.10)] text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
+            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-md bg-inset border border-rule shadow-[0_4px_12px_oklch(0_0_0/0.15)] font-sans text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
               <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
               {seg.annotation.comment}
             </span>
@@ -247,7 +255,7 @@ function renderListGroups(
           return (
             <li
               key={`${group.marker}-${groupIndex}-${itemIndex}`}
-              className="text-[15px] text-ink-secondary leading-relaxed"
+              className="text-[16px] text-ink-secondary leading-relaxed"
             >
               {renderSegments(itemSegments, allAnnotations)}
               {item.children.length > 0 &&
@@ -272,12 +280,12 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
     case "heading": {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);
       const sizeClasses: Record<number, string> = {
-        1: "text-3xl font-bold tracking-[-0.03em] mt-0 mb-8 text-ink scroll-mt-20",
-        2: "text-lg font-semibold tracking-tight mt-10 mb-3 text-ink pl-4 border-l-[3px] border-accent scroll-mt-20",
-        3: "text-base font-semibold tracking-tight mt-8 mb-2 text-ink scroll-mt-20",
-        4: "text-sm font-semibold mt-6 mb-2 text-ink scroll-mt-20",
-        5: "text-sm font-medium mt-5 mb-1.5 text-ink-secondary scroll-mt-20",
-        6: "text-xs font-medium mt-5 mb-1.5 text-ink-tertiary uppercase tracking-widest scroll-mt-20",
+        1: "font-serif text-4xl font-bold tracking-[-0.02em] mt-0 mb-8 text-ink scroll-mt-20",
+        2: "font-serif text-2xl font-semibold tracking-tight mt-12 mb-3 text-ink scroll-mt-20",
+        3: "font-serif text-lg font-semibold mt-8 mb-2 text-ink scroll-mt-20",
+        4: "font-serif text-base font-semibold mt-6 mb-2 text-ink scroll-mt-20",
+        5: "font-sans text-[11px] font-semibold uppercase tracking-widest mt-6 mb-1.5 text-ink-tertiary scroll-mt-20",
+        6: "font-sans text-[10px] font-semibold uppercase tracking-widest mt-5 mb-1.5 text-ink-tertiary scroll-mt-20",
       };
       const classes = sizeClasses[level] ?? sizeClasses[1];
       const Tag = `h${level}` as keyof React.JSX.IntrinsicElements;
@@ -290,15 +298,10 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
 
     case "code":
       return (
-        <div
-          data-block-index={block.index}
-          className="my-5 rounded-lg bg-inset border border-rule-subtle overflow-hidden shadow-[inset_0_1px_2px_oklch(0_0_0/0.1)]"
-        >
+        <div data-block-index={block.index} className="my-6 rounded bg-inset border border-rule-subtle overflow-hidden">
           {block.lang && (
-            <div className="px-4 py-2 border-b border-rule-subtle bg-linear-to-b from-paper/50 to-transparent flex items-center">
-              <span className="text-[12px] font-mono text-ink-secondary tracking-wide bg-ink/8 px-2 py-0.5 rounded-full ring-1 ring-ink/12">
-                {block.lang}
-              </span>
+            <div className="px-4 py-2 border-b border-rule-subtle flex items-center">
+              <span className="text-[11px] font-mono text-ink-tertiary uppercase tracking-widest">{block.lang}</span>
             </div>
           )}
           <HighlightedCode code={block.content} lang={block.lang} />
@@ -320,8 +323,8 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
         return "text-left";
       };
       return (
-        <div data-block-index={block.index} className="my-5 overflow-x-auto rounded-lg border border-rule">
-          <table className="w-full text-[13px] text-ink-secondary">
+        <div data-block-index={block.index} className="my-6 overflow-x-auto rounded border border-rule">
+          <table className="w-full font-sans text-[13px] text-ink-secondary">
             {block.headerRow && (
               <thead>
                 <tr className="border-b border-rule bg-inset">
@@ -358,13 +361,13 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
     }
 
     case "hr":
-      return <hr data-block-index={block.index} className="my-10 border-0 h-px bg-rule-subtle" />;
+      return <hr data-block-index={block.index} className="my-12 border-0 h-px bg-rule-subtle" />;
 
     case "blockquote":
       return (
         <blockquote
           data-block-index={block.index}
-          className="my-5 pl-4 border-l-[3px] border-accent/60 bg-accent/5 rounded-r-md py-3 pr-3 text-[15px] text-ink-secondary italic leading-relaxed"
+          className="my-6 pl-5 border-l-2 border-rule py-1 pr-3 text-[16px] text-ink-secondary italic leading-relaxed"
         >
           {renderSegments(segments, annotations)}
         </blockquote>
@@ -372,7 +375,7 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
 
     default:
       return (
-        <p data-block-index={block.index} className="text-[15px] text-ink-secondary leading-[1.7] my-3">
+        <p data-block-index={block.index} className="text-[16px] text-ink-secondary leading-[1.75] my-4">
           {renderSegments(segments, annotations)}
         </p>
       );

@@ -1,88 +1,91 @@
 @import "tailwindcss";
 
 @theme {
-  /* Palette primitives */
-  --peach-glow: oklch(0.852 0.085 65);     /* #f7c59f — warm accent */
-  --pale-slate: oklch(0.825 0.020 265);    /* #c7ccdb — light blue-grey */
-  --alice-blue: oklch(0.910 0.013 265);    /* #e1e5ee — near-white */
-  --slate-grey: oklch(0.555 0.025 265);    /* #767b91 — mid neutral */
-  /* Dark anchors — warm-leaning neutrals, harmonize with peach */
-  --graphite-deep: oklch(0.180 0.005 60);  /* outer backdrop */
-  --graphite: oklch(0.235 0.005 60);       /* document surface */
-  --graphite-lift: oklch(0.290 0.005 60);  /* paper edge */
+  /* === Dark mode (default) — warm graphite === */
+  --color-desk: #0e1218;
+  --color-paper: #161b22;
+  --color-paper-edge: #1d242d;
+  --color-inset: #1d242d;
+  --color-rule: #2a323d;
+  --color-rule-subtle: #222931;
+  --color-ink: #e6edf3;
+  --color-ink-secondary: #a8b3bd;
+  --color-ink-tertiary: #6e7a85;
 
-  /* Document surfaces (dark mode default) */
-  --color-desk: var(--graphite-deep);
-  --color-paper: var(--graphite);
-  --color-paper-edge: var(--graphite-lift);
-  --color-inset: oklch(from var(--graphite) calc(l - 0.025) c h);
+  /* Semantic accents — emerald / crimson / indigo / gold */
+  --color-approve: #4ec9a4;
+  --color-approve-hover: #5fd4af;
+  --color-approve-bg: rgba(78, 201, 164, 0.14);
+  --color-redline: #ee7065;
+  --color-redline-bg: rgba(238, 112, 101, 0.14);
+  --color-replace: #7d9bff;
+  --color-replace-bg: rgba(125, 155, 255, 0.14);
+  --color-margin-note: #e7c073;
+  --color-margin-note-bg: rgba(231, 192, 115, 0.14);
 
-  /* Ink hierarchy */
-  --color-ink: var(--alice-blue);
-  --color-ink-secondary: var(--pale-slate);
-  --color-ink-tertiary: var(--slate-grey);
-
-  /* Functional — semantic colors */
-  --color-redline: oklch(0.68 0.20 25);
-  --color-redline-bg: oklch(0.32 0.08 25);
-  --color-margin-note: oklch(0.78 0.15 80);
-  --color-margin-note-bg: oklch(0.34 0.07 80);
-  --color-approve: oklch(0.70 0.16 145);
-  --color-approve-hover: oklch(0.62 0.16 145);
-
-  /* Accent (peach) */
+  /* Brand accent — warm peach for logo and small flourishes */
+  --peach-glow: #f7c59f;
   --color-accent: var(--peach-glow);
-  --color-accent-subtle: oklch(from var(--peach-glow) calc(l - 0.50) calc(c * 0.5) h);
+  --color-accent-subtle: rgba(247, 197, 159, 0.18);
   --color-link: var(--peach-glow);
 
-  /* Structure */
-  --color-rule: oklch(from var(--graphite) calc(l + 0.10) c h);
-  --color-rule-subtle: oklch(from var(--graphite) calc(l + 0.05) c h);
-
-  /* Scrollbar (track sits darker than thumb) */
-  --color-scrollbar-track: oklch(from var(--graphite-deep) calc(l - 0.05) c h);
-  --color-scrollbar-thumb: oklch(from var(--slate-grey) l c h / 0.5);
-  --color-scrollbar-thumb-hover: oklch(from var(--slate-grey) l c h / 0.8);
+  /* Scrollbar */
+  --color-scrollbar-track: #0a0e13;
+  --color-scrollbar-thumb: rgba(110, 122, 133, 0.4);
+  --color-scrollbar-thumb-hover: rgba(110, 122, 133, 0.7);
 }
 
-/* Light mode overrides (class-based toggle — daylit paper) */
+/* === Light mode override — warm paper === */
 :root:not(.dark) {
   color-scheme: light;
-  --color-desk: var(--alice-blue);
-  --color-paper: oklch(from var(--alice-blue) calc(l + 0.06) calc(c * 0.5) h);
-  --color-paper-edge: var(--pale-slate);
-  --color-inset: oklch(from var(--alice-blue) calc(l - 0.02) c h);
-  --color-ink: oklch(0.20 0.020 265);
-  --color-ink-secondary: oklch(0.32 0.020 265);
-  --color-ink-tertiary: var(--slate-grey);
-  --color-redline: oklch(0.55 0.20 25);
-  --color-redline-bg: oklch(0.94 0.05 25);
-  --color-margin-note: oklch(0.58 0.15 75);
-  --color-margin-note-bg: oklch(0.95 0.06 75);
-  --color-approve: oklch(0.58 0.15 145);
-  --color-approve-hover: oklch(0.50 0.15 145);
-  --color-accent: oklch(from var(--peach-glow) calc(l - 0.30) calc(c * 1.6) h);
-  --color-accent-subtle: oklch(from var(--peach-glow) calc(l + 0.08) calc(c * 0.6) h);
-  --color-link: oklch(from var(--peach-glow) calc(l - 0.35) calc(c * 1.7) h);
-  --color-rule: var(--pale-slate);
-  --color-rule-subtle: oklch(from var(--pale-slate) calc(l + 0.05) c h);
-  --color-scrollbar-track: var(--slate-grey);
-  --color-scrollbar-thumb: oklch(from var(--alice-blue) l c h / 0.95);
-  --color-scrollbar-thumb-hover: var(--alice-blue);
+  --color-desk: #fbfaf7;
+  --color-paper: #ffffff;
+  --color-paper-edge: #f4f2ec;
+  --color-inset: #f4f2ec;
+  --color-rule: #e3e0d6;
+  --color-rule-subtle: #ecead9;
+  --color-ink: #1d2a32;
+  --color-ink-secondary: #52606a;
+  --color-ink-tertiary: #8a8d8f;
+
+  --color-approve: #1f7a55;
+  --color-approve-hover: #175e42;
+  --color-approve-bg: #d8eee5;
+  --color-redline: #c2453a;
+  --color-redline-bg: #fae0d9;
+  --color-replace: #3a5da8;
+  --color-replace-bg: #dde7fa;
+  --color-margin-note: #a87a18;
+  --color-margin-note-bg: #f3e6b6;
+
+  --color-accent: #a8631a;
+  --color-accent-subtle: #f3dabd;
+  --color-link: #a8631a;
+
+  --color-scrollbar-track: #e3e0d6;
+  --color-scrollbar-thumb: #c7c4b8;
+  --color-scrollbar-thumb-hover: #a8a59a;
+}
+
+@theme {
+  /* Type system — editorial spec */
+  --font-serif: "Source Serif 4", Charter, "Iowan Old Style", "Apple Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 html {
   color-scheme: dark;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  font-family: var(--font-serif);
+  font-feature-settings: "kern", "liga", "ss01";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.011em;
+  letter-spacing: -0.005em;
   accent-color: var(--color-accent);
 }
 
 ::selection {
-  background: oklch(from var(--color-accent) l c h / 0.35);
+  background: var(--color-accent-subtle);
 }
 
 :focus-visible {
@@ -108,28 +111,48 @@ html {
   top: -0.6em;
   display: inline-grid;
   place-items: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
+  min-width: 1.1rem;
+  height: 1.1rem;
   margin-left: 0.2rem;
   padding: 0 0.3rem;
-  border-radius: 999px;
+  border-radius: 0.25rem;
   background: var(--color-paper-edge);
   border: 1px solid var(--color-rule);
   color: var(--color-ink-secondary);
-  font-size: 0.72rem;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
   font-feature-settings: "tnum";
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.25;
   vertical-align: baseline;
-  box-shadow: 0 1px 2px oklch(0 0 0 / 0.18);
+}
+
+.annotation-index--delete {
+  background: var(--color-redline-bg);
+  border-color: var(--color-redline);
+  color: var(--color-redline);
+}
+.annotation-index--replace {
+  background: var(--color-replace-bg);
+  border-color: var(--color-replace);
+  color: var(--color-replace);
+}
+.annotation-index--insert {
+  background: var(--color-approve-bg);
+  border-color: var(--color-approve);
+  color: var(--color-approve);
+}
+.annotation-index--comment {
+  background: var(--color-margin-note-bg);
+  border-color: var(--color-margin-note);
+  color: var(--color-margin-note);
 }
 
 .annotation-index-button {
   cursor: pointer;
   padding: 0;
-  width: 1.25rem;
-  min-width: 1.25rem;
+  width: 1.1rem;
+  min-width: 1.1rem;
   user-select: none;
   -webkit-user-select: none;
   transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
@@ -142,15 +165,15 @@ html {
 }
 
 .annotation-index-button .annotation-index-x {
-  width: 0.85rem;
-  height: 0.85rem;
+  width: 0.75rem;
+  height: 0.75rem;
   opacity: 0;
   transform: translateX(1px);
 }
 
 .annotation-index-button:hover {
   background: var(--color-redline-bg);
-  border-color: oklch(from var(--color-redline) l c h / 0.6);
+  border-color: var(--color-redline);
   color: var(--color-redline);
 }
 
@@ -165,16 +188,16 @@ html {
 .shortcut-key {
   display: inline-grid;
   place-items: center;
-  min-width: 1.25rem;
-  height: 1.25rem;
-  padding: 0 0.35rem;
-  border-radius: 0.25rem;
-  background: oklch(from var(--color-ink) l c h / 0.08);
+  min-width: 1.1rem;
+  height: 1.1rem;
+  padding: 0 0.3rem;
+  border-radius: 0.2rem;
+  background: var(--color-paper-edge);
+  border: 1px solid var(--color-rule);
   color: var(--color-ink-secondary);
-  box-shadow: inset 0 -1px 0 oklch(0 0 0 / 0.12), inset 0 1px 0 oklch(1 0 0 / 0.04);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.68rem;
-  font-weight: 700;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
   line-height: 1.2;
 }
 
@@ -213,7 +236,7 @@ html {
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 .card-lift:hover {
-  box-shadow: 0 4px 12px oklch(0 0 0 / 0.15), 0 1px 3px oklch(0 0 0 / 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 /* Fade-in animation */

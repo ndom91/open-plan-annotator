@@ -65,8 +65,19 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
   };
 
   return (
-    <nav aria-label="Table of contents">
-      <h3 className="text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest mb-3 pl-1">Contents</h3>
+    <nav aria-label="Table of contents" className="font-sans">
+      <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest mb-3 pl-3">
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          className="w-3 h-3"
+        >
+          <path d="M2 4a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 4Zm0 4a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 8Zm0 4a.75.75 0 0 1 .75-.75h10.5a.75.75 0 0 1 0 1.5H2.75A.75.75 0 0 1 2 12Z" />
+        </svg>
+        Outline
+      </h3>
       <ul className="space-y-0.5">
         {headings.map((h) => {
           const isActive = activeIndex === h.index;
@@ -77,8 +88,10 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
                   href={`#block-${h.index}`}
                   onClick={(e) => handleClick(e, h.index)}
                   className={cn(
-                    "block px-3 py-1 text-[11px] font-semibold uppercase tracking-widest cursor-pointer transition-colors duration-150",
-                    isActive ? "text-accent" : "text-ink-tertiary hover:text-ink-secondary",
+                    "block px-3 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-widest cursor-pointer transition-colors duration-150 leading-snug",
+                    isActive
+                      ? "bg-paper-edge text-ink"
+                      : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
                   )}
                 >
                   {h.text}
@@ -86,21 +99,22 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
               </li>
             );
           }
-          const indent = h.level === 3 ? "pl-6" : "pl-3";
+          const indent = h.level === 3 ? "pl-7" : "pl-3";
           return (
             <li key={h.index}>
               <a
                 href={`#block-${h.index}`}
                 onClick={(e) => handleClick(e, h.index)}
                 className={cn(
-                  "block py-1 pr-2 text-[13px] cursor-pointer transition-colors duration-150 border-l-2",
+                  "flex items-center gap-1.5 py-1 pr-2 rounded-md text-[13px] cursor-pointer transition-colors duration-150",
                   indent,
                   isActive
-                    ? "border-l-accent text-ink font-medium"
-                    : "border-l-transparent text-ink-tertiary hover:text-ink-secondary hover:border-l-rule",
+                    ? "bg-paper-edge text-ink font-medium"
+                    : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
                 )}
               >
-                {h.text}
+                <span className="text-ink-tertiary/70">·</span>
+                <span className="truncate">{h.text}</span>
               </a>
             </li>
           );

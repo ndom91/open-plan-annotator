@@ -33,9 +33,9 @@ export function Header({
   if (decided) {
     return (
       <header className="sticky top-0 z-40">
-        <div className="flex items-center justify-center gap-4 px-8 py-4 bg-desk/85 backdrop-blur-xl border-b border-rule shadow-[0_2px_4px_oklch(0_0_0/0.04),0_4px_12px_oklch(0_0_0/0.04),inset_0_-1px_0_oklch(1_0_0/0.04)]">
+        <div className="font-sans flex items-center justify-center gap-4 px-8 py-4 bg-desk/85 backdrop-blur-xl border-b border-rule">
           <div className="flex items-center gap-2.5 text-ink-tertiary">
-            <div className="w-5 h-5 rounded-full bg-approve/15 flex items-center justify-center">
+            <div className="w-5 h-5 rounded-full bg-approve-bg flex items-center justify-center">
               <svg
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
@@ -85,37 +85,34 @@ export function Header({
 
   return (
     <header className="sticky top-0 z-40">
-      <div className="flex items-center justify-between px-8 py-3 bg-desk/85 backdrop-blur-xl border-b border-rule shadow-[0_2px_4px_oklch(0_0_0/0.04),0_4px_12px_oklch(0_0_0/0.04),inset_0_-1px_0_oklch(1_0_0/0.04)]">
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-6 items-center gap-2.5">
-            <div className="w-6 h-6 rounded-sm bg-accent/15 flex items-center justify-center ring-1 ring-accent/20">
+      <div className="font-sans flex items-center justify-between px-8 py-3 bg-desk/85 backdrop-blur-xl border-b border-rule">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-accent">
               <svg
                 aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 16 16"
                 fill="currentColor"
-                className="w-3.5 h-3.5 text-accent"
+                className="w-4 h-4"
               >
                 <path d="M2 4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V4Zm2-.5a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h8a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5H4Zm1.75 2a.75.75 0 0 0 0 1.5h4.5a.75.75 0 0 0 0-1.5h-4.5Zm0 3a.75.75 0 0 0 0 1.5h2.5a.75.75 0 0 0 0-1.5h-2.5Z" />
               </svg>
             </div>
-            <span className="text-sm font-semibold text-ink tracking-tight">
-              Plan Review
-              {appVersion ? (
-                <span className="ml-2 inline-flex h-6 items-center rounded-md bg-ink/5 px-2 font-mono text-[11px] font-medium text-ink-tertiary ring-1 ring-ink/8">
-                  v{appVersion}
-                </span>
-              ) : null}
-            </span>
+            <span className="font-mono text-sm font-semibold text-ink tracking-tight">plan-review</span>
           </div>
-          {annotations.length > 0 && (
-            <span
-              title={`${annotations.length} Annotations`}
-              className="inline-flex h-6 items-center rounded-md bg-accent/14 px-2.5 text-[11px] font-semibold text-accent tabular-nums ring-1 ring-accent/25"
-            >
-              {annotations.length} annotations
-            </span>
+          {appVersion && (
+            <>
+              <span className="text-ink-tertiary text-sm select-none">/</span>
+              <span className="inline-flex h-6 items-center rounded border border-rule bg-paper-edge px-2 font-mono text-[11px] font-medium text-ink-secondary tabular-nums">
+                PR #{appVersion}
+              </span>
+            </>
           )}
+          <span className="inline-flex h-6 items-center gap-1.5 rounded-full bg-approve-bg px-2.5 ml-2 text-[11px] font-medium text-approve">
+            <span className="w-1.5 h-1.5 rounded-full bg-approve" aria-hidden="true" />
+            Open · {annotations.length} {annotations.length === 1 ? "comment" : "comments"}
+          </span>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -152,17 +149,15 @@ export function Header({
             )}
           </button>
 
-          <div className="w-px h-5 bg-rule mx-2" />
-
           <button
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="group flex items-center gap-2.5 pl-3.5 pr-2.5 py-1.5 rounded-sm text-[13px] font-medium text-ink-secondary ring-1 ring-rule hover:bg-ink/5 hover:text-ink cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded text-[13px] font-medium text-ink-secondary border border-rule hover:bg-ink/5 hover:text-ink cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Request changes
-            <kbd className="flex items-center gap-0.5 text-md font-mono">
+            <kbd className="flex items-center gap-0.5 font-mono">
               <span className="shortcut-key">⌘</span>
               <span className="shortcut-key">⇧</span>
               <span className="shortcut-key">↵</span>
@@ -172,15 +167,28 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="group flex items-center gap-2.5 pl-4 pr-2.5 py-1.5 rounded-sm bg-linear-to-b from-approve to-approve-hover hover:shadow-[0_0_16px_oklch(from_var(--color-approve)_l_c_h/0.32)] cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-all duration-200 shadow-[0_1px_2px_oklch(0_0_0/0.2),inset_0_1px_0_oklch(1_0_0/0.14)] focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded bg-approve hover:bg-approve-hover cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
+            <svg
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 16 16"
+              fill="currentColor"
+              className="w-3.5 h-3.5"
+            >
+              <path
+                fillRule="evenodd"
+                d="M12.78 5.22a.75.75 0 0 1 0 1.06l-5.25 5.25a.75.75 0 0 1-1.06 0l-2.5-2.5a.75.75 0 1 1 1.06-1.06l1.97 1.97 4.72-4.72a.75.75 0 0 1 1.06 0Z"
+                clipRule="evenodd"
+              />
+            </svg>
             Approve
-            <kbd className="flex items-center gap-0.5 text-md font-mono">
-              <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+            <kbd className="flex items-center gap-0.5 font-mono">
+              <span className="flex items-center justify-center size-[1.1rem] rounded-sm bg-black/20 text-white/80 text-[0.66rem] font-medium leading-none">
                 ⌘
               </span>
-              <span className="flex items-center justify-center size-5 rounded bg-black/20 text-white/70 leading-none shadow-[inset_0_-1px_0_oklch(0_0_0/0.15)]">
+              <span className="flex items-center justify-center size-[1.1rem] rounded-sm bg-black/20 text-white/80 text-[0.66rem] font-medium leading-none">
                 ↵
               </span>
             </kbd>

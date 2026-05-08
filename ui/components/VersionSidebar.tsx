@@ -16,44 +16,58 @@ export function VersionSidebar({
   const versions = Array.from({ length: totalVersions }, (_, i) => totalVersions - i);
 
   return (
-    <div>
-      <h3 className="text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest mb-5 pl-1">
-        Versions
-        <span className="ml-2 text-ink-tertiary/60 tabular-nums">{totalVersions}</span>
-      </h3>
-      <div className="space-y-1">
+    <nav aria-label="Versions" className="font-sans">
+      <div className="flex items-center justify-between mb-3 pl-3 pr-2">
+        <h3 className="flex items-center gap-1.5 text-[11px] font-semibold text-ink-tertiary uppercase tracking-widest">
+          <svg
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 16 16"
+            fill="currentColor"
+            className="w-3 h-3"
+          >
+            <path
+              fillRule="evenodd"
+              d="M3.22 5.22a.75.75 0 0 1 1.06 0L8 8.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L3.22 6.28a.75.75 0 0 1 0-1.06Z"
+              clipRule="evenodd"
+            />
+          </svg>
+          Versions
+        </h3>
+        <span className="inline-flex h-4 min-w-4 items-center justify-center rounded bg-paper-edge border border-rule-subtle px-1 font-mono text-[10px] font-medium text-ink-tertiary tabular-nums">
+          {totalVersions}
+        </span>
+      </div>
+      <ul className="space-y-0.5">
         {versions.map((v) => {
           const isSelected = v === selectedVersion;
           const isCurrent = v === currentVersion;
           return (
-            <button
-              key={v}
-              type="button"
-              onClick={() => onSelectVersion(v)}
-              className={cn(
-                "w-full flex items-center gap-2.5 px-3 py-2 rounded-sm text-left text-sm cursor-pointer transition-all duration-200",
-                isSelected
-                  ? "bg-paper border border-rule-subtle shadow-[0_1px_3px_oklch(0_0_0/0.08)] border-l-[3px] border-l-accent"
-                  : "text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 border border-transparent",
-              )}
-            >
-              <span
+            <li key={v}>
+              <button
+                type="button"
+                onClick={() => onSelectVersion(v)}
                 className={cn(
-                  "font-mono text-xs tabular-nums",
-                  isSelected ? "text-ink font-semibold" : "text-ink-tertiary",
+                  "group w-full flex items-center justify-between gap-2 py-1.5 px-3 rounded-md text-left text-[13px] cursor-pointer transition-colors duration-150",
+                  isSelected
+                    ? "bg-paper-edge text-ink"
+                    : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
                 )}
               >
-                v{v}
-              </span>
-              {isCurrent && (
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-approve bg-approve/10 px-1.5 py-0.5 rounded">
-                  Current
+                <span className="flex items-center gap-2">
+                  <span className={cn("font-mono text-[12px] tabular-nums", isSelected ? "text-ink" : "")}>v{v}</span>
+                  {isCurrent && (
+                    <span className="inline-flex h-4 items-center rounded bg-approve-bg px-1.5 text-[9px] font-bold uppercase tracking-widest text-approve">
+                      Head
+                    </span>
+                  )}
                 </span>
-              )}
-            </button>
+                {/* Slot for future per-version timestamps */}
+              </button>
+            </li>
           );
         })}
-      </div>
-    </div>
+      </ul>
+    </nav>
   );
 }

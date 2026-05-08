@@ -36,7 +36,7 @@ export function DiffViewer({ oldText, newText, oldVersion, newVersion }: DiffVie
 function DiffLineRow({ line }: { line: DiffLine }) {
   if (line.type === "added") {
     return (
-      <div className="bg-approve/8 text-approve border-l-2 border-approve px-4 py-px">
+      <div className="bg-approve-bg text-approve border-l-2 border-approve px-4 py-px">
         <span className="select-none text-approve/50 mr-2">+</span>
         {line.text}
       </div>
@@ -44,7 +44,7 @@ function DiffLineRow({ line }: { line: DiffLine }) {
   }
   if (line.type === "removed") {
     return (
-      <div className="bg-redline/8 text-redline border-l-2 border-redline px-4 py-px">
+      <div className="bg-redline-bg text-redline border-l-2 border-redline px-4 py-px">
         <span className="select-none text-redline/50 mr-2">-</span>
         {line.text}
       </div>
