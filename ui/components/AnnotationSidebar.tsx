@@ -83,7 +83,7 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
                 <button
                   type="button"
                   onClick={() => onRemove(ann.id)}
-                  className="absolute top-2 right-2 inline-flex items-center justify-center w-4 h-4 rounded-sm text-ink-tertiary leading-none cursor-pointer transition-colors duration-150 hover:text-redline focus-visible:ring-2 focus-visible:ring-accent/50 opacity-0 group-hover:opacity-100"
+                  className="absolute top-1.5 right-1.5 inline-flex items-center justify-center w-4 h-4 rounded-sm text-ink-tertiary leading-none cursor-pointer transition-colors duration-150 hover:text-redline focus-visible:ring-2 focus-visible:ring-accent/50 opacity-0 group-hover:opacity-100"
                   title="Remove annotation"
                   aria-label="Remove annotation"
                 >
@@ -97,12 +97,9 @@ export function AnnotationSidebar({ annotations, onRemove }: AnnotationSidebarPr
                     <path d="M5.28 4.22a.75.75 0 0 0-1.06 1.06L6.94 8l-2.72 2.72a.75.75 0 1 0 1.06 1.06L8 9.06l2.72 2.72a.75.75 0 1 0 1.06-1.06L9.06 8l2.72-2.72a.75.75 0 0 0-1.06-1.06L8 6.94 5.28 4.22Z" />
                   </svg>
                 </button>
-                <div className="flex items-center justify-between gap-2 pr-5">
+                <div className="pr-5">
                   <span className={cn("text-[10px] font-bold uppercase tracking-widest leading-none", cfg.pillClass)}>
                     {cfg.label}
-                  </span>
-                  <span className="font-mono text-[10px] text-ink-tertiary tabular-nums leading-none">
-                    on selection #{i + 1}
                   </span>
                 </div>
                 <div

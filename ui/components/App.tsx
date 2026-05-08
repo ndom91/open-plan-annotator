@@ -234,7 +234,7 @@ export default function App() {
 
         <div className="flex items-start justify-center px-4 py-8 pb-24 sm:px-6 lg:px-8">
           {/* Left rail: versions (top) + TOC (below) */}
-          <aside className="w-56 shrink-0 pl-2 mr-6 sticky top-18 max-h-[calc(100vh-5.5rem)] overflow-y-auto hidden xl:block">
+          <aside className="w-56 shrink-0 pl-2 pr-4 mr-6 sticky top-18 self-stretch min-h-[calc(100vh-4.5rem)] max-h-[calc(100vh-5.5rem)] overflow-y-auto border-r border-rule hidden xl:block">
             {totalVersions > 1 && (
               <VersionSidebar
                 currentVersion={version}
@@ -249,11 +249,7 @@ export default function App() {
 
           <div className="w-full max-w-208 min-w-0">
             {/* Document surface */}
-            <main
-              id="main-content"
-              tabIndex={-1}
-              className="bg-paper border border-rule rounded-xl shadow-[0_1px_2px_oklch(0_0_0/0.08),0_8px_20px_oklch(0_0_0/0.08),0_24px_48px_oklch(0_0_0/0.06)] overflow-hidden"
-            >
+            <main id="main-content" tabIndex={-1} className="bg-paper border border-rule rounded-md overflow-hidden">
               <DocumentChrome
                 isViewingHistory={isViewingHistory}
                 activeVersion={activeVersion}
