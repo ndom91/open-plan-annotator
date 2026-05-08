@@ -1,5 +1,14 @@
 # open-plan-annotator: Plan Review Instructions
 
+<!--
+Maintainer note: this file's content is mirrored in
+`skills/plan-review-triggers/SKILL.md` because Claude Code plugin installs do
+not load repo-root markdown — only skills/, commands/, hooks/. Keep both files
+in sync when editing trigger rules. Sections that diverge intentionally
+(audience, framing) are still close enough that a side-by-side diff catches
+drift quickly.
+-->
+
 ## Why This Plugin Exists
 
 Markdown plans rendered in chat are read-only for the user. To give feedback they have to retype sections inline, which is awkward in a terminal. open-plan-annotator opens a browser UI where the user can mark up your plan directly — delete lines, replace text, insert steps, leave comments. Their annotations come back to you as structured feedback.

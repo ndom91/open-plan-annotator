@@ -54,6 +54,10 @@ for package_dir in "${RUNTIME_PACKAGES[@]}"; do
 done
 
 for package_dir in "${PI_PACKAGES[@]}"; do
+  # The pi extension hardcodes its `open-plan-annotator` dep version because the
+  # workspace root cannot be referenced via `workspace:*` (root is not a member
+  # of the `workspaces` array). Keep both fields locked to NEW_VERSION here so
+  # published pi-extension always pulls the matching runtime instructions.
   bun pm pkg set "version=$NEW_VERSION" "dependencies.open-plan-annotator=$NEW_VERSION" --cwd "$package_dir"
 done
 
