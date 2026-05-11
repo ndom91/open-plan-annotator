@@ -7,7 +7,7 @@ const packages = [
     cwd: ".",
     requiredPaths: [
       "bin/open-plan-annotator.mjs",
-      "bin/open-plan-annotator-binary",
+      "scripts/install-runtime.mjs",
       "hooks/hooks.json",
       "shared/runtimeResolver.mjs",
       "shared/cliHelp.mjs",

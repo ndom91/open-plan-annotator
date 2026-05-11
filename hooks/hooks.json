@@ -1,12 +1,24 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/install-runtime.mjs\"",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
     "PermissionRequest": [
       {
         "matcher": "ExitPlanMode",
         "hooks": [
           {
             "type": "command",
-            "command": "open-plan-annotator-binary",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/open-plan-annotator.mjs\"",
             "timeout": 345600
           }
         ]

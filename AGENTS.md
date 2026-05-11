@@ -8,9 +8,16 @@ A fully local Claude Code plugin that intercepts `ExitPlanMode` hook events and 
 
 ```
 Claude Code path:
-  Hook fires (ExitPlanMode)
+  SessionStart hook fires
+    → scripts/install-runtime.mjs   (Node: ensures per-platform runtime binary is present)
+      → If missing: fetches @open-plan-annotator/runtime-<platform>-<arch>@<version>
+        tarball from the npm registry, verifies dist.integrity, extracts the
+        compiled Bun binary into packages/runtime-<platform>-<arch>/bin/.
+      → If present: exits 0 immediately (fast path).
+
+  ExitPlanMode hook fires
     → bin/open-plan-annotator.mjs   (Node wrapper: buffers stdin, resolves runtime package, delegates)
-      → @open-plan-annotator/runtime-*/bin/open-plan-annotator  (compiled Bun binary)
+      → packages/runtime-<platform>-<arch>/bin/open-plan-annotator  (compiled Bun binary)
         → Reads hook JSON from stdin
         → Starts HTTP server on ephemeral port
         → Opens browser to the UI
@@ -27,9 +34,16 @@ OpenCode path:
 
 The OpenCode plugin bridges to the same binary by constructing a Claude-format `HookEvent` payload and parsing the `HookOutput` response. This means there is only one server/UI codepath.
 
+### Runtime distribution
+
+The main npm package (`open-plan-annotator`) is small and ships no compiled binary. Per-platform binaries live in their own runtime packages (`@open-plan-annotator/runtime-darwin-arm64`, `-darwin-x64`, `-linux-arm64`, `-linux-x64`), each compiled with `bun build --compile --target=bun-<platform>`. These are listed as `optionalDependencies` so `npm install` picks the right one automatically.
+
+For environments that don't run `npm install` after fetching the plugin (Claude Code plugin install is one such case), the `SessionStart` hook above installs the matching runtime package directly from the npm registry on first session per version. `shared/runtimeResolver.mjs` checks both `require.resolve(...)` and the workspace fallback path (`packages/runtime-<…>/bin/open-plan-annotator`) — the SessionStart installer writes to the latter, so the resolver finds it either way.
+
 ### Key Files
 
 - `bin/open-plan-annotator.mjs` — npm bin wrapper. Buffers stdin, resolves the installed platform runtime package, delegates to the binary, and exposes `doctor`.
+- `scripts/install-runtime.mjs` — Run from the `SessionStart` Claude Code hook. Ensures the per-platform runtime binary is present by fetching it from the npm registry on first session per version. No-op fast path when the binary is already installed.
 - `shared/runtimeResolver.mjs` — Maps platform/arch to the correct runtime package and resolves its binary path.
 - `server/index.ts` — Main entry. Parses hook event, manages plan history, starts Bun HTTP server, outputs hook response.
 - `server/api.ts` — Routes: `GET /api/plan`, `POST /api/approve`, `POST /api/deny`, `POST /api/settings`, and catch-all serving the embedded HTML.

@@ -27,7 +27,7 @@
   },
   "files": [
     "bin/open-plan-annotator.mjs",
-    "bin/open-plan-annotator-binary",
+    "scripts/install-runtime.mjs",
     "shared/cliHelp.mjs",
     "shared/cliMode.mjs",
     "shared/packageManager.mjs",
