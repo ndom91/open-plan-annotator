@@ -66,14 +66,14 @@
     "postpack": "bun scripts/claude-pack-docs.mjs postpack"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.4.13",
-    "@types/node": "^25.6.0",
+    "@biomejs/biome": "^2.4.15",
+    "@types/node": "^25.6.2",
     "@types/bun": "^1.3.13",
-    "@typescript/native-preview": "^7.0.0-dev.20260430.1",
-    "typebox": "^1.1.37"
+    "@typescript/native-preview": "^7.0.0-dev.20260511.1",
+    "typebox": "^1.1.38"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "^1.14.30"
+    "@opencode-ai/plugin": "^1.14.48"
   },
   "peerDependencies": {
     "typebox": "*"
