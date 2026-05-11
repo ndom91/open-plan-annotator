@@ -116,6 +116,10 @@ code ::selection {
   outline: none;
 }
 
+#main-content:focus-visible {
+  outline: none;
+}
+
 .annotation-mark {
   position: relative;
   display: inline;
