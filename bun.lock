@@ -31,7 +31,7 @@
       "name": "@open-plan-annotator/pi-extension",
       "version": "1.8.1",
       "dependencies": {
-        "open-plan-annotator": "1.8.0",
+        "open-plan-annotator": "1.8.1",
       },
       "peerDependencies": {
         "@mariozechner/pi-coding-agent": "*",
@@ -889,7 +889,7 @@
 
     "oniguruma-to-es": ["oniguruma-to-es@4.3.5", "", { "dependencies": { "oniguruma-parser": "^0.12.1", "regex": "^6.1.0", "regex-recursion": "^6.0.2" } }, "sha512-Zjygswjpsewa0NLTsiizVuMQZbp0MDyM6lIt66OxsF21npUDlzpHi1Mgb/qhQdkb+dWFTzJmFbEWdvZgRho8eQ=="],
 
-    "open-plan-annotator": ["open-plan-annotator@1.8.0", "", { "dependencies": { "@opencode-ai/plugin": "^1.14.30" }, "optionalDependencies": { "@open-plan-annotator/runtime-darwin-arm64": "1.8.0", "@open-plan-annotator/runtime-darwin-x64": "1.8.0", "@open-plan-annotator/runtime-linux-arm64": "1.8.0", "@open-plan-annotator/runtime-linux-x64": "1.8.0" }, "peerDependencies": { "typebox": "*" }, "optionalPeers": ["typebox"], "bin": { "open-plan-annotator": "bin/open-plan-annotator.mjs" } }, "sha512-GG8jgXyZHOCHVcGXan60dpoQSOlLCLzjOhhN/Lk13hwrZCHGfNAWHiYmHPiGOdJcePhDLcO+d2Gnl4xb6e4WsA=="],
+    "open-plan-annotator": ["open-plan-annotator@1.8.1", "", { "dependencies": { "@opencode-ai/plugin": "^1.14.48" }, "optionalDependencies": { "@open-plan-annotator/runtime-darwin-arm64": "1.8.1", "@open-plan-annotator/runtime-darwin-x64": "1.8.1", "@open-plan-annotator/runtime-linux-arm64": "1.8.1", "@open-plan-annotator/runtime-linux-x64": "1.8.1" }, "peerDependencies": { "typebox": "*" }, "optionalPeers": ["typebox"], "bin": { "open-plan-annotator": "bin/open-plan-annotator.mjs" } }, "sha512-VJO5doA6GeH4oJR/UAuTknfqltKNqkujQgc8W/VEN+mU5OnzdguLZXUv0tPT52g5BuF6JEGx2I5yqR2xUPrAzA=="],
 
     "openai": ["openai@6.26.0", "", { "peerDependencies": { "ws": "^8.18.0", "zod": "^3.25 || ^4.0" }, "optionalPeers": ["ws", "zod"], "bin": { "openai": "bin/cli" } }, "sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA=="],
 
@@ -1111,8 +1111,6 @@
 
     "node-fetch/data-uri-to-buffer": ["data-uri-to-buffer@4.0.1", "", {}, "sha512-0R9ikRb668HB7QDxT1vkpuUBtqc53YyAwMwGeUFKRojY/NWKvdZ+9UYtRfGmhqNbRkTSVpMbmyhXipFFv2cb/A=="],
 
-    "open-plan-annotator/@opencode-ai/plugin": ["@opencode-ai/plugin@1.14.30", "", { "dependencies": { "@opencode-ai/sdk": "1.14.30", "effect": "4.0.0-beta.57", "zod": "4.1.8" }, "peerDependencies": { "@opentui/core": ">=0.1.105", "@opentui/solid": ">=0.1.105" }, "optionalPeers": ["@opentui/core", "@opentui/solid"] }, "sha512-O1y6qR349R5XJtB76Vx4TO/uvLkqNvdsgxtj2ZpWoygb3rtrkuVMiBsrcL2WfuyyaLJnPmbnkeigcdm42r09Hg=="],
-
     "p-retry/retry": ["retry@0.13.1", "", {}, "sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg=="],
 
     "parse5-htmlparser2-tree-adapter/parse5": ["parse5@6.0.1", "", {}, "sha512-Ofn/CTFzRGTTxwpNEs9PP93gXShHcTq255nzRYSKe8AkVpZY7e1fpmTfOyoIvjP5HG7Z2ZM7VS9PPhQGW2pOpw=="],
@@ -1130,10 +1128,6 @@
     "@aws-crypto/util/@smithy/util-utf8/@smithy/util-buffer-from": ["@smithy/util-buffer-from@2.2.0", "", { "dependencies": { "@smithy/is-array-buffer": "^2.2.0", "tslib": "^2.6.2" } }, "sha512-IJdWBbTcMQ6DA0gdNhh/BwrLkDR+ADW5Kr1aZmd4k3DIF6ezMV4R2NIAmT08wQJ3yUK82thHWmC/TnK/wpMMIA=="],
 
     "cliui/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
-
-    "open-plan-annotator/@opencode-ai/plugin/@opencode-ai/sdk": ["@opencode-ai/sdk@1.14.30", "", { "dependencies": { "cross-spawn": "7.0.6" } }, "sha512-OgPEDvALekHZIjByo/okJ699aLPn+XtsVxgZxUqE8TlzAG7TtskMGFl0fro8O0T2p+nkOT/LstnKGbECvc0+YA=="],
-
-    "open-plan-annotator/@opencode-ai/plugin/effect": ["effect@4.0.0-beta.57", "", { "dependencies": { "@standard-schema/spec": "^1.1.0", "fast-check": "^4.6.0", "find-my-way-ts": "^0.1.6", "ini": "^6.0.0", "kubernetes-types": "^1.30.0", "msgpackr": "^1.11.9", "multipasta": "^0.2.7", "toml": "^4.1.1", "uuid": "^13.0.0", "yaml": "^2.8.3" } }, "sha512-rg32VgXnLKaPRs9tbRDaZ5jxmzNY7ojXt85gSHGUTwdlbWH5Ik+OCUY2q14TXliygPGoHwCAvNWS4bQJOqf00g=="],
 
     "string-width/strip-ansi/ansi-regex": ["ansi-regex@5.0.1", "", {}, "sha512-quJQXlTSUGL2LH9SUXo8VwsY4soanhgo6LNSm84E1LBcE8s3O0wpdiRzyR9z/ZZJMlMWv37qOOb9pdJlMUEKFQ=="],
 
