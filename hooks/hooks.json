@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "open-plan-annotator",
+            "command": "open-plan-annotator-binary",
             "timeout": 345600
           }
         ]
