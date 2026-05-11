@@ -72,7 +72,7 @@ export function AnnotationCard({ annotation, index, isLast, onRemove }: Annotati
         </div>
         {!isLast && <div className="w-px flex-1 bg-rule mt-1" aria-hidden="true" />}
       </div>
-      <div className="group relative flex-1 min-w-0 rounded-md border border-rule-subtle bg-paper px-2.5 pt-1.5 pb-2.5">
+      <div className="annotation-card group relative flex-1 min-w-0 rounded-md border border-rule-subtle bg-paper px-2.5 pt-1.5 pb-2.5">
         <div className="flex items-center justify-between gap-2 h-5">
           <span className={cn("text-[11px] font-bold uppercase tracking-wide leading-none", cfg.pillClass)}>
             {cfg.label}
@@ -80,7 +80,10 @@ export function AnnotationCard({ annotation, index, isLast, onRemove }: Annotati
           <button
             type="button"
             onClick={() => onRemove(annotation.id)}
-            className={cn("annotation-index annotation-index-button !top-0", cfg.indexClass)}
+            className={cn(
+              "annotation-index annotation-index-button !top-0 group-hover:bg-redline-bg group-hover:border-redline group-hover:text-redline group-focus-within:bg-redline-bg group-focus-within:border-redline group-focus-within:text-redline",
+              cfg.indexClass,
+            )}
             title="Remove annotation"
             aria-label={`Remove annotation ${index + 1}`}
           >

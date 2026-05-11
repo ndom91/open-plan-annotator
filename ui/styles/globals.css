@@ -204,6 +204,23 @@ code ::selection {
   opacity: 1;
 }
 
+.annotation-card:hover .annotation-index-button,
+.annotation-card:focus-within .annotation-index-button {
+  background: var(--color-redline-bg);
+  border-color: var(--color-redline);
+  color: var(--color-redline);
+}
+
+.annotation-card:hover .annotation-index-button .annotation-index-num,
+.annotation-card:focus-within .annotation-index-button .annotation-index-num {
+  opacity: 0;
+}
+
+.annotation-card:hover .annotation-index-button .annotation-index-x,
+.annotation-card:focus-within .annotation-index-button .annotation-index-x {
+  opacity: 1;
+}
+
 .shortcut-key {
   display: inline-grid;
   place-items: center;
