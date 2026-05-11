@@ -53,13 +53,13 @@ For environments that don't run `npm install` after fetching the plugin (Claude 
 - `opencode/bridge.js` — Spawns the binary with a fake HookEvent, parses the HookOutput response.
 - `opencode/config.js` — Reads `open-plan-annotator.json` config for implementation handoff settings.
 - `ui/` — React + Vite frontend, built to a single `build/index.html` embedded at compile time.
-- `hooks/hooks.json` — Claude Code hook registration.
-- `CLAUDE.plugin.md` — Instructions shipped to end users (copied to `CLAUDE.md` during `npm pack` via prepack/postpack).
+- `hooks/hooks.json` — Claude Code hook registration. `SessionStart` runs `scripts/install-runtime.mjs` (runtime fetch) and `scripts/session-context.mjs` (injects plan-routing instructions into Claude's session context). `PermissionRequest:ExitPlanMode` launches the annotator binary.
+- `skills/plan-review-triggers/SKILL.md` — Auto-loaded Claude Code skill with the full trigger heuristics. This is the long-form reference; the SessionStart context injection is the always-on nudge that keeps Claude from rationalizing past it.
 
 ## Critical Rules
 
 - **stdout is reserved for Claude Code.** The JSON hook response is the ONLY thing that may be written to stdout. All logs, progress, and diagnostics MUST go to stderr (`console.error`, `process.stderr.write`).
-- **`CLAUDE.plugin.md` is user-facing.** It tells Claude to use plan mode. Keep developer-only content in this file (`CLAUDE.md`), not in `CLAUDE.plugin.md`.
+- **Trigger rules live in `skills/plan-review-triggers/SKILL.md`** (long-form reference) and `scripts/session-context.mjs` (terse always-on injection). Claude Code plugin installs do NOT auto-load repo-root markdown — only `hooks/`, `commands/`, `skills/`, and `agents/`. Don't ship instructions via root-level CLAUDE.md.
 - **The binaries are not committed.** Runtime package binaries under `packages/runtime-*/bin/` are generated during build and ignored by git.
 - **The OpenCode plugin uses plain JS (not TypeScript).** The `opencode/` directory ships as-is in the npm package — no build step. Keep it as `.js` files with JSDoc types.
 - **Never use 'as any'** Always use the correct type.
@@ -112,4 +112,4 @@ The OpenCode bridge (`opencode/bridge.js`) constructs the same `HookEvent` forma
 
 When working on this repo, the same plan-review trigger rules that ship to end users also apply to you. Dogfood the plugin: when proposing non-trivial changes here, route through the annotator instead of pasting plans inline.
 
-@CLAUDE.plugin.md
+@skills/plan-review-triggers/SKILL.md

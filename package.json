@@ -28,6 +28,7 @@
   "files": [
     "bin/open-plan-annotator.mjs",
     "scripts/install-runtime.mjs",
+    "scripts/session-context.mjs",
     "shared/cliHelp.mjs",
     "shared/cliMode.mjs",
     "shared/packageManager.mjs",
@@ -44,7 +45,6 @@
     "hooks/",
     "commands/",
     "skills/",
-    "CLAUDE.md",
     "README.md"
   ],
   "scripts": {
@@ -61,9 +61,7 @@
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
-    "do-release": "./scripts/release.sh",
-    "prepack": "bun scripts/claude-pack-docs.mjs prepack",
-    "postpack": "bun scripts/claude-pack-docs.mjs postpack"
+    "do-release": "./scripts/release.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.15",

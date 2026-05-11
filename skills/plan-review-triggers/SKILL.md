@@ -6,10 +6,10 @@ description: Required reading whenever drafting any multi-step proposal, impleme
 # Plan Review Triggers
 
 <!--
-Maintainer note: trigger rules below are mirrored in `CLAUDE.plugin.md` at the
-repo root. Skills are how the rules reach users who installed the Claude Code
-plugin via the marketplace (repo-root markdown does not load through that
-path). Keep both files in sync when editing trigger rules.
+This skill is the long-form trigger reference for end users who have the
+open-plan-annotator plugin installed. The terse always-on reminder lives in
+`scripts/session-context.mjs` (injected via the `SessionStart` hook); keep
+the two in rough sync when editing trigger rules.
 -->
 
 This plugin (open-plan-annotator) installs a hook on `ExitPlanMode` that opens a browser UI where the user marks up plans directly — deletions, replacements, insertions, comments — and returns structured feedback. Inline markdown plans bypass that workflow.

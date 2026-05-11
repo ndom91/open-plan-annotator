@@ -22,6 +22,4 @@ bun test
 
 ## Packaging note
 
-- `prepack` swaps in `CLAUDE.plugin.md` as `CLAUDE.md` for npm package output.
-- `postpack` restores the local developer `CLAUDE.md` from backup.
-- Script: `scripts/claude-pack-docs.mjs` (idempotent for repeated prepack/postpack calls).
+No npm-pack rename machinery. Repo-root `CLAUDE.md` (a symlink to `AGENTS.md`) is developer-only and excluded from the npm tarball. End-user plan-routing instructions live in `skills/plan-review-triggers/SKILL.md` (loaded by Claude Code as a skill) and `scripts/session-context.mjs` (injected into the session via the `SessionStart` hook).

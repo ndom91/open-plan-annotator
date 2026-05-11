@@ -8,6 +8,11 @@
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/install-runtime.mjs\"",
             "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/session-context.mjs\"",
+            "timeout": 5
           }
         ]
       }
