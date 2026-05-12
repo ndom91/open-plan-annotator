@@ -23,7 +23,7 @@ export function DiffViewer({ oldText, newText, oldVersion, newVersion }: DiffVie
         <span className="text-redline">{removed} removed</span>
       </div>
       <div className="overflow-x-auto">
-        <pre className="text-[13px] font-mono leading-relaxed py-4">
+        <pre className="min-w-full w-max text-[13px] font-mono leading-relaxed py-4">
           {lines.map((line, i) => (
             <DiffLineRow key={`${line.type}-${i}`} line={line} />
           ))}
