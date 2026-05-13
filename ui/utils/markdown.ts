@@ -107,18 +107,25 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
     }
 
     // Fenced code block
-    const codeMatch = line.match(/^```([\w.+#-]*)\s*$/);
+    const codeMatch = line.match(/^( {0,3})```([\w.+#-]*)\s*$/);
     if (codeMatch) {
-      const lang = codeMatch[1];
+      const fenceIndent = codeMatch[1];
+      const lang = codeMatch[2];
       const codeLines: string[] = [];
       i++;
-      while (i < lines.length && !lines[i].match(/^```\s*$/)) {
+      while (i < lines.length && !lines[i].match(new RegExp(`^${fenceIndent}\`\`\`\\s*$`))) {
         codeLines.push(lines[i]);
         i++;
       }
       i++; // skip closing ```
       const content = codeLines.join("\n");
-      blocks.push({ index: index++, type: "code", raw: `\`\`\`${lang}\n${content}\n\`\`\``, content, lang });
+      blocks.push({
+        index: index++,
+        type: "code",
+        raw: `${fenceIndent}\`\`\`${lang}\n${content}\n${fenceIndent}\`\`\``,
+        content,
+        lang,
+      });
       continue;
     }
 
@@ -164,7 +171,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
         if (matchListLine(l)) {
           listLines.push(l);
           i++;
-        } else if (/^\s+/.test(l) && listLines.length > 0) {
+        } else if (/^\s+/.test(l) && listLines.length > 0 && !/^ {0,3}```/.test(l)) {
           // Continuation line
           listLines.push(l);
           i++;
@@ -282,7 +289,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
       i < lines.length &&
       lines[i].trim() !== "" &&
       !lines[i].match(/^#{1,6}\s/) &&
-      !lines[i].startsWith("```") &&
+      !/^ {0,3}```/.test(lines[i]) &&
       !lines[i].startsWith(">") &&
       !matchListLine(lines[i]) &&
       !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])

@@ -71,4 +71,26 @@ describe("parseMarkdownToBlocks", () => {
     expect(body?.[0]?.[1]?.text).toBe("bar");
     expect(markdown.slice(body?.[0]?.[1]?.start, body?.[0]?.[1]?.end)).toBe("bar");
   });
+
+  test("parses indented fenced code blocks", () => {
+    const markdown = [
+      "4. Update handler:",
+      "   ```ts",
+      "   const value = `inline`;",
+      "   ```",
+      "",
+      "5. Next step",
+    ].join("\n");
+    const blocks = parseMarkdownToBlocks(markdown);
+
+    expect(blocks).toHaveLength(3);
+    expect(blocks[0]?.type).toBe("list");
+    expect(blocks[1]).toMatchObject({
+      type: "code",
+      lang: "ts",
+      content: "   const value = `inline`;",
+      raw: "   ```ts\n   const value = `inline`;\n   ```",
+    });
+    expect(blocks[2]?.type).toBe("list");
+  });
 });
