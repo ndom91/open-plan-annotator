@@ -92,3 +92,9 @@ Include in every plan:
 **User-initiated:** invoke `/annotate-plan <task>`. Same flow under the hood.
 
 The slash command is for user invocation. When you decide a plan is needed without the user invoking it, prefer `EnterPlanMode` directly. Both paths fire the same annotator hook.
+
+## After Approval
+
+Plan approval is the user's go-ahead to implement. Once `ExitPlanMode` returns an approved decision, immediately start executing the approved plan.
+
+Do not ask for another confirmation, do not say "ready when you are", and do not wait for a separate go-ahead unless the approval response explicitly requests changes or says not to proceed.

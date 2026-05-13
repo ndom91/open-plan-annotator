@@ -25,6 +25,8 @@ Workflow:
   • Assistant-initiated (you decided a plan is needed): call EnterPlanMode → draft → ExitPlanMode.
   • User-initiated ("draft a plan", "/plan", etc.): invoke /annotate-plan <task>.
 
+After approval: the approved ExitPlanMode response is the user's go-ahead to implement. Do not ask for another confirmation, do not say "ready when you are", and do not wait. Immediately continue with the approved plan unless the approval response explicitly requests changes or says not to proceed.
+
 Full trigger list and self-check rules in skill plan-review-triggers.`;
 
 process.stdout.write(
