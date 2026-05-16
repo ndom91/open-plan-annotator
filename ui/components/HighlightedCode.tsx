@@ -41,6 +41,17 @@ const LANG_IMPORTS: Record<string, () => Promise<unknown>> = {
   docker: () => import("shiki/langs/dockerfile"),
 };
 
+const LANG_ALIASES: Record<string, string> = {
+  ts: "typescript",
+  js: "javascript",
+};
+
+function normalizeLang(lang?: string): string | undefined {
+  if (!lang) return undefined;
+  const normalized = lang.toLowerCase();
+  return LANG_ALIASES[normalized] ?? normalized;
+}
+
 let highlighterPromise: Promise<HighlighterCore> | null = null;
 
 function getHighlighter(): Promise<HighlighterCore> {
@@ -80,6 +91,7 @@ export const HighlightedCode = memo(HighlightedCodeImpl);
 function HighlightedCodeImpl({ code, lang, annotations = [], allAnnotations = [] }: HighlightedCodeProps) {
   const [html, setHtml] = useState<string | null>(null);
   const theme = "github-dark-default";
+  const highlightLang = normalizeLang(lang);
 
   useEffect(() => {
     let cancelled = false;
@@ -88,14 +100,14 @@ function HighlightedCodeImpl({ code, lang, annotations = [], allAnnotations = []
       const highlighter = await getHighlighter();
       if (cancelled) return;
 
-      if (!lang) {
+      if (!highlightLang) {
         setHtml(null);
         return;
       }
 
       const loadedLangs = highlighter.getLoadedLanguages();
-      if (!loadedLangs.includes(lang)) {
-        const loader = LANG_IMPORTS[lang];
+      if (!loadedLangs.includes(highlightLang)) {
+        const loader = LANG_IMPORTS[highlightLang];
         if (!loader) {
           setHtml(null);
           return;
@@ -111,14 +123,14 @@ function HighlightedCodeImpl({ code, lang, annotations = [], allAnnotations = []
 
       if (cancelled) return;
 
-      const result = highlighter.codeToHtml(code, { lang, theme }).replace(/\stabindex="0"/g, "");
+      const result = highlighter.codeToHtml(code, { lang: highlightLang, theme }).replace(/\stabindex="0"/g, "");
       setHtml(result);
     })();
 
     return () => {
       cancelled = true;
     };
-  }, [code, lang]);
+  }, [code, highlightLang]);
 
   const annotatedHtml = useMemo(() => {
     if (!html) return null;
