@@ -96,8 +96,8 @@ export function TableOfContents({ blocks }: TableOfContentsProps) {
                     : "text-ink-tertiary hover:text-ink-secondary hover:bg-paper-edge/50",
                 )}
               >
-                <span className="bg-ink-tertiary/40 rounded-full size-1.25"></span>
-                <span className="truncate">{h.text}</span>
+                <span className="bg-ink-tertiary/40 rounded-full size-1.25 shrink-0"></span>
+                <span className="min-w-0 truncate">{h.text}</span>
               </a>
             </li>
           );
