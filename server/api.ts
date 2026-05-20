@@ -65,6 +65,14 @@ export function createRouter(state: ServerState) {
       return Response.json(state.updateInfo);
     }
 
+    // Asset-looking paths (anything with a file extension other than .html)
+    // are not bundled into the single-file binary. Return 404 instead of
+    // serving HTML — otherwise browsers try to parse the SPA shell as an
+    // SVG/ICO/JSON/manifest and silently drop the resource.
+    if (/\.[a-z0-9]+$/i.test(url.pathname) && !url.pathname.endsWith(".html")) {
+      return new Response("Not Found", { status: 404 });
+    }
+
     // Serve the single-file React app for everything else
     return new Response(state.htmlContent, {
       headers: { "Content-Type": "text/html; charset=utf-8" },
