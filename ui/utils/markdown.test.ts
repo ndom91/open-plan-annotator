@@ -88,9 +88,31 @@ describe("parseMarkdownToBlocks", () => {
     expect(blocks[1]).toMatchObject({
       type: "code",
       lang: "ts",
-      content: "   const value = `inline`;",
+      content: "const value = `inline`;",
       raw: "   ```ts\n   const value = `inline`;\n   ```",
     });
     expect(blocks[2]?.type).toBe("list");
+  });
+
+  test("strips list indent from multi-line indented fenced code", () => {
+    const markdown = ["1. Step:", "   ```bash", "   cd /foo", "   ./bar", "   ```"].join("\n");
+    const blocks = parseMarkdownToBlocks(markdown);
+
+    expect(blocks[1]).toMatchObject({
+      type: "code",
+      lang: "bash",
+      content: "cd /foo\n./bar",
+    });
+  });
+
+  test("leaves top-level (unindented) fenced code content untouched", () => {
+    const markdown = ["```bash", "  cd /foo", "./bar", "```"].join("\n");
+    const blocks = parseMarkdownToBlocks(markdown);
+
+    expect(blocks[0]).toMatchObject({
+      type: "code",
+      lang: "bash",
+      content: "  cd /foo\n./bar",
+    });
   });
 });

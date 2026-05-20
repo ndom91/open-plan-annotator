@@ -118,11 +118,16 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
         i++;
       }
       i++; // skip closing ```
-      const content = codeLines.join("\n");
+      const rawContent = codeLines.join("\n");
+      // Strip the fence indent (e.g. the 3-space ordered-list continuation) from
+      // each code line so the code body renders flush-left inside the box.
+      // `raw` keeps the original source for offset math.
+      const stripPrefix = fenceIndent.length > 0 ? new RegExp(`^ {1,${fenceIndent.length}}`) : null;
+      const content = stripPrefix ? codeLines.map((l) => l.replace(stripPrefix, "")).join("\n") : rawContent;
       blocks.push({
         index: index++,
         type: "code",
-        raw: `${fenceIndent}\`\`\`${lang}\n${content}\n${fenceIndent}\`\`\``,
+        raw: `${fenceIndent}\`\`\`${lang}\n${rawContent}\n${fenceIndent}\`\`\``,
         content,
         lang,
       });

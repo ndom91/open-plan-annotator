@@ -300,7 +300,7 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
       return (
         <div
           data-block-index={block.index}
-          className="my-6 rounded-md bg-code-bg border border-code-edge overflow-hidden text-code-ink"
+          className="mt-4 mb-8 rounded-md bg-code-bg border border-code-edge overflow-hidden text-code-ink"
         >
           {block.lang && (
             <div className="px-4 py-2 border-b border-code-edge flex items-center justify-between">
