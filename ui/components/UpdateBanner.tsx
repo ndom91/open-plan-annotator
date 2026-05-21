@@ -32,7 +32,7 @@ const COLOR_MAP = {
 
 function Banner({ color, children }: { color: keyof typeof COLOR_MAP; children: ReactNode }) {
   return (
-    <div className="mx-auto max-w-5xl mt-2 px-4">
+    <div className="mb-6">
       <div
         className={`flex items-center justify-between gap-3 px-4 py-2 rounded-lg ring-1 text-sm ${COLOR_MAP[color]}`}
       >

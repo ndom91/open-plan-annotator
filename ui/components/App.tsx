@@ -224,14 +224,6 @@ export default function App() {
           autoCloseCountdown={autoCloseCountdown}
         />
 
-        {updateInfo?.updateAvailable && updateInfo.latestVersion && (
-          <UpdateBanner
-            currentVersion={updateInfo.currentVersion}
-            latestVersion={updateInfo.latestVersion}
-            updateInstructions={updateInfo.updateInstructions}
-          />
-        )}
-
         <div className="flex items-start">
           {/* Left rail: versions (top) + TOC (below) — flush to viewport edge */}
           <aside className="w-60 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-r border-rule px-5 py-6 hidden xl:block">
@@ -248,6 +240,14 @@ export default function App() {
 
           <div className="flex-1 min-w-0 flex justify-center px-4 py-6 pb-24 sm:px-6 lg:px-8">
             <div className="w-full max-w-220 min-w-0">
+              {updateInfo?.updateAvailable && updateInfo.latestVersion && (
+                <UpdateBanner
+                  currentVersion={updateInfo.currentVersion}
+                  latestVersion={updateInfo.latestVersion}
+                  updateInstructions={updateInfo.updateInstructions}
+                />
+              )}
+
               {/* Document surface */}
               <main
                 id="main-content"
