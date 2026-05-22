@@ -1,15 +1,20 @@
 // Embedded at compile time by `bun build --compile`
 import embeddedHtml from "../build/index.html" with { type: "text" };
-import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
+import { AGENT_SETUP_TEXT } from "../shared/agentSetup.mjs";
+import { buildCliHelpText, buildUnknownCommandPrefix, isAgentHelpTopic } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
 import { buildUpdateInstructions } from "../shared/updateHints.mjs";
 import { buildUpdateMessage } from "../shared/updateMessage.mjs";
 import { createRouter } from "./api.ts";
 import { openBrowser } from "./launch.ts";
-import { createDecisionController, writeHookDecisionToStdout } from "./runtime/decision.ts";
+import {
+  createDecisionController,
+  writeHookDecisionToStdout,
+  writeReviewDecisionToStdout,
+} from "./runtime/decision.ts";
 import { cleanupHistory, loadPlanHistory } from "./runtime/history.ts";
 import { loadHtmlContent } from "./runtime/html.ts";
-import { parseRuntimeInput } from "./runtime/input.ts";
+import { parseReviewRuntimeInput, parseRuntimeInput } from "./runtime/input.ts";
 import { createPreferencesPersister, loadPreferences, resolveRuntimePaths } from "./runtime/preferences.ts";
 import type { ServerState } from "./types.ts";
 import { checkForUpdate } from "./updateCheck.ts";
@@ -23,7 +28,17 @@ if (cliMode === "version") {
 }
 
 if (cliMode === "help") {
+  if (isAgentHelpTopic(process.argv[3])) {
+    process.stdout.write(`${AGENT_SETUP_TEXT}\n`);
+    process.exit(0);
+  }
+
   process.stdout.write(`${buildCliHelpText(VERSION)}\n`);
+  process.exit(0);
+}
+
+if (cliMode === "agentSetup") {
+  process.stdout.write(`${AGENT_SETUP_TEXT}\n`);
   process.exit(0);
 }
 
@@ -54,7 +69,10 @@ if (cliMode === "unknown") {
 
 const isDev = process.env.NODE_ENV === "development";
 
-const runtimeInput = await parseRuntimeInput(isDev).catch((err: unknown) => {
+const runtimeInput = await (cliMode === "review"
+  ? parseReviewRuntimeInput(process.argv.slice(3))
+  : parseRuntimeInput(isDev)
+).catch((err: unknown) => {
   const message = err instanceof Error ? err.message : String(err);
   process.stderr.write(`open-plan-annotator: ${message}\n`);
   process.exit(1);
@@ -108,13 +126,17 @@ checkForUpdate(configDir, packageManager, { host })
     };
   });
 
-if (!isDev) {
+if (!isDev && (runtimeInput.mode !== "review" || !runtimeInput.reviewOptions.noOpen)) {
   openBrowser(url);
 }
 
 const decision = await decisionController.decisionPromise;
 await cleanupHistory(isDev, decision.approved, historyDir);
-await writeHookDecisionToStdout(decision);
+if (runtimeInput.mode === "review") {
+  await writeReviewDecisionToStdout(decision, runtimeInput.planPath ?? "");
+} else {
+  await writeHookDecisionToStdout(decision);
+}
 
 const keepAliveMs = Number(process.env.SHUTDOWN_DELAY_MS) || 5000;
 await Bun.sleep(keepAliveMs);

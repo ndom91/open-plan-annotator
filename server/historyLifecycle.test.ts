@@ -246,6 +246,90 @@ describe("stdout immediacy", () => {
   }, 15000);
 });
 
+describe("generic review CLI mode", () => {
+  test("reviews a Markdown file and emits review result JSON", async () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "open-plan-annotator-review-"));
+    const configHome = join(tempRoot, "config");
+    const planPath = join(tempRoot, "plan.md");
+
+    try {
+      mkdirSync(configHome, { recursive: true });
+      seedUpdateCheckCache(configHome);
+      writeFileSync(planPath, "# Test Plan\n\n1. Do the thing.\n", "utf8");
+
+      const child = spawn(process.execPath, ["run", "server/index.ts", "review", planPath, "--no-open"], {
+        cwd: join(import.meta.dir, ".."),
+        env: { ...process.env, NODE_ENV: "test", XDG_CONFIG_HOME: configHome, SHUTDOWN_DELAY_MS: "8000" },
+        stdio: ["ignore", "pipe", "pipe"],
+      });
+
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (chunk) => {
+        stdout += String(chunk);
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += String(chunk);
+      });
+
+      const childExit = new Promise<number>((resolve, reject) => {
+        child.once("error", reject);
+        child.once("close", (code) => resolve(code ?? -1));
+      });
+
+      try {
+        const baseUrl = await waitForServerUrl(() => stderr);
+        await fetch(`${baseUrl}/api/deny`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            annotations: [
+              {
+                id: "a1",
+                type: "comment",
+                text: "Do the thing",
+                comment: "Be more specific.",
+                blockIndex: 1,
+                startOffset: 3,
+                endOffset: 15,
+                createdAt: "2026-05-21T12:00:00.000Z",
+              },
+            ],
+          }),
+        });
+
+        const stdoutDeadline = Date.now() + 3000;
+        while (!stdout.trim() && Date.now() < stdoutDeadline) {
+          await Bun.sleep(25);
+        }
+
+        const output = JSON.parse(stdout.trim()) as {
+          approved: boolean;
+          feedback: string;
+          annotations: unknown[];
+          planPath: string;
+        };
+
+        expect(output.approved).toBe(false);
+        expect(output.planPath).toBe(planPath);
+        expect(output.annotations).toHaveLength(1);
+        expect(output.feedback).toContain("{==Do the thing==}{>>Be more specific.<<}");
+      } finally {
+        if (child.exitCode === null) {
+          child.kill("SIGTERM");
+          await Promise.race([childExit.catch(() => -1), Bun.sleep(1000)]);
+          if (child.exitCode === null) {
+            child.kill("SIGKILL");
+            await childExit.catch(() => -1);
+          }
+        }
+      }
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
+  }, 15000);
+});
+
 describe("history lifecycle", () => {
   test("deny preserves history and approve clears it while version increments", async () => {
     const tempRoot = mkdtempSync(join(tmpdir(), "open-plan-annotator-test-"));

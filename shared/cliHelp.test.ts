@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { buildCliHelpText, buildUnknownCommandPrefix } from "./cliHelp.mjs";
+import { AGENT_SETUP_TEXT } from "./agentSetup.mjs";
+import { buildCliHelpText, buildUnknownCommandPrefix, isAgentHelpTopic } from "./cliHelp.mjs";
 
 describe("buildCliHelpText", () => {
   test("builds canonical help text for all entrypoints", () => {
@@ -8,6 +9,9 @@ describe("buildCliHelpText", () => {
 Usage:
   open-plan-annotator              Show this help
   open-plan-annotator < event.json Run as a Claude Code hook (debug)
+  open-plan-annotator review <file> Review a Markdown plan from disk
+  open-plan-annotator agent-setup  Print generic agent setup instructions
+  open-plan-annotator help agent   Print generic agent setup instructions
   open-plan-annotator doctor       Show resolved runtime details
   open-plan-annotator update       Show package-managed update guidance
   open-plan-annotator upgrade      Alias for update
@@ -15,6 +19,19 @@ Usage:
   open-plan-annotator --help       Show this help
 
 https://github.com/ndom91/open-plan-annotator`);
+  });
+});
+
+describe("agent setup help", () => {
+  test("recognizes agent help topics", () => {
+    expect(isAgentHelpTopic("agent")).toBe(true);
+    expect(isAgentHelpTopic("agent-setup")).toBe(true);
+    expect(isAgentHelpTopic("review")).toBe(false);
+  });
+
+  test("documents generic CLI review workflow", () => {
+    expect(AGENT_SETUP_TEXT).toContain('open-plan-annotator review "/absolute/path/to/plan.md"');
+    expect(AGENT_SETUP_TEXT).toContain("If the result is approved");
   });
 });
 

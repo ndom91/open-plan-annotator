@@ -1,5 +1,5 @@
 /**
- * @typedef {"hook" | "update" | "doctor" | "help" | "version" | "unknown"} CliMode
+ * @typedef {"hook" | "review" | "agentSetup" | "update" | "doctor" | "help" | "version" | "unknown"} CliMode
  */
 
 /**
@@ -18,6 +18,9 @@ export function resolveCliMode(arg, options = {}) {
 
   if (arg === "update" || arg === "upgrade") return "update";
   if (arg === "doctor") return "doctor";
+  if (arg === "review") return "review";
+  if (arg === "agent-setup") return "agentSetup";
+  if (arg === "help") return "help";
   if (arg === "--help" || arg === "-h") return "help";
   if (arg === "--version" || arg === "-v") return "version";
   return "unknown";

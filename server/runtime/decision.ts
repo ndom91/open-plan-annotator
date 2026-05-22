@@ -1,4 +1,4 @@
-import type { HookOutput, ServerDecision } from "../types.ts";
+import type { HookOutput, ReviewOutput, ServerDecision } from "../types.ts";
 
 export interface DecisionController {
   decisionPromise: Promise<ServerDecision>;
@@ -22,6 +22,20 @@ export async function writeHookDecisionToStdout(decision: ServerDecision): Promi
         ? { behavior: "allow" }
         : { behavior: "deny", message: decision.feedback ?? "Plan changes requested." },
     },
+  };
+
+  const jsonLine = `${JSON.stringify(output)}\n`;
+  const { closeSync, writeSync } = await import("node:fs");
+  writeSync(1, jsonLine);
+  closeSync(1);
+}
+
+export async function writeReviewDecisionToStdout(decision: ServerDecision, planPath: string): Promise<void> {
+  const output: ReviewOutput = {
+    approved: decision.approved,
+    feedback: decision.feedback ?? null,
+    annotations: decision.annotations ?? [],
+    planPath,
   };
 
   const jsonLine = `${JSON.stringify(output)}\n`;

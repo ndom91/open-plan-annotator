@@ -1,9 +1,27 @@
+import { dirname, resolve } from "node:path";
 import type { HookEvent } from "../types.ts";
 import { DEV_PLAN } from "./devPlan.ts";
 
 interface RuntimeInput {
   hookEvent: HookEvent;
   planContent: string;
+  mode: "hook" | "review";
+  planPath?: string;
+}
+
+interface HookRuntimeInput extends RuntimeInput {
+  mode: "hook";
+}
+
+interface ReviewRuntimeInput extends RuntimeInput {
+  mode: "review";
+  planPath: string;
+  reviewOptions: ReviewCliOptions;
+}
+
+interface ReviewCliOptions {
+  filePath: string;
+  noOpen: boolean;
 }
 
 function buildDevHookEvent(): HookEvent {
@@ -41,11 +59,12 @@ async function readLatestPlanFromFilesystem(): Promise<string | null> {
   }
 }
 
-export async function parseRuntimeInput(isDev: boolean): Promise<RuntimeInput> {
+export async function parseRuntimeInput(isDev: boolean): Promise<HookRuntimeInput> {
   if (isDev) {
     return {
       hookEvent: buildDevHookEvent(),
       planContent: DEV_PLAN,
+      mode: "hook",
     };
   }
 
@@ -71,5 +90,62 @@ export async function parseRuntimeInput(isDev: boolean): Promise<RuntimeInput> {
     throw new Error("no plan content found");
   }
 
-  return { hookEvent, planContent };
+  return { hookEvent, planContent, mode: "hook" };
+}
+
+export async function parseReviewRuntimeInput(args: string[]): Promise<ReviewRuntimeInput> {
+  const reviewOptions = parseReviewCliOptions(args);
+  const planPath = resolve(reviewOptions.filePath);
+  reviewOptions.filePath = planPath;
+  const file = Bun.file(reviewOptions.filePath);
+
+  if (!(await file.exists())) {
+    throw new Error(`plan file not found: ${reviewOptions.filePath}`);
+  }
+
+  if (!reviewOptions.filePath.toLowerCase().endsWith(".md")) {
+    throw new Error(`review input must be a Markdown file: ${reviewOptions.filePath}`);
+  }
+
+  const planContent = await file.text();
+  if (!planContent.trim()) {
+    throw new Error(`plan file is empty: ${reviewOptions.filePath}`);
+  }
+
+  const hookEvent: HookEvent = {
+    session_id: `cli-review-${reviewOptions.filePath}`,
+    transcript_path: reviewOptions.filePath,
+    cwd: dirname(reviewOptions.filePath),
+    permission_mode: "default",
+    hook_event_name: "PermissionRequest",
+    tool_name: "ReviewPlan",
+    tool_use_id: "cli-review",
+    tool_input: { plan: planContent },
+  };
+
+  return { hookEvent, planContent, mode: "review", planPath: reviewOptions.filePath, reviewOptions };
+}
+
+function parseReviewCliOptions(args: string[]): ReviewCliOptions {
+  const positionals: string[] = [];
+  let noOpen = false;
+
+  for (const arg of args) {
+    if (arg === "--no-open") {
+      noOpen = true;
+      continue;
+    }
+
+    if (arg.startsWith("-")) {
+      throw new Error(`unknown review flag: ${arg}`);
+    }
+
+    positionals.push(arg);
+  }
+
+  if (positionals.length !== 1) {
+    throw new Error("usage: open-plan-annotator review <plan.md> [--no-open]");
+  }
+
+  return { filePath: positionals[0], noOpen };
 }

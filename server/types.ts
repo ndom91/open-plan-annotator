@@ -45,6 +45,14 @@ export interface HistoryKeySource {
 export interface ServerDecision {
   approved: boolean;
   feedback?: string;
+  annotations?: Annotation[];
+}
+
+export interface ReviewOutput {
+  approved: boolean;
+  feedback: string | null;
+  annotations: Annotation[];
+  planPath: string;
 }
 
 export interface UpdateInfo {

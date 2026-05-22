@@ -22,6 +22,12 @@ describe("resolveCliMode", () => {
     expect(resolveCliMode("doctor")).toBe("doctor");
   });
 
+  test("recognizes generic review and agent setup commands", () => {
+    expect(resolveCliMode("review")).toBe("review");
+    expect(resolveCliMode("agent-setup")).toBe("agentSetup");
+    expect(resolveCliMode("help")).toBe("help");
+  });
+
   test("recognizes help and version flags", () => {
     expect(resolveCliMode("--help")).toBe("help");
     expect(resolveCliMode("-h")).toBe("help");

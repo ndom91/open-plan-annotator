@@ -96,6 +96,21 @@ This adds the `open-plan-annotator` command. To verify the resolved runtime:
 open-plan-annotator doctor
 ```
 
+You can also review a Markdown plan directly from disk, which is useful for agents without a native plugin:
+
+```sh
+open-plan-annotator review /absolute/path/to/plan.md
+```
+
+The command opens the same local review UI and blocks until approval or requested changes. It prints review result JSON to stdout when the user is done.
+
+Generic agent setup instructions are available with:
+
+```sh
+open-plan-annotator agent-setup
+open-plan-annotator help agent
+```
+
 ## Updates
 
 - Claude Code: update the marketplace/plugin install, then restart Claude Code.

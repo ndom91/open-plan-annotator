@@ -4,7 +4,8 @@ import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { buildCliHelpText, buildUnknownCommandPrefix } from "../shared/cliHelp.mjs";
+import { AGENT_SETUP_TEXT } from "../shared/agentSetup.mjs";
+import { buildCliHelpText, buildUnknownCommandPrefix, isAgentHelpTopic } from "../shared/cliHelp.mjs";
 import { resolveCliMode } from "../shared/cliMode.mjs";
 import { detectPackageManager } from "../shared/packageManager.mjs";
 import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
@@ -22,7 +23,17 @@ if (cliMode === "version") {
 }
 
 if (cliMode === "help") {
+  if (isAgentHelpTopic(process.argv[3])) {
+    console.log(AGENT_SETUP_TEXT);
+    process.exit(0);
+  }
+
   console.log(buildCliHelpText(VERSION));
+  process.exit(0);
+}
+
+if (cliMode === "agentSetup") {
+  console.log(AGENT_SETUP_TEXT);
   process.exit(0);
 }
 
