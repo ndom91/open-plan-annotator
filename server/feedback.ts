@@ -30,7 +30,7 @@ function serializeAnnotation(annotation: Annotation): string {
   }
 
   if (annotation.type === "replacement") {
-    return `{~~${escapeCriticText(annotation.text, "~>")}~>${escapeCriticText(annotation.replacement ?? "", "~~}")}~~}${metadata}`;
+    return `{~~${escapeCriticText(annotation.text, ["~>", "~~}"])}~>${escapeCriticText(annotation.replacement ?? "", "~~}")}~~}${metadata}`;
   }
 
   if (annotation.type === "insertion") {
@@ -48,6 +48,11 @@ function escapeAttribute(value: string): string {
   return value.replaceAll("\\", "\\\\").replaceAll('"', '\\"');
 }
 
-function escapeCriticText(value: string, delimiter: string): string {
-  return value.replaceAll(delimiter, `[escaped ${delimiter}]`);
+function escapeCriticText(value: string, delimiter: string | string[]): string {
+  const delimiters = Array.isArray(delimiter) ? delimiter : [delimiter];
+  let escaped = value;
+  for (const item of delimiters) {
+    escaped = escaped.replaceAll(item, `[escaped ${item}]`);
+  }
+  return escaped;
 }

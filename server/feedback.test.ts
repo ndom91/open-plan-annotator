@@ -48,4 +48,34 @@ describe("serializeAnnotations", () => {
     expect(feedback).toContain("anchor[escaped ==}]");
     expect(feedback).toContain("comment[escaped <<}]");
   });
+
+  test("escapes substitution separators, closers, and attribute backslashes", () => {
+    const feedback = serializeAnnotations([
+      {
+        ...baseAnnotation,
+        id: "a\\1",
+        type: "replacement",
+        text: "old ~> value ~~}",
+        replacement: "new ~~} value",
+      },
+    ]);
+
+    expect(feedback).toContain('id="a\\\\1"');
+    expect(feedback).toContain("old [escaped ~>] value [escaped ~~}]");
+    expect(feedback).toContain("new [escaped ~~}] value");
+  });
+
+  test("preserves multiline annotation text", () => {
+    const feedback = serializeAnnotations([
+      {
+        ...baseAnnotation,
+        type: "comment",
+        text: "first line\nsecond line",
+        comment: "comment line one\ncomment line two",
+      },
+    ]);
+
+    expect(feedback).toContain("first line\nsecond line");
+    expect(feedback).toContain("comment line one\ncomment line two");
+  });
 });

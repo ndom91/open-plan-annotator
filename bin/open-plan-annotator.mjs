@@ -9,6 +9,7 @@ import { buildCliHelpText, buildUnknownCommandPrefix, isAgentHelpTopic } from ".
 import { resolveCliMode } from "../shared/cliMode.mjs";
 import { detectPackageManager } from "../shared/packageManager.mjs";
 import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
+import { buildRuntimeEnv } from "../shared/runtimeEnv.mjs";
 import { buildUpdateMessage } from "../shared/updateMessage.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -79,14 +80,15 @@ try {
   process.exit(1);
 }
 
+const childEnv = buildRuntimeEnv({
+  cliMode,
+  packageManager: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }),
+});
+
 const child = spawn(runtime.binaryPath, process.argv.slice(2), {
   stdio: ["pipe", "pipe", "inherit"],
   detached: true,
-  env: {
-    ...process.env,
-    OPEN_PLAN_HOST: process.env.OPEN_PLAN_HOST || "claude-code",
-    OPEN_PLAN_PKG_MANAGER: detectPackageManager({ installPath: fileURLToPath(import.meta.url) }),
-  },
+  env: childEnv,
 });
 
 child.stdin.write(stdinBuffer);

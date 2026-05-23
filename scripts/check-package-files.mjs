@@ -8,9 +8,11 @@ const packages = [
     requiredPaths: [
       "bin/open-plan-annotator.mjs",
       "scripts/install-runtime.mjs",
+      "shared/agentSetup.mjs",
       "scripts/session-context.mjs",
       "hooks/hooks.json",
       "shared/runtimeResolver.mjs",
+      "shared/runtimeEnv.mjs",
       "shared/cliHelp.mjs",
       "shared/cliMode.mjs",
       "shared/planReview.mjs",

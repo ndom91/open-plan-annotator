@@ -35,6 +35,7 @@
     "shared/packageManager.mjs",
     "shared/updateMessage.mjs",
     "shared/runtimeResolver.mjs",
+    "shared/runtimeEnv.mjs",
     "shared/updateHints.mjs",
     "shared/versionInfo.mjs",
     "shared/planReview.mjs",
