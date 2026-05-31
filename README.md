@@ -11,7 +11,7 @@ Select text to <code>strikethrough</code>, <code>replace</code>, <code>insert</c
 
 ## How It Works
 
-1. Your coding agent (Claude Code or OpenCode) finishes writing a plan
+1. Your coding agent (Claude Code, OpenCode, and pi) finishes writing a plan
 2. The plugin launches an ephemeral HTTP server and opens a React UI in your browser
 3. You review the plan and annotate it — strikethrough, replace, insert, or comment on any section
 4. **Approve** to let the agent proceed, or **Request Changes** to send your annotations back as structured feedback
@@ -23,7 +23,7 @@ Everything runs locally. Nothing leaves your machine.
 
 ## Install
 
-`open-plan-annotator` is package-managed: the plugin package installs the local platform runtime it needs. There is no first-run binary download and no in-app updater.
+`open-plan-annotator` is package-managed: the plugin package installs the local platform runtime it needs. After installing the plugin, your agent should call it autonomously when you ask it to "make a plan", including in claude-code specifically as a hook when exiting `PlanMode`. Alternatively, you can call it explicitly via the exposed command. See below for more details.
 
 ### Claude Code
 
@@ -48,7 +48,7 @@ Add the plugin to your OpenCode config (`opencode.json` or `.opencode/config.jso
 
 ```json
 {
-  "plugin": ["open-plan-annotator@latest"]
+  "plugin": ["open-plan-annotator@1.8.7"]
 }
 ```
 
