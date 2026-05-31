@@ -17,13 +17,13 @@ Select text to <code>strikethrough</code>, <code>replace</code>, <code>insert</c
 4. **Approve** to let the agent proceed, or **Request Changes** to send your annotations back as structured feedback
 5. The agent revises the plan and the cycle repeats until you're satisfied
 
-Everything runs locally. Nothing leaves your machine.
+Everything runs locally.
 
 ![](.github/assets/screenshot_005.png)
 
 ## Install
 
-`open-plan-annotator` is package-managed: the plugin package installs the local platform runtime it needs. After installing the plugin, your agent should call it autonomously when you ask it to "make a plan", including in claude-code specifically as a hook when exiting `PlanMode`. Alternatively, you can call it explicitly via the exposed command. See below for more details.
+`open-plan-annotator` is package-managed as a plugin within your harness of choice. The main plugin package then installs the specific local platform runtime it needs for your host (`linux`/`darwin`, `x86_64`/`arm64`, etc). After installing the plugin, your agent will call `open-plan-annotator` autonomously when you ask it to "make a plan" or any similar such comment, including in claude-code specifically as a hook when exiting `PlanMode`. Alternatively, you can call it yourself explicitly via the exposed command. See below for more details.
 
 ### Claude Code
 
@@ -113,10 +113,10 @@ open-plan-annotator help agent
 
 ## Updates
 
-- Claude Code: update the marketplace/plugin install, then restart Claude Code.
-- OpenCode: update the installed npm plugin through OpenCode, then restart OpenCode.
-- Pi: update the Pi extension, then restart Pi.
-- Manual/global install: update the npm package, then rerun `open-plan-annotator`.
+- **Claude Code**: navigate to the `/plugin` -> "Installed" -> `open-plan-annotator` entry and select "Update", then restart Claude Code.
+- **OpenCode**: bump the version number in your `opencode.jsonc` `plugins` `open-plan-annotator` entry, then restart OpenCode.
+- **Pi**: update the Pi extension, then restart Pi.
+- **Manual/global install**: update the npm package, then rerun `open-plan-annotator`.
 
 ## Keyboard Shortcuts
 
