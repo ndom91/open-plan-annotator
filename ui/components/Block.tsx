@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useMemo } from "react";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
 import type { Block, ListItem } from "../utils/markdown.ts";
@@ -269,8 +269,11 @@ function renderListGroups(
 }
 
 export function BlockComponent({ block, annotations, onRemoveAnnotation }: BlockProps) {
-  const blockAnnotations = annotations.filter((a) => a.blockIndex === block.index);
-  const segments = splitIntoSegments(block.content, blockAnnotations);
+  const blockAnnotations = useMemo(
+    () => annotations.filter((a) => a.blockIndex === block.index),
+    [annotations, block.index],
+  );
+  const segments = useMemo(() => splitIntoSegments(block.content, blockAnnotations), [block.content, blockAnnotations]);
   const inner = renderBlock(block, segments, blockAnnotations, annotations);
   return <RemoveAnnotationProvider value={onRemoveAnnotation}>{inner}</RemoveAnnotationProvider>;
 }
