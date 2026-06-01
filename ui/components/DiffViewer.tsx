@@ -3,6 +3,56 @@ import { type BaseDiffOptions, type FileContents, FileDiff } from "@pierre/diffs
 import { useMemo } from "react";
 import { useTheme } from "./ThemeProvider.tsx";
 
+const DIFF_CONTEXT_BAR_CSS = `
+[data-separator=line-info] {
+  background: var(--diffs-bg-separator);
+}
+
+[data-separator=line-info] [data-separator-wrapper] {
+  border-block: 1px solid var(--color-rule-subtle);
+  background: var(--diffs-bg-separator);
+}
+
+[data-expand-button],
+[data-separator-content] {
+  background: transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+[data-expand-button] {
+  border-right: 1px solid var(--diffs-bg);
+}
+
+[data-expand-button]:hover,
+[data-expand-index] [data-separator-content]:hover {
+  background: var(--diffs-bg-context);
+  color: var(--diffs-fg);
+}
+
+[data-expand-index] [data-separator-content]:hover {
+  text-decoration: none;
+}
+
+[data-unmodified-lines] {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  height: 100%;
+  font-weight: 500;
+}
+
+@supports (width: 1cqi) {
+  [data-unified] [data-separator=line-info] [data-separator-wrapper] {
+    width: 100cqi;
+    padding-inline: 0;
+  }
+
+  :is([data-unified] [data-separator=line-info] [data-separator-wrapper]) [data-separator-content] {
+    border-radius: 0;
+  }
+}
+`;
+
 const PIERRE_DIFF_OPTIONS = {
   dark: {
     theme: { dark: "pierre-dark", light: "pierre-light" },
@@ -13,6 +63,7 @@ const PIERRE_DIFF_OPTIONS = {
     disableLineNumbers: true,
     overflow: "scroll",
     lineDiffType: "word",
+    unsafeCSS: DIFF_CONTEXT_BAR_CSS,
   },
   light: {
     theme: { dark: "pierre-dark", light: "pierre-light" },
@@ -23,6 +74,7 @@ const PIERRE_DIFF_OPTIONS = {
     disableLineNumbers: true,
     overflow: "scroll",
     lineDiffType: "word",
+    unsafeCSS: DIFF_CONTEXT_BAR_CSS,
   },
 } satisfies Record<"dark" | "light", BaseDiffOptions>;
 

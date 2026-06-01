@@ -253,7 +253,7 @@ code ::selection {
   --diffs-bg-context-override: var(--color-inset);
   --diffs-bg-context-gutter-override: var(--color-inset);
   --diffs-bg-buffer-override: var(--color-inset);
-  --diffs-bg-separator-override: var(--color-paper-edge);
+  --diffs-bg-separator-override: var(--color-rule-subtle);
 }
 
 /* Smooth scrolling */

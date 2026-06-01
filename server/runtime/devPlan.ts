@@ -95,3 +95,36 @@ The \`/auth/login\` endpoint should accept **email** and _password_, validate wi
 
 Run the test suite with \`bun test\` and verify **all endpoints** return _correct_ status codes. Check \`coverage\` reports for any **untested** [edge cases](https://example.com/edge-cases) in the _auth flow_.
 `;
+
+export const DEV_PLAN_V1 = `# Example Plan
+
+## Context
+
+This is the previous version of the plan.
+
+## Steps
+
+### Step 1: Set up SQLite
+
+Use SQLite instead of PostgreSQL.
+
+### Step 2: Build the API
+
+Create basic CRUD endpoints.
+
+## Verification
+
+Manual testing only.`;
+
+export const DEV_PLAN_V2 = DEV_PLAN.replace(
+  "Create a new **PostgreSQL** database with the following schema for _user management_.",
+  "Create a new **SQLite** database with the following schema for _user management_.",
+)
+  .replace(
+    'const hashedPassword = await Bun.password.hash(input.password, { algorithm: "bcrypt", cost: 12 }); // Use cost factor 12 for production-grade security; lower values are faster but less resistant to brute-force attacks',
+    'const hashedPassword = await Bun.password.hash(input.password, { algorithm: "bcrypt", cost: 10 });',
+  )
+  .replace(
+    "Run the test suite with `bun test` and verify **all endpoints** return _correct_ status codes. Check `coverage` reports for any **untested** [edge cases](https://example.com/edge-cases) in the _auth flow_.",
+    "Run a smoke test manually and verify the main endpoints return _reasonable_ status codes.",
+  );

@@ -1,5 +1,6 @@
 import { resolveHistoryKey } from "../historyKey.ts";
 import type { HookEvent } from "../types.ts";
+import { DEV_PLAN_V1, DEV_PLAN_V2 } from "./devPlan.ts";
 
 interface PlanHistoryState {
   historyDir: string;
@@ -19,10 +20,8 @@ export async function loadPlanHistory(
   if (isDev) {
     return {
       historyDir,
-      planHistory: [
-        "# Example Plan\n\n## Context\n\nThis is the previous version of the plan.\n\n## Steps\n\n### Step 1: Set up SQLite\n\nUse SQLite instead of PostgreSQL.\n\n### Step 2: Build the API\n\nCreate basic CRUD endpoints.\n\n## Verification\n\nManual testing only.",
-      ],
-      planVersion: 2,
+      planHistory: [DEV_PLAN_V1, DEV_PLAN_V2],
+      planVersion: 3,
     };
   }
 
