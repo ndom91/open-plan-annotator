@@ -1,6 +1,6 @@
 {
   "name": "@open-plan-annotator/pi-extension",
-  "version": "1.9.0",
+  "version": "1.9.1",
   "type": "module",
   "description": "Pi extension for open-plan-annotator that adds plan review tools and commands",
   "author": "ndom91",
@@ -29,7 +29,7 @@
     "README.md"
   ],
   "dependencies": {
-    "open-plan-annotator": "1.9.0"
+    "open-plan-annotator": "1.9.1"
   },
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",
