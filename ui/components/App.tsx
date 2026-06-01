@@ -35,7 +35,7 @@ export default function App() {
   const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } =
     useAnnotations(planHash);
   const selection = useTextSelection();
-  const { approve, deny, isPending, decided } = useDecision();
+  const { approve, deny, isPending, decided, decision } = useDecision();
 
   const [popover, setPopover] = useState<{
     mode: "comment" | "replacement" | "insertion";
@@ -217,7 +217,7 @@ export default function App() {
           approve={handleApprove}
           deny={handleDeny}
           isPending={isPending}
-          decided={decided}
+          decision={decision}
           autoCloseOnSubmit={autoCloseOnSubmit}
           onToggleAutoClose={handleToggleAutoClose}
           settingsExpired={settingsExpired}

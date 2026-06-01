@@ -1,3 +1,4 @@
+import type { Decision } from "../hooks/useDecision.ts";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { useTheme } from "./ThemeProvider.tsx";
 
@@ -8,7 +9,7 @@ interface HeaderProps {
   approve: () => void;
   deny: () => void;
   isPending: boolean;
-  decided: boolean;
+  decision: Decision | null;
   autoCloseOnSubmit: boolean;
   onToggleAutoClose: () => void;
   settingsExpired: boolean;
@@ -22,15 +23,16 @@ export function Header({
   approve,
   deny,
   isPending,
-  decided,
+  decision,
   autoCloseOnSubmit,
   onToggleAutoClose,
   settingsExpired,
   autoCloseCountdown,
 }: HeaderProps) {
   const { dark, toggle } = useTheme();
+  const decisionMessage = decision === "feedback" ? "Requesting feedback" : "Approved plan";
 
-  if (decided) {
+  if (decision !== null) {
     return (
       <header className="sticky top-0 z-40">
         <div className="animate-fade-in-down font-sans flex items-center justify-center gap-4 px-8 py-4 bg-desk/85 backdrop-blur-xl border-b border-rule">
@@ -50,7 +52,7 @@ export function Header({
                 />
               </svg>
             </div>
-            <span className="text-sm">Decision sent. You can close this tab.</span>
+            <span className="text-sm">{decisionMessage}. You can close this tab.</span>
           </div>
           <div className="w-px h-4 bg-rule-subtle" />
           <button
