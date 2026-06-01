@@ -14,6 +14,31 @@ PI_PACKAGES=(
   "packages/pi-extension"
 )
 
+wait_for_npm_version() {
+  local spec="$1"
+  local max_attempts="${2:-36}"
+  local attempt=0
+  local delay=5
+
+  echo "Waiting for $spec on npm registry..."
+  until npm view "$spec" version --registry https://registry.npmjs.org >/dev/null 2>&1; do
+    attempt=$((attempt + 1))
+    if [ "$attempt" -ge "$max_attempts" ]; then
+      echo "Timed out waiting for $spec after $max_attempts attempts."
+      return 1
+    fi
+
+    echo "npm registry did not resolve $spec; retrying in ${delay}s ($attempt/$max_attempts)..."
+    sleep "$delay"
+    if [ "$delay" -lt 30 ]; then
+      delay=$((delay * 2))
+      if [ "$delay" -gt 30 ]; then
+        delay=30
+      fi
+    fi
+  done
+}
+
 # --- Read current version ---
 CURRENT=$(bun pm pkg get version | tr -d '"')
 IFS='.' read -r MAJOR MINOR PATCH <<<"$CURRENT"
@@ -91,8 +116,25 @@ for package_dir in "${RUNTIME_PACKAGES[@]}"; do
   bun publish --cwd "$package_dir" --access public
 done
 
+echo ""
+for package_dir in "${RUNTIME_PACKAGES[@]}"; do
+  package_name=$(bun pm pkg get name --cwd "$package_dir" | tr -d '"')
+  if ! wait_for_npm_version "$package_name@$NEW_VERSION" 36; then
+    echo "$package_name@$NEW_VERSION is not visible on npm yet; aborting before main package publish."
+    echo "Recovery: rerun npm validation, publish remaining packages if needed, then git push --follow-tags."
+    exit 1
+  fi
+done
+
 echo "Publishing main package to npm..."
 bun publish
+
+echo ""
+if ! wait_for_npm_version "open-plan-annotator@$NEW_VERSION" 36; then
+  echo "open-plan-annotator@$NEW_VERSION is not visible on npm yet; aborting before dependent package publish."
+  echo "Recovery: rerun npm validation, publish packages/pi-extension if needed, then git push --follow-tags."
+  exit 1
+fi
 
 echo "Publishing Pi extension package to npm..."
 for package_dir in "${PI_PACKAGES[@]}"; do
@@ -104,16 +146,13 @@ done
 # Poll using `npm view` (uses live registry, no cache) until NEW_VERSION
 # resolves.
 echo ""
-echo "Waiting for open-plan-annotator@$NEW_VERSION on npm registry..."
-ATTEMPTS=0
-MAX_ATTEMPTS=30
-until npm view "open-plan-annotator@$NEW_VERSION" version >/dev/null 2>&1; do
-  ATTEMPTS=$((ATTEMPTS + 1))
-  if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
-    echo "Timed out waiting for npm to surface $NEW_VERSION; pushing anyway."
-    break
+for package_dir in "${PI_PACKAGES[@]}"; do
+  package_name=$(bun pm pkg get name --cwd "$package_dir" | tr -d '"')
+  if ! wait_for_npm_version "$package_name@$NEW_VERSION" 36; then
+    echo "$package_name@$NEW_VERSION is not visible on npm yet; aborting before git push."
+    echo "Recovery: rerun npm validation, then git push --follow-tags."
+    exit 1
   fi
-  sleep 5
 done
 
 # --- Push ---
@@ -129,15 +168,22 @@ bun pm cache rm >/dev/null 2>&1 || true
 
 ATTEMPTS=0
 MAX_ATTEMPTS=12
+DELAY=5
 until bun install --force; do
   ATTEMPTS=$((ATTEMPTS + 1))
   if [ "$ATTEMPTS" -ge "$MAX_ATTEMPTS" ]; then
     echo "bun install failed to resolve $NEW_VERSION after $MAX_ATTEMPTS attempts; aborting lockfile sync."
     exit 1
   fi
-  echo "bun install failed; clearing cache and retrying ($ATTEMPTS/$MAX_ATTEMPTS)..."
+  echo "bun install failed; clearing cache and retrying in ${DELAY}s ($ATTEMPTS/$MAX_ATTEMPTS)..."
   bun pm cache rm >/dev/null 2>&1 || true
-  sleep 5
+  sleep "$DELAY"
+  if [ "$DELAY" -lt 30 ]; then
+    DELAY=$((DELAY * 2))
+    if [ "$DELAY" -gt 30 ]; then
+      DELAY=30
+    fi
+  fi
 done
 
 if ! git diff --quiet bun.lock; then
