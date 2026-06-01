@@ -2,6 +2,7 @@ import { createContext, useContext, useMemo } from "react";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { renderInlineMarkdown } from "../utils/inlineMarkdown.tsx";
 import type { Block, ListItem } from "../utils/markdown.ts";
+import { CommentTooltip } from "./CommentTooltip.tsx";
 import { HighlightedCode } from "./HighlightedCode.tsx";
 
 const RemoveAnnotationContext = createContext<((id: string) => void) | undefined>(undefined);
@@ -160,19 +161,13 @@ function renderSegments(segments: Segment[], annotations: Annotation[], useInlin
     // comment
     return (
       <span key={i} data-seg-start={seg.originalStart} data-seg-end={seg.originalEnd} {...segSourceAttr}>
-        <span
-          className="group/comment annotation-mark relative bg-margin-note-bg border-b-2 border-margin-note/70 cursor-help"
-          role="note"
-          aria-label={seg.annotation.comment ? `Comment: ${seg.annotation.comment}` : undefined}
-        >
-          {content}
-          {seg.annotation.comment && (
-            <span className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 rounded-md bg-inset border border-rule shadow-[0_4px_12px_oklch(0_0_0/0.15)] font-sans text-xs text-ink-secondary leading-relaxed whitespace-pre-wrap w-max max-w-160 opacity-0 group-hover/comment:opacity-100 group-focus-within/comment:opacity-100 transition-opacity duration-200 z-50">
-              <span className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[5px] border-x-transparent border-t-[5px] border-t-rule" />
-              {seg.annotation.comment}
-            </span>
-          )}
-        </span>
+        {seg.annotation.comment ? (
+          <CommentTooltip comment={seg.annotation.comment}>{content}</CommentTooltip>
+        ) : (
+          <span className="annotation-mark bg-margin-note-bg border-b-2 border-margin-note/70 cursor-help" role="note">
+            {content}
+          </span>
+        )}
         {renderAnnotationIndex(seg.annotation, annotations)}
       </span>
     );
