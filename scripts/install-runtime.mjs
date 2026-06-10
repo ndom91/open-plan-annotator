@@ -6,7 +6,9 @@
 //   1. Determines plugin version from the sibling package.json.
 //   2. Picks the runtime package matching the host platform/arch.
 //   3. If the target binary already exists at the resolver's fallback path
-//      (`packages/runtime-<platform>-<arch>/bin/open-plan-annotator`), exits 0.
+//      (`packages/runtime-<platform>-<arch>/bin/open-plan-annotator`) AND its
+//      `--version` matches the plugin version, exits 0. A version mismatch
+//      (stale binary left from a prior version) falls through to reinstall.
 //   4. Otherwise fetches the package manifest from the npm registry,
 //      downloads the tarball, verifies its integrity against `dist.integrity`,
 //      extracts it via system `tar`, and atomically moves the binary into place.
@@ -56,8 +58,18 @@ const targetDir = join(pluginRoot, "packages", `runtime-${platformKey}`, "bin");
 const targetBinary = join(targetDir, "open-plan-annotator");
 
 if (existsSync(targetBinary)) {
-  // Fast path: nothing to do.
-  process.exit(0);
+  // Fast path: skip the download only when the installed binary's version
+  // matches the plugin version. Checking existence alone is not enough — a
+  // stale binary from a previous plugin version can be left in place when a
+  // new version dir is created (e.g. copied install trees), which would pin
+  // the runtime to the old version forever. Re-probe and reinstall on drift.
+  const installedVersion = readBinaryVersion(targetBinary);
+  if (installedVersion === version) {
+    process.exit(0);
+  }
+  process.stderr.write(
+    `open-plan-annotator: installed runtime is ${installedVersion ?? "unknown"}, expected ${version}; reinstalling…\n`,
+  );
 }
 
 process.stderr.write(
@@ -128,6 +140,29 @@ try {
     `open-plan-annotator: rerun a Claude Code session to retry; ExitPlanMode will not work until install succeeds.\n`,
   );
   process.exit(1);
+}
+
+/**
+ * Probe an installed runtime binary for its version string.
+ *
+ * Runs `<binary> --version` and returns the trimmed stdout, or null if the
+ * binary can't be executed or doesn't respond (treated as stale → reinstall).
+ *
+ * @param {string} binaryPath
+ * @returns {string | null}
+ */
+function readBinaryVersion(binaryPath) {
+  try {
+    const out = execFileSync(binaryPath, ["--version"], {
+      timeout: 5_000,
+      stdio: ["ignore", "pipe", "ignore"],
+      encoding: "utf8",
+    });
+    const trimmed = out.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  } catch {
+    return null;
+  }
 }
 
 /**
