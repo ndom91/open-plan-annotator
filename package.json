@@ -1,6 +1,6 @@
 {
   "name": "open-plan-annotator",
-  "version": "1.9.2",
+  "version": "1.10.0",
   "type": "module",
   "description": "Fully local plugin for interactive plan annotation from your Agentic assistants",
   "author": "ndom91",
@@ -84,10 +84,10 @@
     }
   },
   "optionalDependencies": {
-    "@open-plan-annotator/runtime-darwin-arm64": "1.9.2",
-    "@open-plan-annotator/runtime-darwin-x64": "1.9.2",
-    "@open-plan-annotator/runtime-linux-arm64": "1.9.2",
-    "@open-plan-annotator/runtime-linux-x64": "1.9.2"
+    "@open-plan-annotator/runtime-darwin-arm64": "1.10.0",
+    "@open-plan-annotator/runtime-darwin-x64": "1.10.0",
+    "@open-plan-annotator/runtime-linux-arm64": "1.10.0",
+    "@open-plan-annotator/runtime-linux-x64": "1.10.0"
   },
   "overrides": {
     "uuid": "^14.0.0"
