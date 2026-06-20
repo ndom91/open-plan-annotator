@@ -38,6 +38,21 @@ interface ListLineMatch {
   textStart: number;
 }
 
+// A table separator row like `| --- | :--: |`, tolerating leading indentation
+// so it can be detected inside list-item continuation.
+function isTableSeparator(line: string): boolean {
+  return /^\s*\|[\s:]*-{2,}[\s:|-]*\|?\s*$/.test(line);
+}
+
+// Whether the line at `i` begins a GitHub-flavored table: a pipe row followed
+// by a separator row. Used to break list-continuation collection when a table
+// is nested (indented) inside a list item.
+function isTableStart(lines: string[], i: number): boolean {
+  if (!lines[i]?.trimStart().startsWith("|")) return false;
+  const next = lines[i + 1];
+  return next !== undefined && isTableSeparator(next);
+}
+
 function matchListLine(line: string): ListLineMatch | null {
   const match = line.match(/^(\s*)([-*+]|\d+\.)\s+(.*)$/);
   if (!match) return null;
@@ -176,7 +191,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
         if (matchListLine(l)) {
           listLines.push(l);
           i++;
-        } else if (/^\s+/.test(l) && listLines.length > 0 && !/^ {0,3}```/.test(l)) {
+        } else if (/^\s+/.test(l) && listLines.length > 0 && !/^ {0,3}```/.test(l) && !isTableStart(lines, i)) {
           // Continuation line
           listLines.push(l);
           i++;
@@ -198,13 +213,17 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
 
     // Table (lines starting with |, with a separator row like |---|---|)
     if (line.trimStart().startsWith("|")) {
-      const tableLines: string[] = [];
+      const rawTableLines: string[] = [];
       while (i < lines.length && lines[i].trimStart().startsWith("|")) {
-        tableLines.push(lines[i]);
+        rawTableLines.push(lines[i]);
         i++;
       }
-      // Need at least header + separator + one body row, and second line must be a separator
-      if (tableLines.length >= 2 && /^\|[\s:]*-{2,}[\s:|-]*\|?\s*$/.test(tableLines[1])) {
+      // Strip leading indentation (e.g. a table nested inside an ordered-list
+      // item) so the separator regex matches and cell offsets are computed
+      // against the same flush-left content the table renderer uses.
+      const tableLines = rawTableLines.map((l) => l.replace(/^\s+/, ""));
+      // Need at least header + separator, and the second line must be a separator
+      if (tableLines.length >= 2 && isTableSeparator(tableLines[1])) {
         const parseCells = (row: string): string[] =>
           row
             .replace(/^\|/, "")
@@ -285,7 +304,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
         continue;
       }
       // Not a valid table — rewind and let paragraph handle it
-      i -= tableLines.length;
+      i -= rawTableLines.length;
     }
 
     // Paragraph (collect consecutive non-empty, non-special lines)

@@ -72,6 +72,39 @@ describe("parseMarkdownToBlocks", () => {
     expect(markdown.slice(body?.[0]?.[1]?.start, body?.[0]?.[1]?.end)).toBe("bar");
   });
 
+  test("parses tables indented inside an ordered list item", () => {
+    const markdown = [
+      "2. Use Standard.site collections:",
+      "",
+      "   | Collection | Use |",
+      "   | --- | --- |",
+      "   | `site.standard.publication` | One record for `https://ndo.dev`. |",
+      "   | `site.standard.document` | One record per published blog post. |",
+      "",
+      "3. Resolve the format decision.",
+    ].join("\n");
+    const blocks = parseMarkdownToBlocks(markdown);
+
+    expect(blocks).toHaveLength(3);
+    expect(blocks[0]?.type).toBe("list");
+    expect(blocks[1]?.type).toBe("table");
+    expect(blocks[2]?.type).toBe("list");
+
+    const table = blocks[1];
+    expect(table?.headerRow?.map((c) => c.text)).toEqual(["Collection", "Use"]);
+    expect(table?.bodyRows).toHaveLength(2);
+    expect(table?.bodyRows?.[0]?.map((c) => c.text)).toEqual([
+      "`site.standard.publication`",
+      "One record for `https://ndo.dev`.",
+    ]);
+
+    // Cell offsets must resolve against the (dedented) block content.
+    const firstCell = table?.headerRow?.[0];
+    expect(table?.content.slice(firstCell?.start, firstCell?.end)).toBe("Collection");
+    const bodyCell = table?.bodyRows?.[1]?.[1];
+    expect(table?.content.slice(bodyCell?.start, bodyCell?.end)).toBe("One record per published blog post.");
+  });
+
   test("parses indented fenced code blocks", () => {
     const markdown = [
       "4. Update handler:",
