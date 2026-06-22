@@ -61,7 +61,7 @@ export function Header({
             aria-checked={autoCloseOnSubmit}
             onClick={onToggleAutoClose}
             disabled={settingsExpired}
-            className="flex items-center gap-2 px-2 py-1 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer disabled:opacity-40 disabled:pointer-events-none transition-colors duration-200 focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="tactile-button flex min-h-10 items-center gap-2 rounded-md px-2 py-1 text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer disabled:opacity-40 disabled:pointer-events-none focus-visible:ring-2 focus-visible:ring-accent/50"
           >
             <span className="text-[11px] select-none">
               {autoCloseOnSubmit ? (
@@ -120,7 +120,7 @@ export function Header({
           <button
             type="button"
             onClick={toggle}
-            className="relative p-2 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="tactile-button relative min-h-10 min-w-10 p-2 rounded-md text-ink-tertiary hover:text-ink-secondary hover:bg-ink/5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent/50"
             title="Toggle theme"
             aria-label={dark ? "Switch to light theme" : "Switch to dark theme"}
           >
@@ -130,7 +130,7 @@ export function Header({
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className={`absolute inset-0 w-4 h-4 transition-all duration-300 ease-out ${dark ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-45 scale-75"}`}
+                className={`theme-icon absolute inset-0 w-4 h-4 ${dark ? "theme-icon-visible rotate-0" : "-rotate-45"}`}
               >
                 <path d="M10 2a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 2ZM10 15a.75.75 0 0 1 .75.75v1.5a.75.75 0 0 1-1.5 0v-1.5A.75.75 0 0 1 10 15ZM10 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6ZM15.657 5.404a.75.75 0 1 0-1.06-1.06l-1.061 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM6.464 14.596a.75.75 0 1 0-1.06-1.06l-1.06 1.06a.75.75 0 0 0 1.06 1.06l1.06-1.06ZM18 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 18 10ZM5 10a.75.75 0 0 1-.75.75h-1.5a.75.75 0 0 1 0-1.5h1.5A.75.75 0 0 1 5 10ZM14.596 15.657a.75.75 0 0 0 1.06-1.06l-1.06-1.061a.75.75 0 1 0-1.06 1.06l1.06 1.06ZM5.404 6.464a.75.75 0 0 0 1.06-1.06l-1.06-1.06a.75.75 0 1 0-1.06 1.06l1.06 1.06Z" />
               </svg>
@@ -139,7 +139,7 @@ export function Header({
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className={`absolute inset-0 w-4 h-4 transition-all duration-300 ease-out ${dark ? "opacity-0 rotate-45 scale-75" : "opacity-100 rotate-0 scale-100"}`}
+                className={`theme-icon absolute inset-0 w-4 h-4 ${dark ? "rotate-45" : "theme-icon-visible rotate-0"}`}
               >
                 <path
                   fillRule="evenodd"
@@ -154,7 +154,7 @@ export function Header({
             type="button"
             onClick={deny}
             disabled={isPending || annotations.length === 0}
-            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded text-[13px] font-medium text-redline border border-redline/40 hover:bg-redline-bg hover:border-redline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="tactile-button group flex min-h-10 items-center gap-2 pl-3 pr-2 py-1.5 rounded-md text-[13px] font-medium text-redline border border-redline/40 hover:bg-redline-bg hover:border-redline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘⇧↵"
           >
             Request changes
@@ -168,7 +168,7 @@ export function Header({
             type="button"
             onClick={approve}
             disabled={isPending}
-            className="group flex items-center gap-2 pl-3 pr-2 py-1.5 rounded bg-approve hover:bg-approve-hover cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50"
+            className="tactile-button group flex min-h-10 items-center gap-2 pl-3 pr-2 py-1.5 rounded-md bg-approve hover:bg-approve-hover cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed text-white text-[13px] font-semibold focus-visible:ring-2 focus-visible:ring-accent/50"
             title="⌘↵"
           >
             <svg

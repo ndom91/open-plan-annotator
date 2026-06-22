@@ -120,6 +120,45 @@ code ::selection {
   outline: none;
 }
 
+.plan-content :where(h1, h2, h3, h4, h5, h6) {
+  text-wrap: balance;
+}
+
+.plan-content :where(p, li, blockquote) {
+  text-wrap: pretty;
+}
+
+.tactile-button {
+  transition-property: color, background-color, border-color, opacity, transform;
+  transition-duration: 150ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.tactile-button:not(:disabled):active {
+  transform: scale(0.96);
+}
+
+.theme-icon {
+  opacity: 0;
+  scale: 0.25;
+  filter: blur(4px);
+  transition-property: opacity, scale, filter, rotate;
+  transition-duration: 300ms;
+  transition-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+.theme-icon-visible {
+  opacity: 1;
+  scale: 1;
+  filter: blur(0);
+}
+
+@media (forced-colors: active) {
+  :focus-visible {
+    outline: 2px solid Highlight;
+  }
+}
+
 .annotation-mark {
   position: relative;
   display: inline;

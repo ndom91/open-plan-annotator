@@ -252,7 +252,7 @@ export default function App() {
               <main
                 id="main-content"
                 tabIndex={-1}
-                className="bg-paper border border-rule rounded-md overflow-hidden focus:outline-none"
+                className="bg-paper border border-rule rounded-lg shadow-[0_10px_32px_rgba(0,0,0,0.16),0_1px_2px_rgba(0,0,0,0.12)] overflow-hidden focus:outline-none"
               >
                 <DocumentChrome
                   isViewingHistory={isViewingHistory}

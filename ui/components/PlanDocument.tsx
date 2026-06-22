@@ -10,7 +10,7 @@ interface PlanDocumentProps {
 
 export function PlanDocument({ blocks, annotations, onRemoveAnnotation }: PlanDocumentProps) {
   return (
-    <article className="max-w-none">
+    <article className="plan-content max-w-none">
       {blocks.map((block) => (
         <BlockComponent
           key={block.index}

@@ -27,7 +27,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
   };
 
   const btn =
-    "flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium cursor-pointer transition-colors duration-200 ease-out focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
+    "tactile-button flex min-h-10 items-center gap-1.5 px-2 py-1 rounded-md text-xs font-medium cursor-pointer focus-visible:ring-2 focus-visible:ring-accent/50 focus-visible:ring-offset-1 focus-visible:ring-offset-paper";
 
   return (
     <div
@@ -35,7 +35,7 @@ export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: Ann
       aria-label="Annotation actions"
       onKeyDown={handleToolbarKeyDown}
       style={{ top, left, transform: "translateX(-50%)" }}
-      className="animate-fade-in-up font-sans absolute z-50 flex items-center gap-1 bg-paper backdrop-blur-xl rounded-md border border-rule shadow-[0_4px_12px_rgba(0,0,0,0.12)] pl-3 pr-1 py-1"
+      className="animate-fade-in-up font-sans absolute z-50 flex items-center gap-1 bg-paper backdrop-blur-xl rounded-xl border border-rule shadow-[0_8px_20px_rgba(0,0,0,0.14),0_1px_3px_rgba(0,0,0,0.12)] pl-3 pr-1 py-1"
     >
       <span className="font-mono text-[10px] font-semibold uppercase tracking-widest text-ink-tertiary select-none">
         Selection

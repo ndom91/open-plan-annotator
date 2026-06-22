@@ -298,7 +298,7 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
       return (
         <div
           data-block-index={block.index}
-          className="mt-4 mb-8 rounded-md bg-code-bg border border-code-edge overflow-hidden text-code-ink"
+          className="mt-4 mb-8 rounded-lg bg-code-bg border border-code-edge shadow-[0_8px_20px_rgba(0,0,0,0.14),0_1px_3px_rgba(0,0,0,0.12)] overflow-hidden text-code-ink"
         >
           {block.lang && (
             <div className="px-4 py-2 border-b border-code-edge flex items-center justify-between">
@@ -336,7 +336,10 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
         return "text-left";
       };
       return (
-        <div data-block-index={block.index} className="my-6 overflow-x-auto rounded border border-rule">
+        <div
+          data-block-index={block.index}
+          className="my-6 overflow-x-auto rounded-lg border border-rule shadow-[0_4px_12px_rgba(0,0,0,0.08)]"
+        >
           <table className="w-full font-sans text-[13px] text-ink-secondary">
             {block.headerRow && (
               <thead>
