@@ -30,7 +30,7 @@ function buildDevHookEvent(): HookEvent {
     transcript_path: "",
     cwd: process.cwd(),
     permission_mode: "default",
-    hook_event_name: "PermissionRequest",
+    hook_event_name: "PreToolUse",
     tool_name: "ExitPlanMode",
     tool_use_id: "dev-tool-use",
     tool_input: { plan: DEV_PLAN },

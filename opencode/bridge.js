@@ -21,14 +21,14 @@ export async function runPlanReview(options) {
     detached: true,
   });
 
-  const decision = output.hookSpecificOutput.decision;
+  const { permissionDecision, permissionDecisionReason } = output.hookSpecificOutput;
 
-  if (decision.behavior === "allow") {
+  if (permissionDecision === "allow") {
     return { approved: true };
   }
 
   return {
     approved: false,
-    feedback: decision.message,
+    feedback: permissionDecisionReason,
   };
 }

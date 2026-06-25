@@ -51,10 +51,10 @@ async function reviewPlan(plan, ctx) {
     detached: true,
   });
 
-  const decision = result.hookSpecificOutput.decision;
+  const { permissionDecision, permissionDecisionReason } = result.hookSpecificOutput;
   return {
-    approved: decision.behavior === "allow",
-    feedback: decision.behavior === "deny" ? decision.message : undefined,
+    approved: permissionDecision === "allow",
+    feedback: permissionDecision === "deny" ? permissionDecisionReason : undefined,
   };
 }
 
