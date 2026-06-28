@@ -124,13 +124,13 @@ async function runSession(args: {
     }
 
     const output = JSON.parse(stdout.trim()) as {
-      hookSpecificOutput: { decision: { behavior: "allow" | "deny" } };
+      hookSpecificOutput: { permissionDecision: "allow" | "deny" };
     };
 
     return {
       version: planJson.version,
       history: planJson.history,
-      outputBehavior: output.hookSpecificOutput.decision.behavior,
+      outputBehavior: output.hookSpecificOutput.permissionDecision,
     };
   } finally {
     if (child.exitCode === null) {
@@ -166,7 +166,7 @@ describe("stdout immediacy", () => {
         session_id: "session-stdout",
         cwd: "/repo",
         permission_mode: "acceptEdits",
-        hook_event_name: "PermissionRequest",
+        hook_event_name: "PreToolUse",
         tool_name: "Write",
         tool_use_id: "tool-stdout",
       };
@@ -231,7 +231,7 @@ describe("stdout immediacy", () => {
 
       // Verify it's valid hook output
       const output = JSON.parse(stdout.trim());
-      expect(output.hookSpecificOutput.decision.behavior).toBe("allow");
+      expect(output.hookSpecificOutput.permissionDecision).toBe("allow");
 
       // Clean up: kill the process (it would otherwise wait for the shutdown delay)
       child.kill("SIGTERM");
@@ -361,7 +361,7 @@ describe("history lifecycle", () => {
         session_id: "session-abc",
         cwd: "/repo",
         permission_mode: "acceptEdits",
-        hook_event_name: "PermissionRequest",
+        hook_event_name: "PreToolUse",
         tool_name: "Write",
         tool_use_id: "tool-1",
       };

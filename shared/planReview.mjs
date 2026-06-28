@@ -9,8 +9,9 @@ const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
 /**
  * @typedef {{
  *   hookSpecificOutput: {
- *     hookEventName: "PermissionRequest",
- *     decision: { behavior: "allow" } | { behavior: "deny", message: string }
+ *     hookEventName: "PreToolUse",
+ *     permissionDecision: "allow" | "deny",
+ *     permissionDecisionReason?: string
  *   }
  * }} HookOutput
  */
@@ -24,7 +25,7 @@ export function buildHookPayload(options) {
     transcript_path: "",
     cwd: options.cwd ?? process.cwd(),
     permission_mode: "default",
-    hook_event_name: "PermissionRequest",
+    hook_event_name: "PreToolUse",
     tool_name: "ExitPlanMode",
     tool_use_id: randomUUID(),
     tool_input: {
@@ -43,17 +44,18 @@ export function validateHookOutput(value) {
   }
 
   const output = /** @type {HookOutput} */ (value);
-  const decision = output?.hookSpecificOutput?.decision;
+  const hookSpecificOutput = output?.hookSpecificOutput;
+  const permissionDecision = hookSpecificOutput?.permissionDecision;
 
-  if (!decision || typeof decision !== "object" || typeof decision.behavior !== "string") {
+  if (!hookSpecificOutput || typeof permissionDecision !== "string") {
     throw new Error("missing decision in hook output");
   }
 
-  if (decision.behavior === "allow") {
+  if (permissionDecision === "allow") {
     return output;
   }
 
-  if (decision.behavior === "deny" && typeof decision.message === "string") {
+  if (permissionDecision === "deny" && typeof hookSpecificOutput.permissionDecisionReason === "string") {
     return output;
   }
 

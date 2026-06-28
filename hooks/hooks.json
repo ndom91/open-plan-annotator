@@ -17,7 +17,7 @@
         ]
       }
     ],
-    "PermissionRequest": [
+    "PreToolUse": [
       {
         "matcher": "ExitPlanMode",
         "hooks": [

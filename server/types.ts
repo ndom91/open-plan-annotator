@@ -27,8 +27,9 @@ export interface UserPreferences {
 
 export interface HookOutput {
   hookSpecificOutput: {
-    hookEventName: "PermissionRequest";
-    decision: { behavior: "allow" } | { behavior: "deny"; message: string };
+    hookEventName: "PreToolUse";
+    permissionDecision: "allow" | "deny";
+    permissionDecisionReason?: string;
   };
 }
 

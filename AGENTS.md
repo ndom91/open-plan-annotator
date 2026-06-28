@@ -53,7 +53,7 @@ For environments that don't run `npm install` after fetching the plugin (Claude 
 - `opencode/bridge.js` — Spawns the binary with a fake HookEvent, parses the HookOutput response.
 - `opencode/config.js` — Reads `open-plan-annotator.json` config for implementation handoff settings.
 - `ui/` — React + Vite frontend, built to a single `build/index.html` embedded at compile time.
-- `hooks/hooks.json` — Claude Code hook registration. `SessionStart` runs `scripts/install-runtime.mjs` (runtime fetch) and `scripts/session-context.mjs` (injects plan-routing instructions into Claude's session context). `PermissionRequest:ExitPlanMode` launches the annotator binary.
+- `hooks/hooks.json` — Claude Code hook registration. `SessionStart` runs `scripts/install-runtime.mjs` (runtime fetch) and `scripts/session-context.mjs` (injects plan-routing instructions into Claude's session context). `PreToolUse:ExitPlanMode` launches the annotator binary.
 - `skills/plan-review-triggers/SKILL.md` — Auto-loaded Claude Code skill with the full trigger heuristics. This is the long-form reference; the SessionStart context injection is the always-on nudge that keeps Claude from rationalizing past it.
 
 ## Critical Rules
@@ -101,10 +101,12 @@ bun run format         # Format
 
 Claude Code sends a `HookEvent` JSON on stdin with `tool_input.plan` containing the plan markdown. The binary responds on stdout with a `HookOutput` JSON:
 
-- Approve: `{ hookSpecificOutput: { hookEventName: "PermissionRequest", decision: { behavior: "allow" } } }`
-- Deny: `{ hookSpecificOutput: { hookEventName: "PermissionRequest", decision: { behavior: "deny", message: "..." } } }`
+- Approve: `{ hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "allow" } }`
+- Deny: `{ hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: "..." } }`
 
-The deny message contains serialized annotations (deletions, replacements, insertions, comments) as markdown so Claude can revise the plan.
+The deny `permissionDecisionReason` contains serialized annotations (deletions, replacements, insertions, comments) as markdown so Claude can revise the plan.
+
+The hook is registered on `PreToolUse` (not `PermissionRequest`) so it fires before the permission flow and regardless of `--permission-mode`. This makes Request Changes (`deny`) work across all hosts, including Conductor — which runs Claude Code with `--permission-prompt-tool stdio --permission-mode bypassPermissions` and never surfaces a `PermissionRequest` hook decision. (Note: in Conductor, exiting plan mode on approve is still owned by Conductor's own plan-approval UI, so an `allow` decision does not by itself leave plan mode there.)
 
 The OpenCode bridge (`opencode/bridge.js`) constructs the same `HookEvent` format and parses the same `HookOutput` response, so the binary always goes through the same code path.
 

@@ -16,12 +16,16 @@ export function createDecisionController(): DecisionController {
 
 export async function writeHookDecisionToStdout(decision: ServerDecision): Promise<void> {
   const output: HookOutput = {
-    hookSpecificOutput: {
-      hookEventName: "PermissionRequest",
-      decision: decision.approved
-        ? { behavior: "allow" }
-        : { behavior: "deny", message: decision.feedback ?? "Plan changes requested." },
-    },
+    hookSpecificOutput: decision.approved
+      ? {
+          hookEventName: "PreToolUse",
+          permissionDecision: "allow",
+        }
+      : {
+          hookEventName: "PreToolUse",
+          permissionDecision: "deny",
+          permissionDecisionReason: decision.feedback ?? "Plan changes requested.",
+        },
   };
 
   const jsonLine = `${JSON.stringify(output)}\n`;

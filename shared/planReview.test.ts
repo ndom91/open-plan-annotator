@@ -13,23 +13,23 @@ describe("planReview", () => {
   test("validateHookOutput accepts allow and deny decisions", () => {
     expect(
       validateHookOutput({
-        hookSpecificOutput: { hookEventName: "PermissionRequest", decision: { behavior: "allow" } },
-      }).hookSpecificOutput.decision.behavior,
+        hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "allow" },
+      }).hookSpecificOutput.permissionDecision,
     ).toBe("allow");
 
     expect(
       validateHookOutput({
-        hookSpecificOutput: { hookEventName: "PermissionRequest", decision: { behavior: "deny", message: "no" } },
-      }).hookSpecificOutput.decision.behavior,
+        hookSpecificOutput: { hookEventName: "PreToolUse", permissionDecision: "deny", permissionDecisionReason: "no" },
+      }).hookSpecificOutput.permissionDecision,
     ).toBe("deny");
   });
 
   test("parseHookOutput finds hook JSON in noisy stdout", () => {
     const output = parseHookOutput(
-      'open-plan-annotator: UI available at http://localhost:1234\n{"hookSpecificOutput":{"hookEventName":"PermissionRequest","decision":{"behavior":"allow"}}}',
+      'open-plan-annotator: UI available at http://localhost:1234\n{"hookSpecificOutput":{"hookEventName":"PreToolUse","permissionDecision":"allow"}}',
       "",
     );
 
-    expect(output.hookSpecificOutput.decision.behavior).toBe("allow");
+    expect(output.hookSpecificOutput.permissionDecision).toBe("allow");
   });
 });
