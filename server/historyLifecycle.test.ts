@@ -244,6 +244,82 @@ describe("stdout immediacy", () => {
       rmSync(tempRoot, { recursive: true, force: true });
     }
   }, 15000);
+
+  test("PermissionRequest replays a cached PreToolUse decision without reopening the UI", async () => {
+    const tempRoot = mkdtempSync(join(tmpdir(), "open-plan-annotator-replay-"));
+    const fakeBin = join(tempRoot, "bin");
+    const configHome = join(tempRoot, "config");
+
+    try {
+      mkdirSync(fakeBin, { recursive: true });
+      mkdirSync(configHome, { recursive: true });
+      seedUpdateCheckCache(configHome);
+
+      for (const name of ["open", "xdg-open", "cmd"]) {
+        const shimPath = join(fakeBin, name);
+        writeFileSync(shimPath, "#!/bin/sh\nexit 0\n", "utf8");
+        chmodSync(shimPath, 0o755);
+      }
+
+      const hookEvent = {
+        transcript_path: join(tempRoot, "transcript.jsonl"),
+        session_id: `session-${tempRoot}`,
+        cwd: "/repo",
+        permission_mode: "acceptEdits",
+        hook_event_name: "PreToolUse",
+        tool_name: "ExitPlanMode",
+        tool_use_id: "tool-replay",
+      };
+      const env = {
+        NODE_ENV: "test",
+        XDG_CONFIG_HOME: configHome,
+        SHUTDOWN_DELAY_MS: "100",
+        PATH: `${fakeBin}${delimiter}${process.env.PATH ?? ""}`,
+      };
+
+      await runSession({ decision: "approve", plan: "Replay plan", env, hookEvent });
+
+      const child = spawn(process.execPath, ["run", "server/index.ts"], {
+        cwd: join(import.meta.dir, ".."),
+        env: { ...process.env, ...env },
+        stdio: ["pipe", "pipe", "pipe"],
+      });
+
+      let stdout = "";
+      let stderr = "";
+      child.stdout.on("data", (chunk) => {
+        stdout += String(chunk);
+      });
+      child.stderr.on("data", (chunk) => {
+        stderr += String(chunk);
+      });
+
+      const childExit = new Promise<number>((resolve, reject) => {
+        child.once("error", reject);
+        child.once("close", (code) => resolve(code ?? -1));
+      });
+
+      const payload = {
+        ...hookEvent,
+        hook_event_name: "PermissionRequest",
+        tool_input: { plan: "Replay plan" },
+      };
+      child.stdin.write(`${JSON.stringify(payload)}\n`);
+      child.stdin.end();
+
+      const exitCode = await Promise.race([childExit, Bun.sleep(3000).then(() => -2)]);
+      expect(exitCode).toBe(0);
+      expect(stderr).not.toContain("UI available at");
+
+      const output = JSON.parse(stdout.trim()) as {
+        hookSpecificOutput: { hookEventName: "PermissionRequest"; decision: { behavior: "allow" | "deny" } };
+      };
+      expect(output.hookSpecificOutput.hookEventName).toBe("PermissionRequest");
+      expect(output.hookSpecificOutput.decision.behavior).toBe("allow");
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true });
+    }
+  }, 15000);
 });
 
 describe("generic review CLI mode", () => {

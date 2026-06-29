@@ -25,13 +25,20 @@ export interface UserPreferences {
   autoCloseOnSubmit: boolean;
 }
 
-export interface HookOutput {
-  hookSpecificOutput: {
-    hookEventName: "PreToolUse";
-    permissionDecision: "allow" | "deny";
-    permissionDecisionReason?: string;
-  };
-}
+export type HookOutput =
+  | {
+      hookSpecificOutput: {
+        hookEventName: "PreToolUse";
+        permissionDecision: "allow" | "deny";
+        permissionDecisionReason?: string;
+      };
+    }
+  | {
+      hookSpecificOutput: {
+        hookEventName: "PermissionRequest";
+        decision: { behavior: "allow" } | { behavior: "deny"; message: string };
+      };
+    };
 
 export interface HistoryKeySource {
   transcript_path?: unknown;

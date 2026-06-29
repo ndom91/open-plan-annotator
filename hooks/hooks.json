@@ -28,6 +28,18 @@
           }
         ]
       }
+    ],
+    "PermissionRequest": [
+      {
+        "matcher": "ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/bin/open-plan-annotator.mjs\"",
+            "timeout": 345600
+          }
+        ]
+      }
     ]
   }
 }

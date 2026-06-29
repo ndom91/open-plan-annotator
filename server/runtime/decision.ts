@@ -1,4 +1,4 @@
-import type { HookOutput, ReviewOutput, ServerDecision } from "../types.ts";
+import type { HookEvent, HookOutput, ReviewOutput, ServerDecision } from "../types.ts";
 
 export interface DecisionController {
   decisionPromise: Promise<ServerDecision>;
@@ -14,19 +14,29 @@ export function createDecisionController(): DecisionController {
   return { decisionPromise, resolveDecision };
 }
 
-export async function writeHookDecisionToStdout(decision: ServerDecision): Promise<void> {
-  const output: HookOutput = {
-    hookSpecificOutput: decision.approved
+export async function writeHookDecisionToStdout(decision: ServerDecision, hookEvent: HookEvent): Promise<void> {
+  const output: HookOutput =
+    hookEvent.hook_event_name === "PermissionRequest"
       ? {
-          hookEventName: "PreToolUse",
-          permissionDecision: "allow",
+          hookSpecificOutput: {
+            hookEventName: "PermissionRequest",
+            decision: decision.approved
+              ? { behavior: "allow" }
+              : { behavior: "deny", message: decision.feedback ?? "Plan changes requested." },
+          },
         }
       : {
-          hookEventName: "PreToolUse",
-          permissionDecision: "deny",
-          permissionDecisionReason: decision.feedback ?? "Plan changes requested.",
-        },
-  };
+          hookSpecificOutput: decision.approved
+            ? {
+                hookEventName: "PreToolUse",
+                permissionDecision: "allow",
+              }
+            : {
+                hookEventName: "PreToolUse",
+                permissionDecision: "deny",
+                permissionDecisionReason: decision.feedback ?? "Plan changes requested.",
+              },
+        };
 
   const jsonLine = `${JSON.stringify(output)}\n`;
   const { closeSync, writeSync } = await import("node:fs");

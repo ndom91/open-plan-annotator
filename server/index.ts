@@ -12,6 +12,7 @@ import {
   writeHookDecisionToStdout,
   writeReviewDecisionToStdout,
 } from "./runtime/decision.ts";
+import { consumeDecisionForPermissionRequest, storeDecisionForPermissionRequest } from "./runtime/decisionCache.ts";
 import { cleanupHistory, loadPlanHistory } from "./runtime/history.ts";
 import { loadHtmlContent } from "./runtime/html.ts";
 import { parseReviewRuntimeInput, parseRuntimeInput } from "./runtime/input.ts";
@@ -79,6 +80,15 @@ const runtimeInput = await (cliMode === "review"
 });
 
 const { hookEvent, planContent } = runtimeInput;
+
+if (runtimeInput.mode === "hook" && hookEvent.hook_event_name === "PermissionRequest") {
+  const cachedDecision = await consumeDecisionForPermissionRequest(hookEvent);
+  if (cachedDecision) {
+    await writeHookDecisionToStdout(cachedDecision, hookEvent);
+    process.exit(0);
+  }
+}
+
 const { configDir, historyRootDir, preferencesPath } = resolveRuntimePaths();
 const preferences = await loadPreferences(preferencesPath);
 const persistPreferences = createPreferencesPersister(preferencesPath, configDir);
@@ -135,7 +145,13 @@ await cleanupHistory(isDev, decision.approved, historyDir);
 if (runtimeInput.mode === "review") {
   await writeReviewDecisionToStdout(decision, runtimeInput.planPath ?? "");
 } else {
-  await writeHookDecisionToStdout(decision);
+  if (hookEvent.hook_event_name === "PreToolUse") {
+    await storeDecisionForPermissionRequest(hookEvent, decision).catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : String(err);
+      process.stderr.write(`open-plan-annotator: failed to cache hook decision: ${message}\n`);
+    });
+  }
+  await writeHookDecisionToStdout(decision, hookEvent);
 }
 
 const keepAliveMs = Number(process.env.SHUTDOWN_DELAY_MS) || 5000;
