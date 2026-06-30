@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import type { HookEvent, ServerDecision } from "../types.ts";
 
-const CACHE_TTL_MS = 10 * 60 * 1000;
+const CACHE_TTL_MS = 2 * 60 * 1000;
 const CACHE_DIR = join(tmpdir(), "open-plan-annotator-decisions");
 
 interface CachedDecision {
@@ -19,7 +19,6 @@ function cachePathForHookEvent(hookEvent: HookEvent): string {
     transcriptPath: hookEvent.transcript_path,
     cwd: hookEvent.cwd,
     toolName: hookEvent.tool_name,
-    toolUseId: hookEvent.tool_use_id,
   });
   const digest = createHash("sha256").update(key).digest("hex");
   return join(CACHE_DIR, `${digest}.json`);

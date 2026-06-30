@@ -302,6 +302,7 @@ describe("stdout immediacy", () => {
       const payload = {
         ...hookEvent,
         hook_event_name: "PermissionRequest",
+        tool_use_id: "tool-replay-permission",
         tool_input: { plan: "Replay plan" },
       };
       child.stdin.write(`${JSON.stringify(payload)}\n`);
