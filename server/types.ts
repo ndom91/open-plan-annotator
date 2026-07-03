@@ -29,7 +29,7 @@ export type HookOutput =
   | {
       hookSpecificOutput: {
         hookEventName: "PreToolUse";
-        permissionDecision: "allow" | "deny";
+        permissionDecision: "allow" | "deny" | "ask";
         permissionDecisionReason?: string;
       };
     }

@@ -115,6 +115,8 @@ The deny feedback field (`permissionDecisionReason` or `decision.message`) conta
 
 The hook is registered on both `PreToolUse` and `PermissionRequest`. `PreToolUse` fires before the permission flow and regardless of `--permission-mode`, which makes Request Changes (`deny`) work in Conductor. Native Claude Code still needs `PermissionRequest` to apply final plan approval. When both fire for the same tool call, the `PreToolUse` decision is cached briefly and replayed to `PermissionRequest` so the browser UI opens only once.
 
+**Native plan-mode approve must be deferred, not allowed.** In native Claude Code the ExitPlanMode `PreToolUse` event arrives with `permission_mode: "plan"`. Returning `permissionDecision: "allow"` there resolves the tool's permission early and skips the plan-approval dialog — which means the `PermissionRequest` hook that actually exits plan mode never runs, and the user is forced to approve a second time in the TUI. So on approve in `permission_mode: "plan"` the binary emits `permissionDecision: "ask"` (defer) instead of `allow`; the dialog then fires, `PermissionRequest` replays the cached approval as `{decision:{behavior:"allow"}}`, and plan mode exits with no terminal prompt. Every other host (Conductor `bypassPermissions`, OpenCode/pi `default`) has no `PermissionRequest`, so those keep the immediate `PreToolUse` `allow`. Do not "simplify" plan-mode approve back to `allow` — that reintroduces the double-approve.
+
 The OpenCode bridge (`opencode/bridge.js`) constructs the same `HookEvent` format and parses the same `HookOutput` response, so the binary always goes through the same code path.
 
 ## Plan Review Trigger Rules
