@@ -29,15 +29,14 @@ export async function writeHookDecisionToStdout(decision: ServerDecision, hookEv
           hookSpecificOutput: decision.approved
             ? {
                 hookEventName: "PreToolUse",
-                // In native Claude Code plan mode, returning "allow" here resolves the
-                // tool's permission early and skips the plan-approval dialog — which
-                // means the PermissionRequest hook that actually exits plan mode never
-                // runs, and the user is left to confirm again in the TUI. Defer with
-                // "ask" so the dialog fires and PermissionRequest replays the cached
-                // approval (see server/index.ts + decisionCache.ts). Other hosts
-                // (Conductor bypassPermissions, OpenCode/pi default) have no
-                // PermissionRequest, so they keep the immediate "allow".
-                permissionDecision: hookEvent.permission_mode === "plan" ? "ask" : "allow",
+                permissionDecision: "allow",
+                // ExitPlanMode requires user interaction: "allow" alone is ignored
+                // and the native plan-approval prompt still appears. Echoing the
+                // full tool input back as updatedInput is what satisfies the
+                // interaction requirement and auto-approves without the TUI prompt.
+                // updatedInput must include all fields (plan, planFilePath,
+                // allowedPrompts) — it replaces the entire input object.
+                updatedInput: hookEvent.tool_input,
               }
             : {
                 hookEventName: "PreToolUse",

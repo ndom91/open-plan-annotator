@@ -45,7 +45,7 @@ type SessionDecision = "approve" | "deny";
 interface SessionResult {
   version: number;
   history: string[];
-  outputBehavior: "allow" | "deny" | "ask";
+  outputBehavior: "allow" | "deny";
 }
 
 function seedUpdateCheckCache(configHome: string) {
@@ -124,7 +124,7 @@ async function runSession(args: {
     }
 
     const output = JSON.parse(stdout.trim()) as {
-      hookSpecificOutput: { permissionDecision: "allow" | "deny" | "ask" };
+      hookSpecificOutput: { permissionDecision: "allow" | "deny" };
     };
 
     return {
@@ -322,7 +322,11 @@ describe("stdout immediacy", () => {
     }
   }, 15000);
 
-  test("plan-mode PreToolUse approve defers with ask, then PermissionRequest replays allow", async () => {
+  test("plan-mode ExitPlanMode approve emits allow WITH updatedInput echoing tool_input", async () => {
+    // ExitPlanMode requires user interaction: "allow" alone leaves the native TUI
+    // plan-approval prompt. Auto-approval only works when the PreToolUse output
+    // also carries updatedInput echoing the full tool_input (plan, planFilePath,
+    // allowedPrompts). This guards against regressing back to "allow" alone.
     const tempRoot = mkdtempSync(join(tmpdir(), "open-plan-annotator-planmode-"));
     const fakeBin = join(tempRoot, "bin");
     const configHome = join(tempRoot, "config");
@@ -338,14 +342,10 @@ describe("stdout immediacy", () => {
         chmodSync(shimPath, 0o755);
       }
 
-      const hookEvent = {
-        transcript_path: join(tempRoot, "transcript.jsonl"),
-        session_id: `session-${tempRoot}`,
-        cwd: "/repo",
-        permission_mode: "plan",
-        hook_event_name: "PreToolUse",
-        tool_name: "ExitPlanMode",
-        tool_use_id: "tool-planmode",
+      const toolInput = {
+        plan: "Plan-mode plan",
+        planFilePath: join(tempRoot, "plan.md"),
+        allowedPrompts: [{ tool: "Bash", prompt: "run tests" }],
       };
       const env = {
         NODE_ENV: "test",
@@ -354,13 +354,6 @@ describe("stdout immediacy", () => {
         PATH: `${fakeBin}${delimiter}${process.env.PATH ?? ""}`,
       };
 
-      // Native CC plan mode: PreToolUse approve must defer with "ask" (not "allow"),
-      // so the plan-approval dialog fires and PermissionRequest gets to exit plan mode.
-      const preToolUse = await runSession({ decision: "approve", plan: "Plan-mode plan", env, hookEvent });
-      expect(preToolUse.outputBehavior).toBe("ask");
-
-      // PermissionRequest then replays the cached approval as behavior "allow" without
-      // reopening the browser — this is what actually exits plan mode with no TUI prompt.
       const child = spawn(process.execPath, ["run", "server/index.ts"], {
         cwd: join(import.meta.dir, ".."),
         env: { ...process.env, ...env },
@@ -382,23 +375,35 @@ describe("stdout immediacy", () => {
       });
 
       const payload = {
-        ...hookEvent,
-        hook_event_name: "PermissionRequest",
-        tool_use_id: "tool-planmode-permission",
-        tool_input: { plan: "Plan-mode plan" },
+        transcript_path: join(tempRoot, "transcript.jsonl"),
+        session_id: `session-${tempRoot}`,
+        cwd: "/repo",
+        permission_mode: "plan",
+        hook_event_name: "PreToolUse",
+        tool_name: "ExitPlanMode",
+        tool_use_id: "tool-planmode",
+        tool_input: toolInput,
       };
       child.stdin.write(`${JSON.stringify(payload)}\n`);
       child.stdin.end();
 
-      const exitCode = await Promise.race([childExit, Bun.sleep(3000).then(() => -2)]);
+      const baseUrl = await waitForServerUrl(() => stderr);
+      await fetch(`${baseUrl}/api/approve`, { method: "POST" });
+
+      const exitCode = await Promise.race([childExit, Bun.sleep(5000).then(() => -2)]);
       expect(exitCode).toBe(0);
-      expect(stderr).not.toContain("UI available at");
 
       const output = JSON.parse(stdout.trim()) as {
-        hookSpecificOutput: { hookEventName: "PermissionRequest"; decision: { behavior: "allow" | "deny" } };
+        hookSpecificOutput: {
+          hookEventName: "PreToolUse";
+          permissionDecision: "allow" | "deny";
+          updatedInput?: Record<string, unknown>;
+        };
       };
-      expect(output.hookSpecificOutput.hookEventName).toBe("PermissionRequest");
-      expect(output.hookSpecificOutput.decision.behavior).toBe("allow");
+      expect(output.hookSpecificOutput.permissionDecision).toBe("allow");
+      // updatedInput must echo the full tool_input — this is what satisfies the
+      // interaction requirement and skips the native prompt.
+      expect(output.hookSpecificOutput.updatedInput).toEqual(toolInput);
     } finally {
       rmSync(tempRoot, { recursive: true, force: true });
     }

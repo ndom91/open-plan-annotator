@@ -29,8 +29,13 @@ export type HookOutput =
   | {
       hookSpecificOutput: {
         hookEventName: "PreToolUse";
-        permissionDecision: "allow" | "deny" | "ask";
+        permissionDecision: "allow" | "deny";
         permissionDecisionReason?: string;
+        // For interaction-required tools (ExitPlanMode, AskUserQuestion), an
+        // "allow" decision only skips the terminal prompt when accompanied by
+        // updatedInput echoing the full tool input. "allow" alone is ignored and
+        // the user is prompted anyway. Replaces the entire input object.
+        updatedInput?: Record<string, unknown>;
       };
     }
   | {
