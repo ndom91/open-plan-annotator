@@ -11,7 +11,9 @@ interface AnnotationToolbarProps {
 }
 
 export function AnnotationToolbar({ rect, selections, onAction, onDismiss }: AnnotationToolbarProps) {
-  const top = rect.top + window.scrollY - 44;
+  // Toolbar is ~50px tall (min-h-10 buttons + py-1 + borders); offset must clear
+  // that plus a gap so it floats above the highlight instead of overlapping it.
+  const top = rect.top + window.scrollY - 60;
   const left = rect.left + rect.width / 2;
 
   const handleToolbarKeyDown = (e: React.KeyboardEvent) => {
