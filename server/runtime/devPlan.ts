@@ -94,6 +94,21 @@ The \`/auth/login\` endpoint should accept **email** and _password_, validate wi
 ## Verification
 
 Run the test suite with \`bun test\` and verify **all endpoints** return _correct_ status codes. Check \`coverage\` reports for any **untested** [edge cases](https://example.com/edge-cases) in the _auth flow_.
+
+<details>
+<summary>Deferred design: refresh token rotation, recorded so it is cheap to pick up later</summary>
+
+Rotating refresh tokens on every use would require a **revocation list**, which is a _net-new_ table rather than a variation on the schema above. Not shipping in v1.
+
+\`\`\`ts
+type RefreshToken = { jti: string; userId: string; expiresAt: Date };
+\`\`\`
+
+- Content-addressed by \`jti\` so replayed tokens are detectable
+- Needs a TTL sweep, which the current \`schema.ts\` has no home for
+- Revisit once **session length** requirements are settled
+
+</details>
 `;
 
 export const DEV_PLAN_V1 = `# Example Plan

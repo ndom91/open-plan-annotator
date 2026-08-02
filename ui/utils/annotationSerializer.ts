@@ -1,4 +1,4 @@
-import type { Block } from "./markdown.ts";
+import { type Block, flattenBlocks } from "./markdown.ts";
 
 export interface Annotation {
   id: string;
@@ -27,10 +27,14 @@ export function serializeAnnotations(annotations: Annotation[], blocks: Block[])
   const insertions = annotations.filter((a) => a.type === "insertion");
   const comments = annotations.filter((a) => a.type === "comment");
 
+  // Blocks nest (a `details` body holds children), so array position is not
+  // the block index — key the lookup off the flattened tree.
+  const blocksByIndex = new Map(flattenBlocks(blocks).map((b) => [b.index, b]));
+
   if (deletions.length > 0) {
     lines.push("### Requested Deletions", "");
     for (const d of deletions) {
-      const block = blocks[d.blockIndex];
+      const block = blocksByIndex.get(d.blockIndex);
       const ctx = block ? ` (in: "${truncate(block.content, 60)}")` : "";
       lines.push(`- Remove: ~~${d.text}~~${ctx}`);
     }

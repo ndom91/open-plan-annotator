@@ -1,4 +1,4 @@
-export type BlockType = "heading" | "paragraph" | "code" | "list" | "blockquote" | "hr" | "table";
+export type BlockType = "heading" | "paragraph" | "code" | "list" | "blockquote" | "hr" | "table" | "details";
 
 export type ListMarker = "ordered" | "unordered";
 
@@ -28,6 +28,20 @@ export interface Block {
   listItems?: ListItem[];
   headerRow?: TableCell[];
   bodyRows?: TableCell[][];
+  /** `<summary>` text of a `details` block, absent when the source had none. */
+  summary?: string;
+  /** Body of a `details` block, parsed as blocks sharing the document index space. */
+  children?: Block[];
+}
+
+/** Depth-first walk of a block tree, so consumers can look blocks up by index. */
+export function flattenBlocks(blocks: Block[]): Block[] {
+  const flat: Block[] = [];
+  for (const block of blocks) {
+    flat.push(block);
+    if (block.children) flat.push(...flattenBlocks(block.children));
+  }
+  return flat;
 }
 
 interface ListLineMatch {
@@ -51,6 +65,44 @@ function isTableStart(lines: string[], i: number): boolean {
   if (!lines[i]?.trimStart().startsWith("|")) return false;
   const next = lines[i + 1];
   return next !== undefined && isTableSeparator(next);
+}
+
+// An opening `<details>` (with optional attributes) at the start of a line.
+function matchDetailsOpen(line: string): RegExpMatchArray | null {
+  return line.match(/^\s*<details(?:\s[^>]*)?>/i);
+}
+
+// Any `<details>` / `</details>` tag at the start of a line. Used to stop
+// paragraph collection so a details block that follows a paragraph without a
+// blank line between them is not swallowed into it.
+function isDetailsBoundary(line: string): boolean {
+  return /^\s*<\/?details(?:\s[^>]*)?>/i.test(line);
+}
+
+/**
+ * Walk the `<details>` / `</details>` tags in `text`, starting at nesting
+ * `depth`, and report where the close tag that balances the outermost open tag
+ * lies. Returns the running depth instead when the block is still open.
+ */
+function scanDetailsTags(
+  text: string,
+  depth: number,
+): { closed: true; start: number; end: number } | { closed: false; depth: number } {
+  const tagRe = /<details(?:\s[^>]*)?>|<\/details\s*>/gi;
+  let current = depth;
+  let m: RegExpExecArray | null = tagRe.exec(text);
+
+  while (m !== null) {
+    if (m[0].startsWith("</")) {
+      current--;
+      if (current === 0) return { closed: true, start: m.index, end: m.index + m[0].length };
+    } else {
+      current++;
+    }
+    m = tagRe.exec(text);
+  }
+
+  return { closed: false, depth: current };
 }
 
 function matchListLine(line: string): ListLineMatch | null {
@@ -107,8 +159,16 @@ function parseListItems(listLines: string[]): ListItem[] {
 }
 
 export function parseMarkdownToBlocks(markdown: string): Block[] {
+  return parseBlocks(markdown, { value: 0 });
+}
+
+/**
+ * Parse markdown into blocks, drawing block indices from a shared counter so
+ * blocks nested inside a `<details>` body live in the same index space as the
+ * top-level document.
+ */
+function parseBlocks(markdown: string, counter: { value: number }): Block[] {
   const blocks: Block[] = [];
-  let index = 0;
   const lines = markdown.split("\n");
   let i = 0;
 
@@ -118,6 +178,64 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
     // Skip empty lines
     if (line.trim() === "") {
       i++;
+      continue;
+    }
+
+    // Details disclosure: collect to the matching close tag, pull out the
+    // summary, and parse the remaining body as nested blocks.
+    const detailsOpen = matchDetailsOpen(line);
+    if (detailsOpen) {
+      const rawLines: string[] = [line];
+      const bodyLines: string[] = [];
+      let depth = 1;
+      // Anything after the opening tag on the same line is already body.
+      let chunk = line.slice(detailsOpen[0].length);
+
+      while (true) {
+        const scan = scanDetailsTags(chunk, depth);
+
+        if (scan.closed) {
+          bodyLines.push(chunk.slice(0, scan.start));
+          const trailing = chunk.slice(scan.end);
+          // Text after the close tag on the same line belongs to the document,
+          // so hand it back to the line stream instead of consuming the line.
+          if (trailing.trim() !== "") lines[i] = trailing;
+          else i++;
+          break;
+        }
+
+        depth = scan.depth;
+        bodyLines.push(chunk);
+        i++;
+        // Unclosed `<details>` — consume to the end of the input.
+        if (i >= lines.length) break;
+        chunk = lines[i];
+        rawLines.push(chunk);
+      }
+
+      const body = bodyLines.join("\n");
+      const summaryMatch = body.match(/<summary(?:\s[^>]*)?>([\s\S]*?)<\/summary\s*>/i);
+      const summary = summaryMatch?.[1].trim();
+      const remainder = summaryMatch ? body.replace(summaryMatch[0], "") : body;
+
+      const index = counter.value++;
+      blocks.push({
+        index,
+        type: "details",
+        raw: rawLines.join("\n"),
+        content: summary ?? "",
+        summary,
+        children: parseBlocks(remainder, counter),
+      });
+      continue;
+    }
+
+    // A `</details>` with no matching open tag. Strip it rather than printing
+    // the raw tag, and reprocess whatever text shared the line.
+    if (isDetailsBoundary(line)) {
+      const stripped = line.replace(/<\/details\s*>/gi, "");
+      if (stripped.trim() === "") i++;
+      else lines[i] = stripped;
       continue;
     }
 
@@ -140,7 +258,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
       const stripPrefix = fenceIndent.length > 0 ? new RegExp(`^ {1,${fenceIndent.length}}`) : null;
       const content = stripPrefix ? codeLines.map((l) => l.replace(stripPrefix, "")).join("\n") : rawContent;
       blocks.push({
-        index: index++,
+        index: counter.value++,
         type: "code",
         raw: `${fenceIndent}\`\`\`${lang}\n${rawContent}\n${fenceIndent}\`\`\``,
         content,
@@ -153,7 +271,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
     const headingMatch = line.match(/^(#{1,6})\s+(.+)$/);
     if (headingMatch) {
       blocks.push({
-        index: index++,
+        index: counter.value++,
         type: "heading",
         raw: line,
         content: headingMatch[2],
@@ -165,7 +283,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
 
     // Horizontal rule
     if (/^(-{3,}|\*{3,}|_{3,})\s*$/.test(line)) {
-      blocks.push({ index: index++, type: "hr", raw: line, content: "" });
+      blocks.push({ index: counter.value++, type: "hr", raw: line, content: "" });
       i++;
       continue;
     }
@@ -179,7 +297,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
       }
       const raw = quoteLines.map((l) => `> ${l}`).join("\n");
       const content = quoteLines.join("\n");
-      blocks.push({ index: index++, type: "blockquote", raw, content });
+      blocks.push({ index: counter.value++, type: "blockquote", raw, content });
       continue;
     }
 
@@ -207,7 +325,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
         }
       }
       const raw = listLines.join("\n");
-      blocks.push({ index: index++, type: "list", raw, content: raw, listItems: parseListItems(listLines) });
+      blocks.push({ index: counter.value++, type: "list", raw, content: raw, listItems: parseListItems(listLines) });
       continue;
     }
 
@@ -300,7 +418,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
 
         const raw = tableLines.join("\n");
         const content = raw;
-        blocks.push({ index: index++, type: "table", raw, content, headerRow, bodyRows });
+        blocks.push({ index: counter.value++, type: "table", raw, content, headerRow, bodyRows });
         continue;
       }
       // Not a valid table — rewind and let paragraph handle it
@@ -316,6 +434,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
       !/^ {0,3}```/.test(lines[i]) &&
       !lines[i].startsWith(">") &&
       !matchListLine(lines[i]) &&
+      !isDetailsBoundary(lines[i]) &&
       !/^(-{3,}|\*{3,}|_{3,})\s*$/.test(lines[i])
     ) {
       paraLines.push(lines[i]);
@@ -323,7 +442,7 @@ export function parseMarkdownToBlocks(markdown: string): Block[] {
     }
     if (paraLines.length > 0) {
       const content = paraLines.join(" ");
-      blocks.push({ index: index++, type: "paragraph", raw: paraLines.join("\n"), content });
+      blocks.push({ index: counter.value++, type: "paragraph", raw: paraLines.join("\n"), content });
     }
   }
 

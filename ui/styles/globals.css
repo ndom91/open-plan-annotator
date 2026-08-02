@@ -128,6 +128,15 @@ code ::selection {
   text-wrap: pretty;
 }
 
+/* Suppress the native disclosure triangle so the custom chevron is the only marker. */
+.plan-content summary {
+  list-style: none;
+}
+
+.plan-content summary::-webkit-details-marker {
+  display: none;
+}
+
 .tactile-button {
   transition-property: color, background-color, border-color, opacity, transform;
   transition-duration: 150ms;

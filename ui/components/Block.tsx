@@ -269,11 +269,17 @@ export function BlockComponent({ block, annotations, onRemoveAnnotation }: Block
     [annotations, block.index],
   );
   const segments = useMemo(() => splitIntoSegments(block.content, blockAnnotations), [block.content, blockAnnotations]);
-  const inner = renderBlock(block, segments, blockAnnotations, annotations);
+  const inner = renderBlock(block, segments, blockAnnotations, annotations, onRemoveAnnotation);
   return <RemoveAnnotationProvider value={onRemoveAnnotation}>{inner}</RemoveAnnotationProvider>;
 }
 
-function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annotation[], annotations: Annotation[]) {
+function renderBlock(
+  block: Block,
+  segments: Segment[],
+  blockAnnotations: Annotation[],
+  annotations: Annotation[],
+  onRemoveAnnotation?: (id: string) => void,
+) {
   switch (block.type) {
     case "heading": {
       const level = Math.min(Math.max(block.level ?? 1, 1), 6);
@@ -373,6 +379,52 @@ function renderBlock(block: Block, segments: Segment[], blockAnnotations: Annota
             )}
           </table>
         </div>
+      );
+    }
+
+    case "details": {
+      const chevron = (
+        <svg
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 16 16"
+          fill="currentColor"
+          className="w-3 h-3 shrink-0 text-ink-tertiary transition-transform duration-200 group-open:rotate-90"
+        >
+          <path d="M6.22 3.22a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06l-4.25 4.25a.75.75 0 0 1-1.06-1.06L9.94 8 6.22 4.28a.75.75 0 0 1 0-1.06Z" />
+        </svg>
+      );
+      const summaryClass =
+        "flex items-center gap-2 cursor-pointer select-none px-4 py-2.5 font-sans text-[13px] font-semibold text-ink";
+
+      return (
+        // Forced open so nothing in the plan is hidden from review; the reader
+        // can still collapse it manually.
+        <details open className="group my-6 rounded-lg border border-rule bg-inset/40 overflow-hidden">
+          {block.content ? (
+            <summary data-block-index={block.index} className={summaryClass}>
+              {chevron}
+              <span>{renderSegments(segments, annotations)}</span>
+            </summary>
+          ) : (
+            // No `<summary>` in the source — a label with no block index, so it
+            // is not a phantom annotation target.
+            <summary className={summaryClass}>
+              {chevron}
+              <span>Details</span>
+            </summary>
+          )}
+          <div className="border-t border-rule-subtle px-4 py-1">
+            {block.children?.map((child) => (
+              <BlockComponent
+                key={child.index}
+                block={child}
+                annotations={annotations}
+                onRemoveAnnotation={onRemoveAnnotation}
+              />
+            ))}
+          </div>
+        </details>
       );
     }
 

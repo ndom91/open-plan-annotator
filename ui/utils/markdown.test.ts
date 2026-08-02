@@ -138,6 +138,118 @@ describe("parseMarkdownToBlocks", () => {
     });
   });
 
+  test("parses a details block with its summary and nested body blocks", () => {
+    const markdown = [
+      "<details>",
+      "<summary>Deferred design</summary>",
+      "",
+      "An in-process `Map` would be worthless.",
+      "",
+      "```ts",
+      "const cache = new Map();",
+      "```",
+      "",
+      "- Needs a shared datastore",
+      "</details>",
+    ].join("\n");
+    const blocks = parseMarkdownToBlocks(markdown);
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]).toMatchObject({
+      index: 0,
+      type: "details",
+      content: "Deferred design",
+      summary: "Deferred design",
+    });
+
+    const children = blocks[0]?.children;
+    expect(children?.map((c) => c.type)).toEqual(["paragraph", "code", "list"]);
+    // Children draw from the same index counter, after the details block itself.
+    expect(children?.map((c) => c.index)).toEqual([1, 2, 3]);
+    expect(children?.[0]?.content).toBe("An in-process `Map` would be worthless.");
+    expect(children?.[1]).toMatchObject({ lang: "ts", content: "const cache = new Map();" });
+    expect(children?.[2]?.listItems?.[0]?.text).toBe("Needs a shared datastore");
+  });
+
+  test("continues the index counter after a details block", () => {
+    const blocks = parseMarkdownToBlocks(
+      ["<details>", "<summary>Aside</summary>", "", "Body text.", "</details>", "", "After the aside."].join("\n"),
+    );
+
+    expect(blocks.map((b) => [b.type, b.index])).toEqual([
+      ["details", 0],
+      ["paragraph", 2],
+    ]);
+    expect(blocks[0]?.children?.[0]?.index).toBe(1);
+  });
+
+  test("parses details tags carrying attributes", () => {
+    const blocks = parseMarkdownToBlocks(
+      ['<details open class="note">', "<summary>Open by default</summary>", "", "Body.", "</details>"].join("\n"),
+    );
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.type).toBe("details");
+    expect(blocks[0]?.summary).toBe("Open by default");
+  });
+
+  test("handles a details block with no summary", () => {
+    const blocks = parseMarkdownToBlocks(["<details>", "", "Just a body.", "</details>"].join("\n"));
+
+    expect(blocks[0]).toMatchObject({ type: "details", content: "", summary: undefined });
+    expect(blocks[0]?.children?.[0]?.content).toBe("Just a body.");
+  });
+
+  test("does not end an outer details block at a nested close tag", () => {
+    const blocks = parseMarkdownToBlocks(
+      [
+        "<details>",
+        "<summary>Outer</summary>",
+        "",
+        "<details>",
+        "<summary>Inner</summary>",
+        "",
+        "Inner body.",
+        "</details>",
+        "",
+        "Outer body.",
+        "</details>",
+      ].join("\n"),
+    );
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.summary).toBe("Outer");
+
+    const children = blocks[0]?.children;
+    expect(children?.map((c) => c.type)).toEqual(["details", "paragraph"]);
+    expect(children?.[0]?.summary).toBe("Inner");
+    expect(children?.[0]?.children?.[0]?.content).toBe("Inner body.");
+    expect(children?.[1]?.content).toBe("Outer body.");
+  });
+
+  test("consumes an unclosed details block to the end of the input", () => {
+    const blocks = parseMarkdownToBlocks(["<details>", "<summary>Unclosed</summary>", "", "Body text."].join("\n"));
+
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0]?.summary).toBe("Unclosed");
+    expect(blocks[0]?.children?.[0]?.content).toBe("Body text.");
+  });
+
+  test("drops a stray closing details tag instead of rendering it as text", () => {
+    const blocks = parseMarkdownToBlocks(["Some text.", "</details>", "More text."].join("\n"));
+
+    expect(blocks.map((b) => b.content)).toEqual(["Some text.", "More text."]);
+  });
+
+  test("keeps a paragraph directly above a details block separate", () => {
+    const blocks = parseMarkdownToBlocks(
+      ["Lead-in paragraph.", "<details>", "<summary>Aside</summary>", "", "Body.", "</details>"].join("\n"),
+    );
+
+    expect(blocks.map((b) => b.type)).toEqual(["paragraph", "details"]);
+    expect(blocks[0]?.content).toBe("Lead-in paragraph.");
+  });
+
   test("leaves top-level (unindented) fenced code content untouched", () => {
     const markdown = ["```bash", "  cd /foo", "./bar", "```"].join("\n");
     const blocks = parseMarkdownToBlocks(markdown);
