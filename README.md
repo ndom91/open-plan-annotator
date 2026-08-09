@@ -48,7 +48,7 @@ Add the plugin to your OpenCode config (`opencode.json` or `.opencode/config.jso
 
 ```json
 {
-  "plugin": ["open-plan-annotator@1.8.7"]
+  "plugin": ["open-plan-annotator@1.10.9"]
 }
 ```
 
