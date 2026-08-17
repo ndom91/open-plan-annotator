@@ -32,8 +32,7 @@
     "open-plan-annotator": "1.10.9"
   },
   "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "typebox": "*"
+    "@mariozechner/pi-coding-agent": "*"
   },
   "pi": {
     "extensions": [

@@ -6,13 +6,13 @@
       "name": "open-plan-annotator",
       "dependencies": {
         "@opencode-ai/plugin": "^1.14.48",
+        "typebox": "^1.1.38",
       },
       "devDependencies": {
         "@biomejs/biome": "^2.4.15",
         "@types/bun": "^1.3.13",
         "@types/node": "^25.6.2",
         "@typescript/native-preview": "^7.0.0-dev.20260511.1",
-        "typebox": "^1.1.38",
       },
       "optionalDependencies": {
         "@open-plan-annotator/runtime-darwin-arm64": "1.10.9",
@@ -20,12 +20,6 @@
         "@open-plan-annotator/runtime-linux-arm64": "1.10.9",
         "@open-plan-annotator/runtime-linux-x64": "1.10.9",
       },
-      "peerDependencies": {
-        "typebox": "*",
-      },
-      "optionalPeers": [
-        "typebox",
-      ],
     },
     "packages/pi-extension": {
       "name": "@open-plan-annotator/pi-extension",
@@ -35,7 +29,6 @@
       },
       "peerDependencies": {
         "@mariozechner/pi-coding-agent": "*",
-        "typebox": "*",
       },
     },
     "packages/runtime-darwin-arm64": {

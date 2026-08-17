@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test";
+import rootPackage from "../package.json" with { type: "json" };
 import packageExtension from "../packages/pi-extension/extensions/index.js";
 import { registerPiExtension } from "./piExtension.mjs";
 
@@ -21,6 +22,10 @@ function createMockPi() {
 }
 
 describe("piExtension", () => {
+  test("declares TypeBox as a runtime dependency", () => {
+    expect(rootPackage.dependencies.typebox).toBe("^1.1.38");
+  });
+
   test("registers the annotate_plan tool and annotate-plan command", () => {
     const mock = createMockPi();
 

@@ -69,19 +69,11 @@
     "@biomejs/biome": "^2.4.15",
     "@types/node": "^25.6.2",
     "@types/bun": "^1.3.13",
-    "@typescript/native-preview": "^7.0.0-dev.20260511.1",
-    "typebox": "^1.1.38"
+    "@typescript/native-preview": "^7.0.0-dev.20260511.1"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "^1.14.48"
-  },
-  "peerDependencies": {
-    "typebox": "*"
-  },
-  "peerDependenciesMeta": {
-    "typebox": {
-      "optional": true
-    }
+    "@opencode-ai/plugin": "^1.14.48",
+    "typebox": "^1.1.38"
   },
   "optionalDependencies": {
     "@open-plan-annotator/runtime-darwin-arm64": "1.10.9",
