@@ -35,7 +35,8 @@ export default function App() {
   const { annotations, addDeletion, addComment, addReplacement, addInsertion, removeAnnotation } =
     useAnnotations(planHash);
   const selection = useTextSelection();
-  const { approve, deny, isPending, decided, decision } = useDecision();
+  const { approve, deny, cancel, isPending, decided, decision, scheduledDecision, countdown } = useDecision();
+  const isDecisionLocked = isPending || decided || scheduledDecision !== null;
 
   const [popover, setPopover] = useState<{
     mode: "comment" | "replacement" | "insertion";
@@ -99,12 +100,12 @@ export default function App() {
   );
 
   const handleApprove = useCallback(() => {
-    if (!isPending && !decided) approve();
-  }, [approve, isPending, decided]);
+    if (!isPending && !isDecisionLocked) approve();
+  }, [approve, isPending, isDecisionLocked]);
 
   const handleDeny = useCallback(() => {
-    if (!isPending && !decided && annotations.length > 0) deny(annotations);
-  }, [deny, isPending, decided, annotations]);
+    if (!isPending && !isDecisionLocked && annotations.length > 0) deny(annotations);
+  }, [deny, isPending, isDecisionLocked, annotations]);
 
   const handleToggleDiff = useCallback(() => {
     if (!hasPreviousVersion || isViewingHistory) return;
@@ -119,7 +120,7 @@ export default function App() {
     onToggleDiff: handleToggleDiff,
     canToggleDiff: hasPreviousVersion && !isViewingHistory,
     hasAnnotations: annotations.length > 0,
-    decided,
+    decided: isDecisionLocked,
   });
 
   // Sync initial auto-close preference from server
@@ -218,6 +219,9 @@ export default function App() {
           deny={handleDeny}
           isPending={isPending}
           decision={decision}
+          scheduledDecision={scheduledDecision}
+          onCancelDecision={cancel}
+          decisionCountdown={countdown}
           autoCloseOnSubmit={autoCloseOnSubmit}
           onToggleAutoClose={handleToggleAutoClose}
           settingsExpired={settingsExpired}
@@ -276,7 +280,7 @@ export default function App() {
                     <PlanDocument
                       blocks={blocks}
                       annotations={isViewingHistory ? [] : annotations}
-                      onRemoveAnnotation={isViewingHistory ? undefined : removeAnnotation}
+                      onRemoveAnnotation={isViewingHistory || isDecisionLocked ? undefined : removeAnnotation}
                     />
                   </div>
                 )}
@@ -286,21 +290,28 @@ export default function App() {
 
           {/* Annotation sidebar — flush to viewport edge */}
           <aside className="w-72 shrink-0 sticky top-[59px] self-stretch min-h-[calc(100vh-59px)] max-h-[calc(100vh-59px)] overflow-y-auto border-l border-rule px-5 py-6 hidden xl:block">
-            {!isViewingHistory && <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />}
+            {!isViewingHistory && !isDecisionLocked && (
+              <AnnotationSidebar annotations={annotations} onRemove={removeAnnotation} />
+            )}
           </aside>
         </div>
 
-        {!isViewingHistory && !decided && <ShortcutBar />}
+        {!isViewingHistory && !isDecisionLocked && <ShortcutBar />}
 
         {/* Floating toolbar on selection — only on current version */}
-        {!isViewingHistory && selection.isActive && selection.resolved && selection.rect && !popover && !decided && (
-          <AnnotationToolbar
-            rect={selection.rect}
-            selections={selection.resolved}
-            onAction={handleToolbarAction}
-            onDismiss={() => window.getSelection()?.removeAllRanges()}
-          />
-        )}
+        {!isViewingHistory &&
+          selection.isActive &&
+          selection.resolved &&
+          selection.rect &&
+          !popover &&
+          !isDecisionLocked && (
+            <AnnotationToolbar
+              rect={selection.rect}
+              selections={selection.resolved}
+              onAction={handleToolbarAction}
+              onDismiss={() => window.getSelection()?.removeAllRanges()}
+            />
+          )}
 
         {/* Text input popover */}
         {popover && (

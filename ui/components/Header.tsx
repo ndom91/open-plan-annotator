@@ -1,4 +1,4 @@
-import type { Decision } from "../hooks/useDecision.ts";
+import type { Decision, ScheduledDecision } from "../hooks/useDecision.ts";
 import type { Annotation } from "../utils/annotationSerializer.ts";
 import { useTheme } from "./ThemeProvider.tsx";
 
@@ -10,6 +10,9 @@ interface HeaderProps {
   deny: () => void;
   isPending: boolean;
   decision: Decision | null;
+  scheduledDecision: ScheduledDecision | null;
+  onCancelDecision: () => void;
+  decisionCountdown: number;
   autoCloseOnSubmit: boolean;
   onToggleAutoClose: () => void;
   settingsExpired: boolean;
@@ -24,6 +27,9 @@ export function Header({
   deny,
   isPending,
   decision,
+  scheduledDecision,
+  onCancelDecision,
+  decisionCountdown,
   autoCloseOnSubmit,
   onToggleAutoClose,
   settingsExpired,
@@ -31,6 +37,26 @@ export function Header({
 }: HeaderProps) {
   const { dark, toggle } = useTheme();
   const decisionMessage = decision === "feedback" ? "Requesting feedback" : "Approved plan";
+
+  if (scheduledDecision !== null) {
+    const action = scheduledDecision === "feedback" ? "Requesting changes" : "Approving plan";
+    return (
+      <header className="sticky top-0 z-40">
+        <div className="animate-fade-in-down font-sans flex items-center justify-center gap-4 px-8 py-4 bg-desk/85 backdrop-blur-xl border-b border-rule">
+          <span className="text-sm text-ink-tertiary">
+            {action} in <span className="tabular-nums font-medium">{decisionCountdown}s</span>
+          </span>
+          <button
+            type="button"
+            onClick={onCancelDecision}
+            className="tactile-button min-h-10 rounded-md border border-rule px-3 py-1.5 text-[13px] font-medium text-ink-secondary hover:bg-ink/5 cursor-pointer focus-visible:ring-2 focus-visible:ring-accent/50"
+          >
+            Cancel
+          </button>
+        </div>
+      </header>
+    );
+  }
 
   if (decision !== null) {
     return (
