@@ -48,12 +48,15 @@ export default function App() {
   const activeVersion = selectedVersion ?? version;
   const isViewingHistory = activeVersion !== version;
   const totalVersions = history.length + 1;
-  const hasPreviousVersion = history.length > 0;
+  const previousVersion = activeVersion - 1;
+  const hasPreviousVersion = previousVersion > 0;
 
   const displayedPlan = useMemo(() => {
     if (!isViewingHistory) return plan;
     return history[activeVersion - 1] ?? plan;
   }, [isViewingHistory, activeVersion, history, plan]);
+
+  const previousPlan = hasPreviousVersion ? history[previousVersion - 1] : null;
 
   const blocks = useMemo(() => (displayedPlan ? parseMarkdownToBlocks(displayedPlan) : []), [displayedPlan]);
 
@@ -108,9 +111,9 @@ export default function App() {
   }, [deny, isPending, isDecisionLocked, annotations]);
 
   const handleToggleDiff = useCallback(() => {
-    if (!hasPreviousVersion || isViewingHistory) return;
+    if (!hasPreviousVersion) return;
     setShowDiff((v) => !v);
-  }, [hasPreviousVersion, isViewingHistory]);
+  }, [hasPreviousVersion]);
 
   useKeyboardShortcuts({
     getSelection: getResolvedSelection,
@@ -118,7 +121,7 @@ export default function App() {
     onApprove: handleApprove,
     onDeny: handleDeny,
     onToggleDiff: handleToggleDiff,
-    canToggleDiff: hasPreviousVersion && !isViewingHistory,
+    canToggleDiff: hasPreviousVersion,
     hasAnnotations: annotations.length > 0,
     decided: isDecisionLocked,
   });
@@ -265,14 +268,15 @@ export default function App() {
                   showDiff={showDiff}
                   onToggleDiff={handleToggleDiff}
                   hasPreviousVersion={hasPreviousVersion}
+                  previousVersion={previousVersion}
                 />
-                {showDiff && hasPreviousVersion && !isViewingHistory ? (
+                {showDiff && previousPlan !== null ? (
                   <div key="diff" className="animate-fade-in-up">
                     <DiffViewer
-                      oldText={history[history.length - 1]}
-                      newText={plan!}
-                      oldVersion={version - 1}
-                      newVersion={version}
+                      oldText={previousPlan}
+                      newText={displayedPlan!}
+                      oldVersion={previousVersion}
+                      newVersion={activeVersion}
                     />
                   </div>
                 ) : (

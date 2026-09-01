@@ -7,6 +7,7 @@ interface DocumentChromeProps {
   showDiff: boolean;
   onToggleDiff: () => void;
   hasPreviousVersion: boolean;
+  previousVersion: number;
 }
 
 export function DocumentChrome({
@@ -16,6 +17,7 @@ export function DocumentChrome({
   showDiff,
   onToggleDiff,
   hasPreviousVersion,
+  previousVersion,
 }: DocumentChromeProps) {
   return (
     <div className="min-h-10 flex items-center justify-between px-5 py-2 border-b border-rule-subtle">
@@ -43,7 +45,7 @@ export function DocumentChrome({
       </div>
 
       <div className="flex items-center gap-1">
-        {hasPreviousVersion && !isViewingHistory && (
+        {hasPreviousVersion && (
           <button
             type="button"
             onClick={onToggleDiff}
@@ -53,7 +55,7 @@ export function DocumentChrome({
                 ? "border border-accent/40 bg-accent-subtle text-accent"
                 : "border border-rule text-ink-secondary hover:text-ink hover:bg-paper-edge",
             )}
-            title="Show changes from previous version"
+            title={`Show changes from v${previousVersion}`}
           >
             <svg
               aria-hidden="true"
