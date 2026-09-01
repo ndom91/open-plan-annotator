@@ -15,17 +15,17 @@
         "@typescript/native-preview": "^7.0.0-dev.20260511.1",
       },
       "optionalDependencies": {
-        "@open-plan-annotator/runtime-darwin-arm64": "1.11.0",
-        "@open-plan-annotator/runtime-darwin-x64": "1.11.0",
-        "@open-plan-annotator/runtime-linux-arm64": "1.11.0",
-        "@open-plan-annotator/runtime-linux-x64": "1.11.0",
+        "@open-plan-annotator/runtime-darwin-arm64": "1.11.1",
+        "@open-plan-annotator/runtime-darwin-x64": "1.11.1",
+        "@open-plan-annotator/runtime-linux-arm64": "1.11.1",
+        "@open-plan-annotator/runtime-linux-x64": "1.11.1",
       },
     },
     "packages/pi-extension": {
       "name": "@open-plan-annotator/pi-extension",
-      "version": "1.11.0",
+      "version": "1.11.1",
       "dependencies": {
-        "open-plan-annotator": "1.11.0",
+        "open-plan-annotator": "1.11.1",
       },
       "peerDependencies": {
         "@mariozechner/pi-coding-agent": "*",
@@ -33,19 +33,19 @@
     },
     "packages/runtime-darwin-arm64": {
       "name": "@open-plan-annotator/runtime-darwin-arm64",
-      "version": "1.11.0",
+      "version": "1.11.1",
     },
     "packages/runtime-darwin-x64": {
       "name": "@open-plan-annotator/runtime-darwin-x64",
-      "version": "1.11.0",
+      "version": "1.11.1",
     },
     "packages/runtime-linux-arm64": {
       "name": "@open-plan-annotator/runtime-linux-arm64",
-      "version": "1.11.0",
+      "version": "1.11.1",
     },
     "packages/runtime-linux-x64": {
       "name": "@open-plan-annotator/runtime-linux-x64",
-      "version": "1.11.0",
+      "version": "1.11.1",
     },
     "ui": {
       "name": "@open-plan-annotator/ui",
@@ -891,7 +891,7 @@
 
     "oniguruma-to-es": ["oniguruma-to-es@4.3.5", "", { "dependencies": { "oniguruma-parser": "^0.12.1", "regex": "^6.1.0", "regex-recursion": "^6.0.2" } }, "sha512-Zjygswjpsewa0NLTsiizVuMQZbp0MDyM6lIt66OxsF21npUDlzpHi1Mgb/qhQdkb+dWFTzJmFbEWdvZgRho8eQ=="],
 
-    "open-plan-annotator": ["open-plan-annotator@1.11.0", "", { "dependencies": { "@opencode-ai/plugin": "^1.14.48", "typebox": "^1.1.38" }, "optionalDependencies": { "@open-plan-annotator/runtime-darwin-arm64": "1.11.0", "@open-plan-annotator/runtime-darwin-x64": "1.11.0", "@open-plan-annotator/runtime-linux-arm64": "1.11.0", "@open-plan-annotator/runtime-linux-x64": "1.11.0" }, "bin": { "open-plan-annotator": "bin/open-plan-annotator.mjs" } }, "sha512-HWaWi3k6fjnSjVzJy4JP5CGkj4jYECGM2ckpFIiVUc9bpkoHjql4B3qayD7Nuft6gQeWO4q3hJJCY8TKS+8eZg=="],
+    "open-plan-annotator": ["open-plan-annotator@1.11.1", "", { "dependencies": { "@opencode-ai/plugin": "^1.14.48", "typebox": "^1.1.38" }, "optionalDependencies": { "@open-plan-annotator/runtime-darwin-arm64": "1.11.1", "@open-plan-annotator/runtime-darwin-x64": "1.11.1", "@open-plan-annotator/runtime-linux-arm64": "1.11.1", "@open-plan-annotator/runtime-linux-x64": "1.11.1" }, "bin": { "open-plan-annotator": "bin/open-plan-annotator.mjs" } }, "sha512-vHOV2JtPIfbk+0wgVWrQSjEyFlCj2Q10PTGkkfVYDrBt8YJyl4GPma+zOr8ZADpIFHNR0xzLrFCNmD27jSDPDQ=="],
 
     "openai": ["openai@6.26.0", "", { "peerDependencies": { "ws": "^8.18.0", "zod": "^3.25 || ^4.0" }, "optionalPeers": ["ws", "zod"], "bin": { "openai": "bin/cli" } }, "sha512-zd23dbWTjiJ6sSAX6s0HrCZi41JwTA1bQVs0wLQPZ2/5o2gxOJA5wh7yOAUgwYybfhDXyhwlpeQf7Mlgx8EOCA=="],
 
