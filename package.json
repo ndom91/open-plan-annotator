@@ -37,6 +37,7 @@
     "shared/runtimeResolver.mjs",
     "shared/macosCodesign.mjs",
     "shared/runtimeEnv.mjs",
+    "shared/skipHook.mjs",
     "shared/updateHints.mjs",
     "shared/versionInfo.mjs",
     "shared/planReview.mjs",

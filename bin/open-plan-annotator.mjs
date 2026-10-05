@@ -11,6 +11,7 @@ import { codesignFixCommand, ensureValidCodeSignature, hasValidCodeSignature } f
 import { detectPackageManager } from "../shared/packageManager.mjs";
 import { resolveRuntimeBinary } from "../shared/runtimeResolver.mjs";
 import { buildRuntimeEnv } from "../shared/runtimeEnv.mjs";
+import { shouldSkipHook } from "../shared/skipHook.mjs";
 import { buildUpdateMessage } from "../shared/updateMessage.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -49,6 +50,10 @@ if (cliMode === "unknown") {
   console.error(buildUnknownCommandPrefix(arg));
   console.error("Run `open-plan-annotator --help` for usage.");
   process.exit(1);
+}
+
+if (cliMode === "hook" && shouldSkipHook()) {
+  process.exit(0);
 }
 
 // Buffer stdin immediately so it's not lost if we need to download first.
