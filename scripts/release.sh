@@ -4,6 +4,13 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
+# darwin runtime binaries must be ad-hoc signed with `codesign`, which only
+# exists on macOS. Unsigned binaries are SIGKILLed on launch by macOS.
+if [ "$(uname)" != "Darwin" ]; then
+  echo "Releases must be cut on macOS so darwin runtime binaries can be codesigned."
+  exit 1
+fi
+
 RUNTIME_PACKAGES=(
   "packages/runtime-darwin-arm64"
   "packages/runtime-darwin-x64"
@@ -101,6 +108,14 @@ bun run build:ui
 
 echo "Cross-compiling binaries..."
 bun scripts/build-platforms.mjs
+
+echo "Verifying darwin code signatures..."
+for binary in packages/runtime-darwin-*/bin/open-plan-annotator; do
+  if ! codesign --verify --strict "$binary"; then
+    echo "Invalid code signature on $binary; aborting before commit/publish."
+    exit 1
+  fi
+done
 
 # --- Git commit + tag (local only; push deferred until after publish) ---
 echo ""

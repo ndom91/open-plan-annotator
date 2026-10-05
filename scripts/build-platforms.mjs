@@ -48,6 +48,10 @@ const results = await Promise.allSettled(
       "--compile",
     ], { cwd: root, env: { ...process.env, NODE_ENV: "production" } });
 
+    if (name.startsWith("darwin-")) {
+      await signDarwinBinary(outfile, name);
+    }
+
     const elapsed = ((performance.now() - start) / 1000).toFixed(1);
     console.log(`  ✓ ${name} done (${elapsed}s)`);
     return name;
@@ -63,3 +67,18 @@ if (failures.length > 0) {
 }
 
 console.log("\nAll platform binaries built.");
+
+/**
+ * `bun build --compile` leaves darwin binaries with an invalid ad-hoc
+ * signature, which recent macOS SIGKILLs on launch. Re-sign ad-hoc and verify.
+ * `codesign` only exists on macOS; other hosts (CI) skip with a warning and
+ * release.sh refuses to publish from them.
+ */
+async function signDarwinBinary(outfile, name) {
+  if (process.platform !== "darwin") {
+    console.warn(`  ! ${name}: skipping codesign (not on macOS); binary will be killed on launch by macOS`);
+    return;
+  }
+  await execFileAsync("codesign", ["--force", "--sign", "-", outfile]);
+  await execFileAsync("codesign", ["--verify", "--strict", outfile]);
+}

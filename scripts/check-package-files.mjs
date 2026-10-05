@@ -12,6 +12,7 @@ const packages = [
       "scripts/session-context.mjs",
       "hooks/hooks.json",
       "shared/runtimeResolver.mjs",
+      "shared/macosCodesign.mjs",
       "shared/runtimeEnv.mjs",
       "shared/cliHelp.mjs",
       "shared/cliMode.mjs",

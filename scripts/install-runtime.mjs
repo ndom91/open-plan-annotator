@@ -31,6 +31,7 @@ import { get as httpsGet } from "node:https";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { ensureValidCodeSignature, hasValidCodeSignature } from "../shared/macosCodesign.mjs";
 
 const SUPPORTED_PLATFORMS = new Set([
   "darwin-arm64",
@@ -63,7 +64,12 @@ if (existsSync(targetBinary)) {
   // stale binary from a previous plugin version can be left in place when a
   // new version dir is created (e.g. copied install trees), which would pin
   // the runtime to the old version forever. Re-probe and reinstall on drift.
-  const installedVersion = readBinaryVersion(targetBinary);
+  let installedVersion = readBinaryVersion(targetBinary);
+  // A binary with an invalid macOS signature is SIGKILLed, so the probe fails
+  // and we'd re-download the same broken binary every session. Re-sign first.
+  if (installedVersion === null && !hasValidCodeSignature(targetBinary) && ensureValidCodeSignature(targetBinary)) {
+    installedVersion = readBinaryVersion(targetBinary);
+  }
   if (installedVersion === version) {
     process.exit(0);
   }
@@ -122,6 +128,8 @@ try {
       }
     }
     chmodSync(targetBinary, 0o755);
+    // Published darwin binaries up to 1.11.1 ship with an invalid signature.
+    ensureValidCodeSignature(targetBinary);
   } finally {
     rmSync(tmp, { recursive: true, force: true });
   }
