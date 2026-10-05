@@ -107,6 +107,7 @@ function runRuntime(binaryPath, { allowResign }) {
     env: childEnv,
   });
 
+  child.stdin.on("error", () => {});
   child.stdin.write(stdinBuffer);
   child.stdin.end();
 
