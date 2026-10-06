@@ -36,11 +36,11 @@ interface WrapperResult {
   stdioClosedAfterMs: number;
 }
 
-function runHook(root: string): Promise<WrapperResult> {
+function runHook(root: string, env: NodeJS.ProcessEnv = {}): Promise<WrapperResult> {
   const start = Date.now();
   const child = spawn("node", [path.join(root, "bin", "open-plan-annotator.mjs")], {
     stdio: ["pipe", "pipe", "pipe"],
-    env: { ...process.env, OPEN_PLAN_ANNOTATOR_SKIP_INSTALL: "1" },
+    env: { ...process.env, OPEN_PLAN_ANNOTATOR_SKIP_INSTALL: "1", ...env },
   });
   child.stdin.end(JSON.stringify({ hook_event_name: "PreToolUse", tool_name: "ExitPlanMode", tool_input: {} }));
 
@@ -86,5 +86,16 @@ describe.if(process.platform !== "win32")("open-plan-annotator wrapper (hook mod
     expect(result.code).toBe(0);
     expect(result.stdout).toBe('{"ok":true}\n');
     expect(result.stdioClosedAfterMs).toBeLessThan(2000);
+  });
+
+  test("exits 0 without running the runtime when the skip file exists", async () => {
+    const root = createPluginTree("#!/bin/sh\necho '{\"ok\":true}'\n");
+    const skipFile = path.join(root, "skip");
+    fs.writeFileSync(skipFile, "");
+
+    const result = await runHook(root, { OPEN_PLAN_ANNOTATOR_SKIP_FILE: skipFile });
+
+    expect(result.code).toBe(0);
+    expect(result.stdout).toBe("");
   });
 });

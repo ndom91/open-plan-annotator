@@ -111,6 +111,16 @@ open-plan-annotator agent-setup
 open-plan-annotator help agent
 ```
 
+### Skipping the Annotator
+
+Set `OPEN_PLAN_ANNOTATOR_SKIP_FILE` to a file path. While that file exists, the Claude Code hook exits without a decision and Claude Code shows its native plan approval instead. The file is checked on every hook call, so you can toggle it mid session, for example while continuing a session through Remote Control where the local browser UI is unreachable:
+
+```sh
+export OPEN_PLAN_ANNOTATOR_SKIP_FILE="$HOME/.open-plan-annotator-skip"
+touch "$OPEN_PLAN_ANNOTATOR_SKIP_FILE"   # use native approval
+rm "$OPEN_PLAN_ANNOTATOR_SKIP_FILE"      # back to the annotator
+```
+
 ## Updates
 
 - **Claude Code**: navigate to the `/plugin` -> "Installed" -> `open-plan-annotator` entry and select "Update", then restart Claude Code.
