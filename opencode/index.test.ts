@@ -72,12 +72,14 @@ describe("annotate_plan tool output (V2)", () => {
     }
   });
 
-  test("legacy entrypoint retains the V1 plugin function", async () => {
+  test("package default supports both V2 setup and V1 server entrypoints", async () => {
     const mod = await loadPluginWithBridge(async () => ({ approved: true }), "v1-shape");
-    expect(typeof mod.default).toBe("function");
-    expect(mod.OpenPlanAnnotatorPlugin).toBe(mod.default);
+    expect(typeof mod.default).toBe("object");
+    expect(mod.default.id).toBe("open-plan-annotator");
+    expect(mod.default.setup).toBe(mod.OpenPlanAnnotatorPluginV2.setup);
+    expect(mod.default.server).toBe(mod.OpenPlanAnnotatorPlugin);
 
-    const plugin = await mod.default({
+    const plugin = await mod.default.server({
       directory: process.cwd(),
       client: {
         session: {
