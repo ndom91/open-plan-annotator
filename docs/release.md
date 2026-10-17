@@ -8,6 +8,17 @@ bun run release
 
 This builds the UI and cross-compiles binaries into the platform runtime packages under `packages/runtime-*`.
 
+Before publishing, also run:
+
+```sh
+bun run pack:check
+bun run verify:opencode-plugin
+```
+
+`verify:opencode-plugin` imports a freshly packed tarball and checks that its
+default OpenCode export has the stable V2 `id` and `setup()` shape. The package
+also retains `server()` temporarily for OpenCode V1.18.29+ compatibility.
+
 ## Full release script
 
 ```sh

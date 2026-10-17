@@ -20,6 +20,9 @@ const packages = [
       "shared/piExtension.mjs",
       "index.js",
       "server.js",
+      "opencode/bridge.js",
+      "opencode/config.js",
+      "opencode/index.js",
     ],
   },
   {

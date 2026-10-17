@@ -44,11 +44,11 @@ Third-party marketplace auto-update is disabled by default in Claude Code. Enabl
 
 ### OpenCode
 
-Add the plugin to your OpenCode config (`opencode.json` or `.opencode/config.json`):
+Add the plugin to your OpenCode V2 config (`opencode.jsonc` or `.opencode/opencode.jsonc`):
 
-```json
+```jsonc
 {
-  "plugin": ["open-plan-annotator@1.10.9"]
+  "plugins": ["open-plan-annotator@1.13.1"]
 }
 ```
 
@@ -58,8 +58,10 @@ What you get:
 - `open-plan-annotator`: runtime command spawned by the plugin
 - optional implementation-agent handoff after approval
 
-Restart OpenCode after installing or updating so it reloads the package-managed runtime.
-OpenCode 2.x and OpenCode 1.18.29 or later are both supported.
+Restart the OpenCode background service after installing or updating so it reloads the package-managed runtime.
+The package default export is an OpenCode V2 plugin definition with a stable
+`id` and `setup()` method. It also temporarily exposes `server()` for OpenCode
+V1.18.29+ compatibility; the two implementations use their respective APIs.
 
 ### Pi
 
@@ -125,7 +127,7 @@ rm "$OPEN_PLAN_ANNOTATOR_SKIP_FILE"      # back to the annotator
 ## Updates
 
 - **Claude Code**: navigate to the `/plugin` -> "Installed" -> `open-plan-annotator` entry and select "Update", then restart Claude Code.
-- **OpenCode**: bump the version number in your `opencode.jsonc` `plugins` `open-plan-annotator` entry, then restart OpenCode.
+- **OpenCode**: bump the version number in your `opencode.jsonc` `plugins` `open-plan-annotator` entry, then restart the OpenCode service.
 - **Pi**: update the Pi extension, then restart Pi.
 - **Manual/global install**: update the npm package, then rerun `open-plan-annotator`.
 

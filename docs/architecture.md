@@ -3,7 +3,7 @@
 ## Runtime paths
 
 - Claude Code hook path: `bin/open-plan-annotator.mjs` -> runtime resolver -> platform runtime package binary -> `server/index.ts` runtime.
-- OpenCode path: `opencode/index.js` -> `opencode/bridge.js` -> same runtime resolver + runtime package binary.
+- OpenCode V2 path: the `opencode/index.js` default export has the stable `id` + `setup()` plugin shape, then calls `opencode/bridge.js` -> same runtime resolver + runtime package binary. The same default export temporarily also provides `server()` for OpenCode V1.18.29+.
 - Shared behavior: both paths produce the same Claude hook payload/response format.
 
 ## Server runtime modules

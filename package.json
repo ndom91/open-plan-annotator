@@ -61,6 +61,7 @@
     "build": "bun run build:ui && bun run build:platforms",
     "release": "bun run build",
     "pack:check": "bun scripts/check-package-files.mjs",
+    "verify:opencode-plugin": "node scripts/verify-opencode-plugin-package.mjs",
     "dev:ui": "cd ui && bun run vite --port 5173",
     "dev:server": "NODE_ENV=development bun run server/index.ts",
     "dev": "NODE_ENV=development bun run server/index.ts & cd ui && bun run vite --port 5173",

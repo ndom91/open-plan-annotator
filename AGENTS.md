@@ -2,7 +2,7 @@
 
 ## What This Is
 
-A fully local Claude Code plugin that intercepts `ExitPlanMode` hook events and opens a browser UI for reviewing and annotating plans before code is written. Ships as a package-managed platform runtime binary (compiled via `bun build --compile`) that embeds the React UI. Also works as an OpenCode plugin via the `@opencode-ai/plugin` SDK.
+A fully local Claude Code plugin that intercepts `ExitPlanMode` hook events and opens a browser UI for reviewing and annotating plans before code is written. Ships as a package-managed platform runtime binary (compiled via `bun build --compile`) that embeds the React UI. Also works as an OpenCode V2 plugin with a stable default export (`id` + `setup()`).
 
 ## Architecture
 
@@ -49,7 +49,7 @@ For environments that don't run `npm install` after fetching the plugin (Claude 
 - `server/api.ts` — Routes: `GET /api/plan`, `POST /api/approve`, `POST /api/deny`, `POST /api/settings`, and catch-all serving the embedded HTML.
 - `server/launch.ts` — Cross-platform `open` / `xdg-open` browser launcher.
 - `server/types.ts` — Shared types (`HookEvent`, `HookOutput`, `Annotation`, `ServerState`, `ServerDecision`, `UserPreferences`).
-- `opencode/index.js` — OpenCode plugin entry point. Registers `annotate_plan` tool, injects system prompt instructions, handles implementation agent handoff.
+- `opencode/index.js` — OpenCode V2 plugin entry point. Its default export has a stable `id` and `setup()` method, registers `annotate_plan`, injects system prompt instructions, and handles implementation agent handoff. It temporarily also exposes `server()` for OpenCode V1.18.29+ compatibility.
 - `opencode/bridge.js` — Spawns the binary with a fake HookEvent, parses the HookOutput response.
 - `opencode/config.js` — Reads `open-plan-annotator.json` config for implementation handoff settings.
 - `ui/` — React + Vite frontend, built to a single `build/index.html` embedded at compile time.
@@ -61,7 +61,7 @@ For environments that don't run `npm install` after fetching the plugin (Claude 
 - **stdout is reserved for Claude Code.** The JSON hook response is the ONLY thing that may be written to stdout. All logs, progress, and diagnostics MUST go to stderr (`console.error`, `process.stderr.write`).
 - **Trigger rules live in `skills/plan-review-triggers/SKILL.md`** (long-form reference) and `scripts/session-context.mjs` (terse always-on injection). Claude Code plugin installs do NOT auto-load repo-root markdown — only `hooks/`, `commands/`, `skills/`, and `agents/`. Don't ship instructions via root-level CLAUDE.md.
 - **The binaries are not committed.** Runtime package binaries under `packages/runtime-*/bin/` are generated during build and ignored by git.
-- **The OpenCode plugin uses plain JS (not TypeScript).** The `opencode/` directory ships as-is in the npm package — no build step. Keep it as `.js` files with JSDoc types.
+- **The OpenCode plugin uses plain JS (not TypeScript).** The `opencode/` directory ships as-is in the npm package — no build step. Keep it as `.js` files with JSDoc types. Keep the default export V2-shaped (`id` + `setup()`); retain the V1 `server()` export only while V1 compatibility is supported.
 - **Never use 'as any'** Always use the correct type.
 - **We use bun** not pnpm, npm or yarn in this project.
 - **Always double check your work** before telling me you're done by running the
@@ -95,6 +95,7 @@ Uses Biome for linting and formatting.
 bun run lint           # Check
 bun run lint:fix       # Auto-fix
 bun run format         # Format
+bun run verify:opencode-plugin # Verify the packed package exposes the V2 default export
 ```
 
 ## Hook Protocol
