@@ -42,6 +42,8 @@
     "shared/versionInfo.mjs",
     "shared/planReview.mjs",
     "shared/piExtension.mjs",
+    "index.js",
+    "server.js",
     ".claude-plugin/",
     "opencode/bridge.js",
     "opencode/config.js",
@@ -74,7 +76,7 @@
     "@typescript/native-preview": "^7.0.0-dev.20260511.1"
   },
   "dependencies": {
-    "@opencode/plugin": "2.0.22",
+    "@opencode-ai/plugin": "^1.14.48",
     "typebox": "^1.1.38"
   },
   "optionalDependencies": {

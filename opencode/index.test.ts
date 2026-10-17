@@ -32,7 +32,6 @@ function createPluginContext() {
         reload: async () => {},
       },
       session: {
-        get: async () => ({ id: "session-1", agent: "plan" }),
         switchAgent: async () => {},
         prompt: async () => ({ id: "inbox-1" }),
         hook: async (name, callback) => {
@@ -60,20 +59,44 @@ async function loadPluginWithBridge(runPlanReviewImpl, suffix) {
 }
 
 describe("annotate_plan tool output (V2)", () => {
-  test("default export is a V2 plugin definition object", async () => {
+  test("V2 entrypoints default to a plugin definition object", async () => {
     mock.module("./bridge.js", () => ({
       runPlanReview: async () => ({ approved: true }),
     }));
-    const mod = await import(`./index.js?shape-${Date.now()}`);
-    expect(typeof mod.default).toBe("object");
-    expect(mod.default.id).toBe("open-plan-annotator");
-    expect(typeof mod.default.setup).toBe("function");
+    const suffix = `shape-${Date.now()}`;
+    const modules = await Promise.all([import(`../index.js?${suffix}`), import(`../server.js?${suffix}`)]);
+    for (const mod of modules) {
+      expect(typeof mod.default).toBe("object");
+      expect(mod.default.id).toBe("open-plan-annotator");
+      expect(typeof mod.default.setup).toBe("function");
+    }
+  });
+
+  test("legacy entrypoint retains the V1 plugin function", async () => {
+    const mod = await loadPluginWithBridge(async () => ({ approved: true }), "v1-shape");
+    expect(typeof mod.default).toBe("function");
+    expect(mod.OpenPlanAnnotatorPlugin).toBe(mod.default);
+
+    const plugin = await mod.default({
+      directory: process.cwd(),
+      client: {
+        session: {
+          messages: async () => ({ data: [] }),
+          prompt: async () => ({ data: null }),
+        },
+        app: {
+          agents: async () => ({ data: [] }),
+        },
+      },
+    });
+    const result = await plugin.tool.annotate_plan.execute({ plan: "# Plan" }, { sessionID: "session-1" });
+    expect(result).toContain("plan_status=approved");
   });
 
   test("returns plain text execution instructions after approval", async () => {
     const mod = await loadPluginWithBridge(async () => ({ approved: true }), "approved");
     const { ctx, editor } = createPluginContext();
-    const cleanup = await mod.default.setup(ctx);
+    const cleanup = await mod.OpenPlanAnnotatorPluginV2.setup(ctx);
     expect(typeof cleanup === "function" || cleanup === undefined).toBe(true);
 
     const tool = editor.tools.get("annotate_plan");
@@ -92,7 +115,7 @@ describe("annotate_plan tool output (V2)", () => {
       "rejected",
     );
     const { ctx, editor } = createPluginContext();
-    await mod.default.setup(ctx);
+    await mod.OpenPlanAnnotatorPluginV2.setup(ctx);
 
     const tool = editor.tools.get("annotate_plan");
     const result = await tool.execute({ plan: "# Plan" }, { sessionID: "session-2" });
@@ -106,11 +129,11 @@ describe("annotate_plan tool output (V2)", () => {
   test("injects plan review instructions via session context hook", async () => {
     const mod = await loadPluginWithBridge(async () => ({ approved: true }), "hook");
     const { ctx, hooks } = createPluginContext();
-    await mod.default.setup(ctx);
+    await mod.OpenPlanAnnotatorPluginV2.setup(ctx);
 
     const hook = hooks.get("context");
     expect(hook).toBeDefined();
-    const event = { sessionID: "session-1", system: [] };
+    const event = { agent: "plan", sessionID: "session-1", system: [] };
     await hook(event);
     expect(event.system.length).toBe(1);
     expect(event.system[0].text).toContain("annotate_plan");
@@ -123,11 +146,10 @@ describe("annotate_plan tool output (V2)", () => {
   test("skips injection for the implementation agent", async () => {
     const mod = await loadPluginWithBridge(async () => ({ approved: true }), "skip-handoff");
     const { ctx, hooks } = createPluginContext();
-    ctx.session.get = async () => ({ id: "s", agent: "build" });
-    await mod.default.setup(ctx);
+    await mod.OpenPlanAnnotatorPluginV2.setup(ctx);
 
     const hook = hooks.get("context");
-    const event = { sessionID: "s", system: [] };
+    const event = { agent: "build", sessionID: "s", system: [] };
     await hook(event);
     expect(event.system.length).toBe(0);
   });
