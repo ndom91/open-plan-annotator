@@ -59,7 +59,7 @@ What you get:
 - optional implementation-agent handoff after approval
 
 Restart OpenCode after installing or updating so it reloads the package-managed runtime.
-OpenCode 1.x and 2.x are both supported.
+OpenCode 2.x and OpenCode 1.18.29 or later are both supported.
 
 ### Pi
 

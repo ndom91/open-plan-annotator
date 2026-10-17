@@ -403,4 +403,7 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
   };
 };
 
-export default OpenPlanAnnotatorPlugin;
+export default {
+  ...OpenPlanAnnotatorPluginV2,
+  server: OpenPlanAnnotatorPlugin,
+};
