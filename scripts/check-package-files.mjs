@@ -18,6 +18,8 @@ const packages = [
       "shared/cliMode.mjs",
       "shared/planReview.mjs",
       "shared/piExtension.mjs",
+      "index.js",
+      "server.js",
     ],
   },
   {

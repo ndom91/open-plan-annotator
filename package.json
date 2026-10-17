@@ -42,6 +42,8 @@
     "shared/versionInfo.mjs",
     "shared/planReview.mjs",
     "shared/piExtension.mjs",
+    "index.js",
+    "server.js",
     ".claude-plugin/",
     "opencode/bridge.js",
     "opencode/config.js",

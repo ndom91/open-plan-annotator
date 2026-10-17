@@ -71,12 +71,188 @@ const IMPLEMENTATION_PROMPT = [
   "Do not call `annotate_plan` again unless the user explicitly requests re-planning.",
 ].join(" ");
 
+/** @param {unknown} error */
 function getErrorMessage(error) {
   if (error instanceof Error && error.message) {
     return error.message;
   }
   return "unknown error";
 }
+
+/**
+ * @param {import("@opencode/plugin").Plugin.Context} ctx
+ * @param {string | undefined} implementationAgent
+ * @param {{ agent?: string }} event
+ */
+async function shouldInjectPlanReviewInstructions(ctx, implementationAgent, event) {
+  const currentAgent = event.agent;
+  if (!currentAgent) {
+    return true;
+  }
+
+  try {
+    if (implementationAgent && currentAgent === implementationAgent) {
+      return false;
+    }
+
+    const agentsResponse = await ctx.agent.list();
+    const agent = agentsResponse.data.find((candidate) => candidate.name === currentAgent);
+    if (agent?.mode === "subagent") {
+      return false;
+    }
+  } catch {
+    return true;
+  }
+
+  return true;
+}
+
+/**
+ * @param {import("@opencode/plugin").Plugin.Context} ctx
+ * @param {string | undefined} implementationAgent
+ * @param {string | undefined} sessionID
+ */
+async function handoffToImplementationAgent(ctx, implementationAgent, sessionID) {
+  if (!implementationAgent) {
+    return null;
+  }
+
+  if (!sessionID) {
+    return {
+      agent: implementationAgent,
+      warning: "Could not auto-switch because the current session ID was unavailable.",
+    };
+  }
+
+  try {
+    await ctx.session.switchAgent({ sessionID, agent: implementationAgent });
+    return { agent: implementationAgent };
+  } catch (error) {
+    return {
+      agent: implementationAgent,
+      warning: `Could not auto-switch to \`${implementationAgent}\`: ${getErrorMessage(error)}`,
+    };
+  }
+}
+
+/** @param {unknown} system */
+function getSystemText(system) {
+  if (!Array.isArray(system)) {
+    return "";
+  }
+  return system
+    .map((part) => {
+      if (typeof part === "string") {
+        return part;
+      }
+      if (part && typeof part.text === "string") {
+        return part.text;
+      }
+      return "";
+    })
+    .join("\n")
+    .toLowerCase();
+}
+
+/**
+ * @param {import("@opencode/plugin").Plugin.Context} ctx
+ * @param {string | undefined} implementationAgent
+ * @param {{ plan: string, summary?: string }} args
+ * @param {{ sessionID?: string } | undefined} toolContext
+ * @returns {Promise<string>}
+ */
+export async function executeAnnotatePlan(ctx, implementationAgent, args, toolContext) {
+  const result = await runPlanReview({
+    plan: args.plan,
+    sessionId: toolContext?.sessionID,
+    cwd: ctx.location.directory,
+  });
+
+  const feedback = result.approved ? "" : (result.feedback ?? "Plan changes requested.");
+
+  if (result.approved) {
+    const lines = ["Plan review status: plan_status=approved.", "State transition: next_state=EXECUTION."];
+
+    if (args.summary) {
+      lines.push(`Summary: ${args.summary}`);
+    }
+
+    const handoffResult = await handoffToImplementationAgent(ctx, implementationAgent, toolContext?.sessionID);
+    if (handoffResult) {
+      if (handoffResult.warning) {
+        lines.push(`Auto-switch warning: ${handoffResult.warning}`);
+      } else {
+        lines.push(`Auto-switched to the \`${handoffResult.agent}\` agent for implementation.`);
+      }
+    }
+    lines.push("Replan intent: explicit_replan=false unless the user explicitly asks to revise the plan.");
+    lines.push("Execute the approved plan directly now — write code, create files, and make changes.");
+    lines.push("Do not call `annotate_plan` again unless the user explicitly requests re-planning.");
+
+    return lines.join("\n\n");
+  }
+
+  return [
+    "Plan review status: plan_status=rejected.",
+    "State transition: next_state=PLAN_DRAFT.",
+    "",
+    "## User feedback",
+    "",
+    feedback,
+    "",
+    "Revise the plan using this feedback, then submit the revised draft once via `annotate_plan`.",
+  ].join("\n");
+}
+
+export { PLAN_REVIEW_INSTRUCTIONS };
+
+/** @type {import("@opencode/plugin").Plugin.Plugin} */
+export const OpenPlanAnnotatorPluginV2 = {
+  id: "open-plan-annotator",
+  async setup(ctx) {
+    const implementationHandoff = await resolveImplementationHandoff(ctx.location.directory);
+    const implementationAgent = implementationHandoff.enabled ? implementationHandoff.agent : undefined;
+
+    await ctx.tool.transform((editor) => {
+      editor.add({
+        name: "annotate_plan",
+        description:
+          "Submit a markdown plan for interactive user review. Returns plain-text execution or revision instructions for the agent.",
+        input: {
+          type: "object",
+          properties: {
+            plan: {
+              type: "string",
+              description: "The complete implementation plan in markdown format",
+            },
+            summary: {
+              type: "string",
+              description: "Optional one-line plan summary",
+            },
+          },
+          required: ["plan"],
+          additionalProperties: false,
+        },
+        async execute(input, toolContext) {
+          const text = await executeAnnotatePlan(ctx, implementationAgent, input, toolContext);
+          return { content: text };
+        },
+      });
+    });
+
+    await ctx.session.hook("context", async (event) => {
+      if (getSystemText(event.system).includes("annotate_plan")) {
+        return;
+      }
+      const shouldInject = await shouldInjectPlanReviewInstructions(ctx, implementationAgent, event);
+      if (shouldInject) {
+        event.system.push({ type: "text", text: PLAN_REVIEW_INSTRUCTIONS });
+      }
+    });
+
+    return () => {};
+  },
+};
 
 /** @type {import("@opencode-ai/plugin").Plugin} */
 export const OpenPlanAnnotatorPlugin = async (ctx) => {
@@ -100,14 +276,14 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
     for (let i = messages.length - 1; i >= 0; i -= 1) {
       const message = messages[i];
       if (message?.info?.role === "user") {
-        return message?.info?.agent;
+        return message.info.agent;
       }
     }
 
     return undefined;
   }
 
-  async function shouldInjectPlanReviewInstructions(sessionID) {
+  async function shouldInjectInstructions(sessionID) {
     if (!sessionID) {
       return true;
     }
@@ -125,23 +301,14 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
       const response = await ctx.client.app.agents({
         query: { directory: ctx.directory },
       });
-      const agents = response?.data;
-      if (!Array.isArray(agents)) {
-        return true;
-      }
-
-      const agent = agents.find((candidate) => candidate.name === currentAgent);
-      if (agent?.mode === "subagent") {
-        return false;
-      }
+      const agent = response?.data?.find((candidate) => candidate.name === currentAgent);
+      return agent?.mode !== "subagent";
     } catch {
       return true;
     }
-
-    return true;
   }
 
-  async function handoffToImplementationAgent(sessionID) {
+  async function handoff(sessionID) {
     if (!implementationAgent) {
       return null;
     }
@@ -162,7 +329,6 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
           parts: [{ type: "text", text: IMPLEMENTATION_PROMPT }],
         },
       });
-
       return { agent: implementationAgent };
     } catch (error) {
       return {
@@ -179,66 +345,58 @@ export const OpenPlanAnnotatorPlugin = async (ctx) => {
         return;
       }
 
-      if (!currentSystem.includes("annotate_plan")) {
-        const shouldInject = await shouldInjectPlanReviewInstructions(input?.sessionID);
-        if (shouldInject) {
-          output.system.push(PLAN_REVIEW_INSTRUCTIONS);
-        }
+      if (!currentSystem.includes("annotate_plan") && (await shouldInjectInstructions(input?.sessionID))) {
+        output.system.push(PLAN_REVIEW_INSTRUCTIONS);
       }
     },
-
     tool: {
       annotate_plan: tool({
         description:
           "Submit a markdown plan for interactive user review. Returns plain-text execution or revision instructions for the agent.",
-
         args: {
           plan: tool.schema.string().describe("The complete implementation plan in markdown format"),
           summary: tool.schema.string().optional().describe("Optional one-line plan summary"),
         },
-
         async execute(args, context) {
           const result = await runPlanReview({
             plan: args.plan,
             sessionId: context.sessionID,
             cwd: ctx.directory,
           });
-
           const feedback = result.approved ? "" : (result.feedback ?? "Plan changes requested.");
 
-          if (result.approved) {
-            const lines = ["Plan review status: plan_status=approved.", "State transition: next_state=EXECUTION."];
-
-            if (args.summary) {
-              lines.push(`Summary: ${args.summary}`);
-            }
-
-            const handoffResult = await handoffToImplementationAgent(context.sessionID);
-            if (handoffResult) {
-              if (handoffResult.warning) {
-                lines.push(`Auto-switch warning: ${handoffResult.warning}`);
-              } else {
-                lines.push(`Auto-switched to the \`${handoffResult.agent}\` agent for implementation.`);
-              }
-            }
-
-            lines.push("Replan intent: explicit_replan=false unless the user explicitly asks to revise the plan.");
-            lines.push("Execute the approved plan directly now — write code, create files, and make changes.");
-            lines.push("Do not call `annotate_plan` again unless the user explicitly requests re-planning.");
-
-            return lines.join("\n\n");
+          if (!result.approved) {
+            return [
+              "Plan review status: plan_status=rejected.",
+              "State transition: next_state=PLAN_DRAFT.",
+              "",
+              "## User feedback",
+              "",
+              feedback,
+              "",
+              "Revise the plan using this feedback, then submit the revised draft once via `annotate_plan`.",
+            ].join("\n");
           }
 
-          return [
-            "Plan review status: plan_status=rejected.",
-            "State transition: next_state=PLAN_DRAFT.",
-            "",
-            "## User feedback",
-            "",
-            feedback,
-            "",
-            "Revise the plan using this feedback, then submit the revised draft once via `annotate_plan`.",
-          ].join("\n");
+          const lines = ["Plan review status: plan_status=approved.", "State transition: next_state=EXECUTION."];
+          if (args.summary) {
+            lines.push(`Summary: ${args.summary}`);
+          }
+
+          const handoffResult = await handoff(context.sessionID);
+          if (handoffResult) {
+            lines.push(
+              handoffResult.warning
+                ? `Auto-switch warning: ${handoffResult.warning}`
+                : `Auto-switched to the \`${handoffResult.agent}\` agent for implementation.`,
+            );
+          }
+          lines.push(
+            "Replan intent: explicit_replan=false unless the user explicitly asks to revise the plan.",
+            "Execute the approved plan directly now — write code, create files, and make changes.",
+            "Do not call `annotate_plan` again unless the user explicitly requests re-planning.",
+          );
+          return lines.join("\n\n");
         },
       }),
     },
